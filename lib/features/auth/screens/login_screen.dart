@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../services/supabase_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -89,6 +90,39 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 child: const Text('Login'),
+              ),
+              const SizedBox(height: 16),
+              // ==========================================
+              // ปุ่มล็อกอินด้วยบัญชี Google
+              // ==========================================
+              OutlinedButton.icon(
+                onPressed: () async {
+                  try {
+                    // เรียกใช้งานฟังก์ชัน Google Login ตัวเก่งที่เราเขียนรอไว้ใน Service
+                    final response = await SupabaseService.signInWithGoogle();
+                    
+                    // ถ้าข้อมูลที่ส่งกลับมาไม่ว่าง (null) แปลว่า Supabase อนุญาตผู้ใช้คนนี้เข้าสู่ระบบผ่านฉลุย
+                    if (response != null) {
+                      // TODO: เมื่อทุกอย่างเสร็จสมบูรณ์ สามารถสั่ง Navigator เด้งเปลี่ยนฉากไปหน้าถัดไป (Home) ได้เลย
+                      print('✅ ล็อกอินสำเร็จ ยินดีต้อนรับ: ${response.user?.email}');
+                    }
+                  } catch (e) {
+                    // ถ้าล็อกอินพังๆ หรือติด Error ให้ Print ข้อความมาดูว่ามีอะไรผิดพลาดแบบหล่อๆ
+                    print('❌ เกิดข้อผิดพลาดในการล็อกอินด้วย Google: $e');
+                  }
+                },
+                icon: const Icon(Icons.login, color: Colors.blue),
+                label: const Text(
+                  'Sign in with Google',
+                  style: TextStyle(color: Colors.black87),
+                ),
+                style: OutlinedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
               ),
               TextButton(
                 onPressed: () {
