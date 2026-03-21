@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fuwari_time/services/supabase_service.dart';
 import 'package:fuwari_time/features/auth/screens/login_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'features/welcome/welcome.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,7 +28,7 @@ class FuwariTimeApp extends StatelessWidget {
           seedColor: const Color(0xFF6B4E3D),
         ),
       ),
-      home: const LoginScreen(),
+      home: const Welcome(),
     );
   }
 }
