@@ -18,10 +18,12 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  // สร้าง Controller สำหรับจัดการหน้า PageView โดยตั้งค่าหน้าเริ่มต้นเป็นหน้าที่ 1 (FocusRoomPage)
   final PageController _pageController = PageController(initialPage: 1);
 
   @override
   void dispose() {
+    // ทำลาย Controller เพื่อคืนหน่วยความจำ (Memory Management) เมื่อปิดหน้าจอ
     _pageController.dispose();
     super.dispose();
   }
@@ -29,42 +31,54 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // กำหนดสีพื้นหลังโทนอุ่นของแอปพลิเคชัน
       backgroundColor: const Color(0xFFFFF8F0),
       body: Stack(
         children: [
-          // เลเยอร์ที่ 1: เลื่อนปัดได้ (PageView)
-          // รวมหน้าจอย่อย 3 หน้าเข้าด้วยกัน ผู้ใช้สามารถสไลด์นิ้วซ้าย-ขวาเพื่อเปลี่ยนห้องได้
+          // ==========================================
+          // เลเยอร์ที่ 1: พื้นที่แสดงผลแบบเลื่อนปัดได้ (PageView)
+          // ==========================================
+          // ใช้ Positioned.fill เพื่อตรึง PageView ให้เต็มความกว้างและความสูงของจอ
           Positioned.fill(
             child: PageView(
               controller: _pageController,
-              physics: const ClampingScrollPhysics(), // ใช้ Clamping เพื่อให้ปัดหน้าจอสมูทและไม่ขยับทะลุขอบ
+              // ใช้ ClampingScrollPhysics เพื่อให้ปัดหน้าจอสมูทและไม่ขยับทะลุขอบ (No Overscroll)
+              physics: const ClampingScrollPhysics(), 
               children: const [
-                TaskPlannerPage(), // Work Zone
-                FocusRoomPage(), // Center
-                ShopInventoryPage(), // Inventory
+                // หน้าจอย่อยทั้ง 3 หน้า (เรียงลำดับจากซ้ายไปขวา)
+                TaskPlannerPage(),    // Index 0: หน้า Work Zone สำหรับแสดง Planner
+                FocusRoomPage(),      // Index 1: หน้า Focus Room จุดศูนย์กลาง
+                ShopInventoryPage(),  // Index 2: หน้า Inventory สำหรับดูไอเทม
               ],
             ),
           ),
 
-          // 2. Global UI Overlays
+          // ==========================================
+          // เลเยอร์ที่ 2: Global UI Overlays (ส่วนติดต่อผู้ใช้แบบคงที่)
+          // ==========================================
+          
+          // 2.1 แถบเมนูด้านบน (Top Bar)
           const Positioned(
             top: 0,
             left: 0,
             right: 0,
-            child: SafeArea(child: TopBar()),
+            // ครอบ SafeArea ป้องกันการแสดงผลทับรอยแหว่ง (Notch) ด้านบนของสมาร์ทโฟน
+            child: SafeArea(child: TopBar()), 
           ),
-          // Stack the music player and nav bar seamlessly at the bottom
+
+          // 2.2 วาง Music Player และ Navigation Bar ซ้อนกันด้านล่างสุด
+          // ใช้ Column ผสม MainAxisSize.min เพื่อให้แพ็กตัวกันแน่นโดยไม่ซ้อนทับกัน
           const Positioned(
-            bottom: 0,
-            left: 0,
+            bottom: 0, 
+            left: 0, 
             right: 0,
             child: Column(
-              mainAxisSize: MainAxisSize.min, // Hugs bottom tightly
+              mainAxisSize: MainAxisSize.min, // จำกัดความสูงของ Column ให้พอดีกับ Widget ด้านใน
               children: [
-                BottomMusicPlayer(),
+                BottomMusicPlayer(), // เครื่องเล่นเพลงส่วนล่าง
                 SafeArea(
-                  top: false, // Only safe area for bottom device bezel needed
-                  child: BottomNavBar(),
+                  top: false, // ต้องการ Safe area เฉพาะส่วนขอบจอด้านล่าง
+                  child: BottomNavBar(), // แถบปุ่มกดเมนู 4 หน้า
                 ),
               ],
             ),

@@ -8,6 +8,7 @@ class TaskPlannerPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      // โหลดรูปภาพพื้นหลังเต็มเฟรมสำหรับ Work Zone (ภาพโซนซ้าย)
       decoration: const BoxDecoration(
         image: DecorationImage(
           image: NetworkImage("https://storage.googleapis.com/tagjs-prod.appspot.com/v1/zG8hWyVkYp/3wq8cvs8_expires_30_days.png"),
@@ -15,26 +16,31 @@ class TaskPlannerPage extends StatelessWidget {
         ),
       ),
       child: Scaffold(
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.transparent, // โปร่งใสเพื่อโชว์ฉากหลัง Container
         body: Padding(
-          padding: const EdgeInsets.only(top: 140, left: 24, right: 24), // Push down below TopBar
+          // ดัน UI ทั้งหมดหนีจาก TopBar ระดับ Global เพื่อไม่ให้บังกัน
+          padding: const EdgeInsets.only(top: 140, left: 24, right: 24), 
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Recent Achievements Card
+              // ==========================================
+              // การ์ดแสดงผลงานความสำเร็จ (Recent Achievements Card)
+              // ==========================================
               Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(24),
                   color: const Color(0xFFFFFFFF),
+                  // ใส่เงาให้กล่องนูนลอยออกมา (Drop Shadow Concept)
                   boxShadow: const [
                     BoxShadow(
-                      color: Color(0x1A000000),
-                      blurRadius: 15,
-                      offset: Offset(0, 10),
+                      color: Color(0x1A000000), // ดำโปร่งใส 10%
+                      blurRadius: 15, // รัศมีความเบลอ
+                      offset: Offset(0, 10), // ดันเงาลงด้านล่าง 10px
                     ),
                   ],
                 ),
                 padding: const EdgeInsets.all(24),
+                // ใช้ MainAxisSize.min เพื่อให้การ์ดสูงเท่ากับของจริงที่อยู่ข้างใน ไม่ยืดสุดขอบ
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
@@ -48,9 +54,11 @@ class TaskPlannerPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
+                    // แถบไอเทมความสำเร็จ
                     Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
+                        // ไล่สี Gradient จากม่วงอ่อนไปชมพูพาสเทล
                         gradient: const LinearGradient(
                           begin: Alignment(-1, -1),
                           end: Alignment(-1, 1),
@@ -63,6 +71,7 @@ class TaskPlannerPage extends StatelessWidget {
                       padding: const EdgeInsets.all(12),
                       child: Row(
                         children: [
+                          // กรอบรูปถ้วยรางวัล หรือ ถุงเหรียญ
                           Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(12),
@@ -78,6 +87,7 @@ class TaskPlannerPage extends StatelessWidget {
                               ),
                             ),
                           ),
+                          // ชิ้นส่วนข้อความแจ้งสถานการณ์
                           const Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -93,14 +103,12 @@ class TaskPlannerPage extends StatelessWidget {
                                 SizedBox(height: 4),
                                 Text(
                                   "Complete 7 days streak",
-                                  style: TextStyle(
-                                    color: Color(0xFF6B7280),
-                                    fontSize: 12,
-                                  ),
+                                  style: TextStyle(color: Color(0xFF6B7280), fontSize: 12),
                                 ),
                               ],
                             ),
                           ),
+                          // โบนัสคะแนน
                           const Text(
                             "+100",
                             style: TextStyle(
@@ -116,8 +124,12 @@ class TaskPlannerPage extends StatelessWidget {
                 ),
               ),
               
-              const Spacer(),
-              // Arrow Icon (Right pointing to Center page)
+              const Spacer(), // ดันก้อนต่อไปลงด้านล่างสุดของพื้นที่
+              
+              // ==========================================
+              // ไอคอนลูกศรบอกทาง (Indicator Direction)
+              // ==========================================
+              // ไอคอนชี้ไปทางขวา เพื่อไกด์ผู้ใช้ว่าหน้าหลัก (Core Room) อยู่ฝั่งขวา
               Align(
                 alignment: Alignment.centerRight,
                 child: SizedBox(
@@ -129,7 +141,8 @@ class TaskPlannerPage extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 160), // Space for music player and bottom nav
+              // สำรองพื้นที่ด้านล่างไว้ไม่ให้ Navigation Bar และ Music Player บังไอคอน
+              const SizedBox(height: 160), 
             ],
           ),
         ),
