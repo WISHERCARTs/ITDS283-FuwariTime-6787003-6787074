@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fuwari_time/services/supabase_service.dart';
-import 'package:fuwari_time/features/auth/screens/login_screen.dart';
+import 'package:fuwari_time/features/home/screens/home_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'dart:ui';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,6 +25,9 @@ class FuwariTimeApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Fuwari Time',
+      scrollBehavior: const MaterialScrollBehavior().copyWith(
+        dragDevices: {PointerDeviceKind.mouse, PointerDeviceKind.touch, PointerDeviceKind.stylus, PointerDeviceKind.trackpad},
+      ),
       theme: ThemeData(
         useMaterial3: true,
         textTheme: GoogleFonts.outfitTextTheme(),
@@ -31,7 +35,7 @@ class FuwariTimeApp extends StatelessWidget {
           seedColor: const Color(0xFF6B4E3D),
         ),
       ),
-      home: const LoginScreen(),
+      home: const HomeScreen(),
     );
   }
 }
