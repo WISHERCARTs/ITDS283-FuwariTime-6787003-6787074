@@ -1,15 +1,16 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'dart:io' show Platform;
 
 class SupabaseService {
   // -------------------------------------------------------------
   // [ส่วนที่ 1] คีย์การเชื่อมต่อฐานข้อมูล Supabase
   // (ดูข้อมูลนี้ได้จากเว็บไซต์ Supabase โปรเจกต์ของเราในเมนู Project Settings > API)
   // -------------------------------------------------------------
-  static const String supabaseUrl = 'https://amshfbnlupanuykjpcph.supabase.co';
-  static const String supabaseAnonKey =
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFtc2hmYm5sdXBhbnV5a2pwY3BoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3MjY4MDcsImV4cCI6MjA4OTMwMjgwN30.95ihe4TCf3mvYXIv-SB6u-5WKEyNJIj9PPmWBGfZjus';
+  static String get supabaseUrl => dotenv.env['SUPABASE_URL'] ?? '';
+  static String get supabaseAnonKey => dotenv.env['SUPABASE_ANON_KEY'] ?? '';
 
   // -------------------------------------------------------------
   // [ส่วนที่ 2] ค่า Client ID เอาไว้บอกกูเกิ้ลว่าแอปเราชื่ออะไรเวลามีหน้าเว็บเด้งให้ล็อกอิน
@@ -24,12 +25,15 @@ class SupabaseService {
     // 1. นำแอปของเราเข้าไปผูกกับฐานข้อมูล Supabase
     await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
 
-    // 2. ตั้งค่าแพ็กเกจล็อกอินกูเกิ้ล (Google Sign-In) เอาไว้ตั้งแต่เริ่มแอป เพื่อลดปัญหา Error โดนเรียกซ้ำซ้อน
-    await GoogleSignIn.instance.initialize(
-      clientId: webClientId,
-      // ทริคสำคัญ (แก้ไขบัค v7): เราต้องใส่เงื่อนไข kIsWeb เช็คว่า "ถ้ารันบน Browser ห้ามส่งค่า serverClientId ไปเด็ดขาด ไม่งั้นบนเว็บจะบัค"
-      serverClientId: kIsWeb ? null : webClientId,
-    );
+    // 2. ตั้งค่าแพ็กเกจล็อกอินกูเกิ้ล (Google Sign-In) เอาไว้ตั้งแต่เริ่มแอป
+    // google_sign_in รองรับเฉพาะ Android/iOS เท่านั้น! (ไม่รองรับ Web และ Desktop)
+    final bool isMobile = !kIsWeb && (Platform.isAndroid || Platform.isIOS);
+    if (isMobile) {
+      await GoogleSignIn.instance.initialize(
+        clientId: webClientId,
+        serverClientId: webClientId,
+      );
+    }
   }
 
   // ตัวแปรแบบย่อ (get) เอาไว้เรียกใช้คำสั่งคิวรี่ Supabase ในแอปสะดวกขึ้น
@@ -37,31 +41,48 @@ class SupabaseService {
 
   /// ฟังก์ชันเรียกหน้าต่าง Login ด้วยบัญชี Google ขึ้นมาใช้งาน
   static Future<AuthResponse?> signInWithGoogle() async {
-    GoogleSignInAccount googleUser;
+    // เช็คว่าเป็น Mobile (Android/iOS) หรือไม่
+    final bool isMobile = !kIsWeb && (Platform.isAndroid || Platform.isIOS);
 
     try {
-      // 1. โชว์หน้าต่างของ Google ให้ผู้ใช้เลือกคลิกเมลที่ต้องการเข้าใช้งาน
-      googleUser = await GoogleSignIn.instance.authenticate();
+      if (!isMobile) {
+        // [สำหรับ Web / Windows Desktop] ใช้ Supabase OAuth โดยตรง
+        // signInWithOAuth จะทำการ redirect ไปที่ Google
+        // เมื่อกลับมา AuthGate จะดึง session ให้อัตโนมัติ
+        await client.auth.signInWithOAuth(
+          OAuthProvider.google,
+          redirectTo: kIsWeb ? Uri.base.origin : null,
+        );
+        return null;
+      } else {
+        // [สำหรับ iOS/Android]
+        // 1. โชว์หน้าต่างของ Google ให้ผู้ใช้เลือกคลิกเมลที่ต้องการเข้าใช้งาน
+        final GoogleSignInAccount? googleUser = await GoogleSignIn.instance.authenticate();
+
+        if (googleUser == null) {
+          throw 'ผู้ใช้ยกเลิกการเข้าระบบ';
+        }
+
+        // 2. เมื่อกูเกิ้ลอนุญาตและยืนยันตัวตนสำเร็จ เราจะนำข้อมูลการยืนยันมาใช้งานต่อ (Authentication)
+        final googleAuth = await googleUser.authentication;
+
+        // 3. ดึง "ป้ายบัตรยืนยันตัวตน" (idToken) ที่กูเกิลประทับตรามาให้ออกมาเพื่อส่งต่อให้ฝั่งเรา
+        final idToken = googleAuth.idToken;
+
+        if (idToken == null) {
+          throw 'ไม่สามารถดึงข้อมูล Token จาก Google ได้ กรุณาลองใหม่อีกครั้ง';
+        }
+
+        // 4. ขั้นตอนสุดท้าย! โยน idToken ที่กูเกิ้ลให้มา ส่งบอกป้อมยาม Supabase ว่าคนนี้ผ่านการอนุมัติแล้วนะ
+        return await client.auth.signInWithIdToken(
+          provider: OAuthProvider.google,
+          idToken: idToken,
+        );
+      }
     } catch (e) {
-      // กรณีผู้ใช้กดปุ่ม X เพื่อปิดหน้าต่างหนี หรือเน็ตหลุด จะหยุดการทำงานและส่งกลับเป็นค่าว่าง (null)
-      return null;
+      // พิมพ์ข้อความ Error ออกมาดูว่าเกิดจากอะไรที่เบื้องหลังหน้าเว็บ
+      print('❌ Google Sign-In Error: $e');
+      rethrow;
     }
-
-    // 2. เมื่อกูเกิ้ลอนุญาตและยืนยันตัวตนสำเร็จ เราจะนำข้อมูลการยืนยันมาใช้งานต่อ (Authentication)
-    final googleAuth = await googleUser.authentication;
-
-    // 3. ดึง "ป้ายบัตรยืนยันตัวตน" (idToken) ที่กูเกิลประทับตรามาให้ออกมาเพื่อส่งต่อให้ฝั่งเรา
-    final idToken = googleAuth.idToken;
-
-    if (idToken == null) {
-      throw 'ไม่สามารถดึงข้อมูล Token จาก Google ได้ กรุณาลองใหม่อีกครั้ง';
-    }
-
-    // 4. ขั้นตอนสุดท้าย! โยน idToken ที่กูเกิ้ลให้มา ส่งบอกป้อมยาม Supabase ว่าคนนี้ผ่านการอนุมัติแล้วนะ
-    // เอาสิทธิ์ Supabase ล็อกอินของผู้ใช้คนนี้บันทึกลงระบบสมัครสมาชิกอัตโนมัติได้เลยผ่าน .signInWithIdToken!
-    return await client.auth.signInWithIdToken(
-      provider: OAuthProvider.google,
-      idToken: idToken,
-    );
   }
 }
