@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:fuwari_time/features/stats/stat.dart';
 import 'package:fuwari_time/services/supabase_service.dart';
 import 'package:fuwari_time/features/home/screens/home_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -41,7 +42,7 @@ class FuwariTimeApp extends StatelessWidget {
 
 
 
-      home: const Profile(),
+      home: const Stat(),
 
     );
   }
