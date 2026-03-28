@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fuwari_time/features/auth/screens/login_screen.dart';
 import 'package:fuwari_time/services/supabase_service.dart';
 import 'package:fuwari_time/features/auth/screens/auth_gate.dart';
 import 'package:google_fonts/google_fonts.dart';
