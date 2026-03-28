@@ -1,0 +1,119 @@
+import 'package:flutter/material.dart';
+
+/// หน้า Shop & Inventory (หน้าขวาสุด)
+/// แสดงประวัติและไอเทมของตัวละครที่ได้จากการ Focus
+class ShopInventoryPage extends StatelessWidget {
+  const ShopInventoryPage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        image: DecorationImage(
+          image: NetworkImage("https://storage.googleapis.com/tagjs-prod.appspot.com/v1/zG8hWyVkYp/kolhpnpa_expires_30_days.png"),
+          fit: BoxFit.cover,
+        ),
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Push past the Global Top Bar
+              const SizedBox(height: 100),
+              
+              // Inner Item Display Card
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Container(
+                  width: double.infinity,
+                  height: 300, 
+                  decoration: const BoxDecoration(
+                    image: DecorationImage(
+                      image: NetworkImage("https://storage.googleapis.com/tagjs-prod.appspot.com/v1/zG8hWyVkYp/3xnnri8u_expires_30_days.png"),
+                      fit: BoxFit.fill,
+                    ),
+                  ),
+                  padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
+                  child: Column(
+                    children: [
+                      // Badges Row
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          _buildBadge(
+                            "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/zG8hWyVkYp/vmqes3k7_expires_30_days.png",
+                            "7 days"
+                          ),
+                          _buildBadge(
+                            "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/zG8hWyVkYp/a6fwtz5b_expires_30_days.png",
+                            "Level 12"
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              const Spacer(),
+              
+              // Arrow Icon (Left pointing to Center Page)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 14, bottom: 120),
+                  child: SizedBox(
+                    width: 30,
+                    height: 30,
+                    child: Image.network(
+                      "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/zG8hWyVkYp/1lqepkon_expires_30_days.png",
+                      fit: BoxFit.fill,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBadge(String iconUrl, String text) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(9999),
+        color: const Color(0xCCFFFFFF),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0D000000),
+            blurRadius: 2,
+            offset: Offset(0, 1),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: 13, // Standardized icon fit
+            height: 16,
+            child: Image.network(iconUrl, fit: BoxFit.contain),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            text,
+            style: const TextStyle(
+              color: Color(0xFF374151),
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
