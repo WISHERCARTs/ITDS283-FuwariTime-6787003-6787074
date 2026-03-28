@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:fuwari_time/features/home/screens/home_screen.dart';
 class Welcome extends StatelessWidget {
   const Welcome({super.key});
 
@@ -92,7 +92,13 @@ class Welcome extends StatelessWidget {
                     ElevatedButton(
                       onPressed: () {
                         print('Pressed');
-                        // TODO: สั่งเปลี่ยนหน้าไป Login ตรงนี้
+                        // สั่งเปลี่ยนหน้าแบบทับหน้าเดิมไปเลย (กด Back กลับมาไม่ได้)
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const HomeScreen(), // 💡 เปลี่ยนชื่อคลาสให้ตรงกับหน้าของคุณ
+                          ),
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFECD4F0), // สีพื้นหลังปุ่ม
