@@ -1,4 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<!-- Permissions for image picking -->
+<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+<uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
+<uses-permission android:name="android.permission.CAMERA"/>
+
     <application
         android:label="fuwari_time"
         android:name="${applicationName}"
@@ -23,6 +28,17 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            
+            <!-- Deep Links จับ URL ที่ได้กลับมาจากล๊อกอิน Google -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- URI Scheme: io.supabase.fuwaritime://login-callback -->
+                <data
+                  android:scheme="io.supabase.fuwaritime"
+                  android:host="login-callback" />
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
