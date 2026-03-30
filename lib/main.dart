@@ -5,6 +5,7 @@ import 'package:fuwari_time/services/supabase_service.dart';
 import 'package:fuwari_time/features/home/screens/home_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fuwari_time/features/profile/profile.dart';
+import 'package:fuwari_time/features/setting/setting.dart';
 
 import 'dart:ui';
 
@@ -42,7 +43,7 @@ class FuwariTimeApp extends StatelessWidget {
 
 
 
-      home: const Stat(),
+      home: const Setting(),
 
     );
   }
