@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fuwari_time/features/home/widgets/top_bar.dart';
 import 'package:fuwari_time/features/home/widgets/bottom_nav_bar.dart';
-
+import 'package:fuwari_time/features/setting/about_us.dart';
 class Setting extends StatefulWidget {
   const Setting({super.key});
 
@@ -94,10 +94,13 @@ class SettingState extends State<Setting> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 32),
                 child: InkWell(
-                  onTap: () {
-                    // TODO: ใส่ Action เปิดหน้าโชว์รายละเอียดแอป หรือโชว์ Dialog
-                    print("กด About Us");
-                  },
+                 // ในไฟล์ setting.dart ตรงส่วนของปุ่ม About Us
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const AboutUs()),
+                        );
+                      },
                   borderRadius: BorderRadius.circular(8),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 12), // เพิ่มพื้นที่ให้กดง่ายขึ้น

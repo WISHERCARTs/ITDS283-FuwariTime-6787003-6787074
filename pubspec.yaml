@@ -48,6 +48,7 @@ dependencies:
   google_fonts: ^6.2.1
   font_awesome_flutter: ^10.8.0
   image_picker: ^1.2.1
+  url_launcher: ^6.3.2
 
 dev_dependencies:
   flutter_test:
@@ -72,6 +73,9 @@ flutter:
 
   assets:
     - .env
+    - lib/features/setting/assets/wish.jpg
+    - lib/features/setting/assets/me.png
+    - lib/features/setting/assets/wishercarts.jpg
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
