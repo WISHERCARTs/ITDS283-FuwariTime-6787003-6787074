@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../widgets/pomodoro_timer_dialog.dart';
+import '../../widgets/todo_list_dialog.dart';
 
 /// หน้า Focus Room (ห้องกลาง)
 /// เป็นหน้าหลักที่ใช้แสดงตัวละครและโต๊ะทำงาน (ฉากศูนย์กลางภาพ Panorama)
@@ -13,6 +14,9 @@ class FocusRoomPage extends StatefulWidget {
 
 class _FocusRoomPageState extends State<FocusRoomPage> {
   final PomodoroController _pomodoroController = PomodoroController();
+  final TodoController _todoController = TodoController();
+  
+  bool _isTodoExpanded = false;
 
   // ตำแหน่ง Mini Timer (ลากย้ายได้)
   double _miniTimerX = 100;
@@ -28,6 +32,7 @@ class _FocusRoomPageState extends State<FocusRoomPage> {
   void dispose() {
     _pomodoroController.removeListener(_onPomodoroChanged);
     _pomodoroController.dispose();
+    _todoController.dispose();
     super.dispose();
   }
 
@@ -76,11 +81,17 @@ class _FocusRoomPageState extends State<FocusRoomPage> {
               top: 100,
               left: 24,
               child: FocusRoomMenu(
-                onClockTap: () => _pomodoroController.expand(),
+                onClockTap: () {
+                  setState(() => _isTodoExpanded = false);
+                  _pomodoroController.expand();
+                },
                 onDocumentTap: () {
-                  // TODO: Open Task List
+                  setState(() {
+                    _isTodoExpanded = !_isTodoExpanded;
+                  });
                 },
                 isTimerActive: _pomodoroController.sessionActive,
+                isTodoActive: _isTodoExpanded,
               ),
             ),
 
@@ -107,12 +118,27 @@ class _FocusRoomPageState extends State<FocusRoomPage> {
               ),
 
             // ==========================================
-            // Expanded Overlay (โชว์ตอนตั้งค่า/ดูรายละเอียด)
+            // Expanded Overlay (โชว์ตอนตั้งค่า/ดูรายละเอียด Pomodoro)
             // ==========================================
             if (_pomodoroController.state == PomodoroState.expanded)
               Positioned.fill(
                 child: PomodoroExpandedOverlay(
                     controller: _pomodoroController),
+              ),
+
+            // ==========================================
+            // To-Do List Overlay (โชว์ตอนเปิดกระดาษโน้ต)
+            // ==========================================
+            if (_isTodoExpanded)
+              Positioned.fill(
+                child: TodoListOverlay(
+                  controller: _todoController,
+                  onDismiss: () {
+                    setState(() {
+                      _isTodoExpanded = false;
+                    });
+                  },
+                ),
               ),
           ],
         ),
@@ -128,12 +154,14 @@ class FocusRoomMenu extends StatefulWidget {
   final VoidCallback onClockTap;
   final VoidCallback onDocumentTap;
   final bool isTimerActive;
+  final bool isTodoActive;
 
   const FocusRoomMenu({
     super.key,
     required this.onClockTap,
     required this.onDocumentTap,
     this.isTimerActive = false,
+    this.isTodoActive = false,
   });
 
   @override
@@ -220,6 +248,7 @@ class _FocusRoomMenuState extends State<FocusRoomMenu> {
                       _buildIconBtn(
                         "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/zG8hWyVkYp/azwg4gd4_expires_30_days.png",
                         onTap: widget.onDocumentTap,
+                        highlight: widget.isTodoActive,
                       ),
                     ],
                   ),
