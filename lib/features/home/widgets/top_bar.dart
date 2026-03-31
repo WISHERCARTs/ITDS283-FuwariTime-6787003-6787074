@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
 class TopBar extends StatelessWidget {
-  const TopBar({Key? key}) : super(key: key);
+  const TopBar({super.key});
 
   @override
   // 💡 แก้ไขตรงนี้: เปลี่ยนจาก _buildHeader() เป็น build(BuildContext context)
-  Widget build(BuildContext context) { 
+  Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.only(top: 20, bottom: 30, left: 24, right: 24),
       decoration: BoxDecoration(
@@ -37,7 +37,12 @@ class TopBar extends StatelessWidget {
               const SizedBox(width: 12),
               const Text(
                 "Fuwari Time",
-                style: TextStyle(color: Colors.white, fontSize: 20, height: 1.2, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  height: 1.2,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),

@@ -1,10 +1,39 @@
 import 'package:flutter/material.dart';
+import '../../widgets/pomodoro_timer_dialog.dart';
 
 /// หน้า Focus Room (ห้องกลาง)
 /// เป็นหน้าหลักที่ใช้แสดงตัวละครและโต๊ะทำงาน (ฉากศูนย์กลางภาพ Panorama)
 /// ผู้ใช้จะใช้หน้านี้เป็นจุดเริ่มต้นในการกดเริ่มจับเวลา
-class FocusRoomPage extends StatelessWidget {
-  const FocusRoomPage({Key? key}) : super(key: key);
+class FocusRoomPage extends StatefulWidget {
+  const FocusRoomPage({super.key});
+
+  @override
+  State<FocusRoomPage> createState() => _FocusRoomPageState();
+}
+
+class _FocusRoomPageState extends State<FocusRoomPage> {
+  final PomodoroController _pomodoroController = PomodoroController();
+
+  // ตำแหน่ง Mini Timer (ลากย้ายได้)
+  double _miniTimerX = 100;
+  double _miniTimerY = 100;
+
+  @override
+  void initState() {
+    super.initState();
+    _pomodoroController.addListener(_onPomodoroChanged);
+  }
+
+  @override
+  void dispose() {
+    _pomodoroController.removeListener(_onPomodoroChanged);
+    _pomodoroController.dispose();
+    super.dispose();
+  }
+
+  void _onPomodoroChanged() {
+    setState(() {}); // rebuild เมื่อ controller เปลี่ยน state
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,23 +44,19 @@ class FocusRoomPage extends StatelessWidget {
           image: NetworkImage(
             "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/zG8hWyVkYp/bkel5x1z_expires_30_days.png",
           ),
-          fit: BoxFit.cover, // ให้ภาพขยายเต็มโดยรักษาสัดส่วน
+          fit: BoxFit.cover,
         ),
       ),
       child: Scaffold(
-        // ตั้งให้ Scaffold โปร่งใสเพื่อโชว์ภาพพื้นหลังของ Container
         backgroundColor: Colors.transparent,
         body: Stack(
           children: [
             // ==========================================
-            // เลเยอร์จัดวางตัวละครหลัก (Character Setup)
+            // เลเยอร์ตัวละคร (Character)
             // ==========================================
-            // ใช้ Align เพื่อล็อกตำแหน่ง Character ให้อ้างอิงจากขอบขวาล่างเสมอ
-            // โค้ดส่วนนี้ช่วยให้นั่งทับเก้าอี้ตรงตามพิกัด Pixel-perfect ของดีไซน์ Figma ทุกขนาดหน้าจอ
             Align(
-              alignment: Alignment.bottomRight, // ดันไปมุมขวาล่าง
+              alignment: Alignment.bottomRight,
               child: Padding(
-                // ตั้งค่าระยะห่าง (Margin) จากขอบล่างและขอบขวา ตามพิกัดในดีไซน์ต้นฉบับ
                 padding: const EdgeInsets.only(bottom: 218, right: 46),
                 child: SizedBox(
                   width: 172,
@@ -44,8 +69,51 @@ class FocusRoomPage extends StatelessWidget {
               ),
             ),
 
-            // เมนู Component 1 (ไอคอนต่างๆ)
-            const Positioned(top: 100, left: 24, child: FocusRoomMenu()),
+            // ==========================================
+            // เมนู (ไอคอนต่างๆ)
+            // ==========================================
+            Positioned(
+              top: 100,
+              left: 24,
+              child: FocusRoomMenu(
+                onClockTap: () => _pomodoroController.expand(),
+                onDocumentTap: () {
+                  // TODO: Open Task List
+                },
+                isTimerActive: _pomodoroController.sessionActive,
+              ),
+            ),
+
+            // ==========================================
+            // Mini Timer (โชว์ตอน Timer กำลังเดิน)
+            // ==========================================
+            if (_pomodoroController.state == PomodoroState.running)
+              Positioned(
+                top: _miniTimerY,
+                left: _miniTimerX,
+                child: GestureDetector(
+                  onPanUpdate: (details) {
+                    setState(() {
+                      _miniTimerX += details.delta.dx;
+                      _miniTimerY += details.delta.dy;
+                      // จำกัดไม่ให้ลากออกนอกจอ
+                      final size = MediaQuery.of(context).size;
+                      _miniTimerX = _miniTimerX.clamp(0, size.width - 80);
+                      _miniTimerY = _miniTimerY.clamp(0, size.height - 80);
+                    });
+                  },
+                  child: PomodoroMiniTimer(controller: _pomodoroController),
+                ),
+              ),
+
+            // ==========================================
+            // Expanded Overlay (โชว์ตอนตั้งค่า/ดูรายละเอียด)
+            // ==========================================
+            if (_pomodoroController.state == PomodoroState.expanded)
+              Positioned.fill(
+                child: PomodoroExpandedOverlay(
+                    controller: _pomodoroController),
+              ),
           ],
         ),
       ),
@@ -53,8 +121,20 @@ class FocusRoomPage extends StatelessWidget {
   }
 }
 
+/// ==========================================
+/// FocusRoomMenu - เมนูไอคอนต่างๆ (กดแล้วกาง)
+/// ==========================================
 class FocusRoomMenu extends StatefulWidget {
-  const FocusRoomMenu({Key? key}) : super(key: key);
+  final VoidCallback onClockTap;
+  final VoidCallback onDocumentTap;
+  final bool isTimerActive;
+
+  const FocusRoomMenu({
+    super.key,
+    required this.onClockTap,
+    required this.onDocumentTap,
+    this.isTimerActive = false,
+  });
 
   @override
   State<FocusRoomMenu> createState() => _FocusRoomMenuState();
@@ -133,10 +213,13 @@ class _FocusRoomMenuState extends State<FocusRoomMenu> {
                     children: [
                       _buildIconBtn(
                         "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/zG8hWyVkYp/n66fm0vh_expires_30_days.png",
+                        onTap: widget.onClockTap,
+                        highlight: widget.isTimerActive,
                       ),
                       const SizedBox(width: 12),
                       _buildIconBtn(
                         "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/zG8hWyVkYp/azwg4gd4_expires_30_days.png",
+                        onTap: widget.onDocumentTap,
                       ),
                     ],
                   ),
@@ -170,14 +253,27 @@ class _FocusRoomMenuState extends State<FocusRoomMenu> {
     );
   }
 
-  Widget _buildIconBtn(String url) {
+  Widget _buildIconBtn(String url, {VoidCallback? onTap, bool highlight = false}) {
+    Widget icon = SizedBox(
+      width: 28,
+      height: 28,
+      child: Image.network(url, fit: BoxFit.contain),
+    );
+
+    // ถ้ากำลังใช้ feature นี้อยู่ → เปลี่ยนสีไอคอนเป็นม่วงเข้ม
+    if (highlight) {
+      icon = ColorFiltered(
+        colorFilter: const ColorFilter.mode(
+          Color(0xFF6B4B8A),
+          BlendMode.srcATop,
+        ),
+        child: icon,
+      );
+    }
+
     return InkWell(
-      onTap: () {},
-      child: SizedBox(
-        width: 28,
-        height: 28,
-        child: Image.network(url, fit: BoxFit.contain),
-      ),
+      onTap: onTap ?? () {},
+      child: icon,
     );
   }
 }

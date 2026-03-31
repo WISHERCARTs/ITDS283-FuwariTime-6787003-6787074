@@ -4,7 +4,7 @@ class BottomNavBar extends StatelessWidget {
   // ตัวแปรรับค่าว่าหน้าปัจจุบันคือหน้าไหน (0=Home, 1=Stats, 2=Shop, 3=Profile)
   final int currentIndex;
 
-  const BottomNavBar({Key? key, this.currentIndex = 0}) : super(key: key);
+  const BottomNavBar({super.key, this.currentIndex = 0});
 
   @override
   Widget build(BuildContext context) {
@@ -34,9 +34,14 @@ class BottomNavBar extends StatelessWidget {
   }
 
   // ฟังก์ชันสร้างปุ่มเมนูแต่ละอัน
-  Widget _buildNavItem(BuildContext context, IconData icon, String label, int index) {
+  Widget _buildNavItem(
+    BuildContext context,
+    IconData icon,
+    String label,
+    int index,
+  ) {
     // เช็คว่าปุ่มนี้คือหน้าปัจจุบันที่เราอยู่หรือไม่
-    bool isActive = currentIndex == index; 
+    bool isActive = currentIndex == index;
 
     return InkWell(
       onTap: () {
@@ -53,8 +58,9 @@ class BottomNavBar extends StatelessWidget {
           Container(
             width: 48,
             height: 48,
-            decoration: isActive 
-                ? BoxDecoration( // ถ้า Active ให้วาดกล่องสีชมพู Gradient
+            decoration: isActive
+                ? BoxDecoration(
+                    // ถ้า Active ให้วาดกล่องสีชมพู Gradient
                     borderRadius: BorderRadius.circular(16),
                     gradient: const LinearGradient(
                       begin: Alignment.topLeft,
@@ -62,7 +68,11 @@ class BottomNavBar extends StatelessWidget {
                       colors: [Color(0xFFFFD6E8), Color(0xFFFFB5C5)],
                     ),
                     boxShadow: const [
-                      BoxShadow(color: Color(0x1A000000), blurRadius: 6, offset: Offset(0, 4)),
+                      BoxShadow(
+                        color: Color(0x1A000000),
+                        blurRadius: 6,
+                        offset: Offset(0, 4),
+                      ),
                     ],
                   )
                 : null, // ถ้าไม่ Active ก็ไม่ต้องมีกล่องพื้นหลัง
@@ -79,7 +89,9 @@ class BottomNavBar extends StatelessWidget {
             label,
             style: TextStyle(
               // ข้อความสีม่วงเมื่อ Active สีเทาเมื่อไม่ Active
-              color: isActive ? const Color(0xFFC8B8E6) : const Color(0xFF9CA3AF),
+              color: isActive
+                  ? const Color(0xFFC8B8E6)
+                  : const Color(0xFF9CA3AF),
               fontSize: 12,
               fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
             ),
