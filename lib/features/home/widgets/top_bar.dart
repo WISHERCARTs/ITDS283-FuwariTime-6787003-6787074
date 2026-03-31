@@ -4,10 +4,12 @@ class TopBar extends StatelessWidget {
   const TopBar({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  // 💡 แก้ไขตรงนี้: เปลี่ยนจาก _buildHeader() เป็น build(BuildContext context)
+  Widget build(BuildContext context) { 
     return Container(
+      padding: const EdgeInsets.only(top: 20, bottom: 30, left: 24, right: 24),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(25),
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(25)),
         boxShadow: const [
           BoxShadow(
             color: Color(0x1A000000),
@@ -16,76 +18,59 @@ class TopBar extends StatelessWidget {
           ),
         ],
         gradient: const LinearGradient(
-          begin: Alignment(-1, -1),
-          end: Alignment(-1, 1),
-          colors: [
-            Color(0xFFFFD6E8),
-            Color(0xFFE4D4F4),
-          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFFFFD6E8), Color(0xFFE4D4F4)],
         ),
       ),
-      margin: const EdgeInsets.only(top: 16, left: 16, right: 16), // So it isn't flush against the walls
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-      width: double.infinity,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Left: Logo
           Row(
             children: [
-              SizedBox(
+              Image.network(
+                "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/y0beqz0yoq/junj4an5_expires_30_days.png",
                 width: 39,
                 height: 40,
-                child: Image.network("https://storage.googleapis.com/tagjs-prod.appspot.com/v1/zG8hWyVkYp/ic82vq0p_expires_30_days.png", fit: BoxFit.fill)
+                fit: BoxFit.cover,
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 12),
               const Text(
-                "Fuwari \nTime",
-                style: TextStyle(
-                  color: Color(0xFFFFFFFF),
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  height: 1.1,
-                ),
+                "Fuwari Time",
+                style: TextStyle(color: Colors.white, fontSize: 20, height: 1.2, fontWeight: FontWeight.bold),
               ),
             ],
           ),
-          
-          // Center: Coins
           Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(9999),
               color: const Color(0x4DFFFFFF),
+              borderRadius: BorderRadius.circular(20),
             ),
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
             child: Row(
               children: [
-                SizedBox(
+                Image.network(
+                  "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/y0beqz0yoq/hevi4h27_expires_30_days.png",
                   width: 16,
                   height: 24,
-                  child: Image.network("https://storage.googleapis.com/tagjs-prod.appspot.com/v1/zG8hWyVkYp/yaixbdgp_expires_30_days.png", fit: BoxFit.fill)
                 ),
                 const SizedBox(width: 8),
                 const Text(
                   "1,250",
-                  style: TextStyle(
-                    color: Color(0xFFFFFFFF),
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(color: Colors.white, fontSize: 14),
                 ),
               ],
             ),
           ),
-          
-          // Right: Settings
-          SizedBox(
-            width: 40,
-            height: 40,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(25),
-              child: Image.network("https://storage.googleapis.com/tagjs-prod.appspot.com/v1/zG8hWyVkYp/90ztxge0_expires_30_days.png", fit: BoxFit.fill)
-            )
+          // รูปโปรไฟล์เล็กมุมขวา
+          ClipRRect(
+            borderRadius: BorderRadius.circular(25),
+            child: Image.network(
+              "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/y0beqz0yoq/959ud1zb_expires_30_days.png",
+              width: 40,
+              height: 40,
+              fit: BoxFit.cover,
+            ),
           ),
         ],
       ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fuwari_time/features/home/screens/home_screen.dart';
+
 class Welcome extends StatelessWidget {
   const Welcome({super.key});
 
@@ -16,9 +17,7 @@ class Welcome extends StatelessWidget {
             width: double.infinity,
             decoration: const BoxDecoration(
               // ปรับให้ขอบมนแค่ 'ด้านล่าง' ด้านบนจะได้ตัดตรงติดขอบจอ
-              borderRadius: BorderRadius.vertical(
-                bottom: Radius.circular(25),
-              ),
+              borderRadius: BorderRadius.vertical(bottom: Radius.circular(25)),
               boxShadow: [
                 BoxShadow(
                   color: Color(0x1A000000),
@@ -29,10 +28,7 @@ class Welcome extends StatelessWidget {
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [
-                  Color(0xFFFFD6E8),
-                  Color(0xFFE4D4F4),
-                ],
+                colors: [Color(0xFFFFD6E8), Color(0xFFE4D4F4)],
               ),
             ),
           ),
@@ -43,7 +39,10 @@ class Welcome extends StatelessWidget {
               top: false, // ปิดการเว้นระยะขอบบน เพราะเรามี Navbar แล้ว
               child: SingleChildScrollView(
                 // เว้นระยะขอบซ้ายขวาล่างให้ส่วนข้อความ
-                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24.0,
+                  vertical: 32.0,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -79,12 +78,19 @@ class Welcome extends StatelessWidget {
                     const SizedBox(height: 40),
 
                     // 3. ข้อความรายละเอียด
-                    const Text(
-                      "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Color(0xFF000000),
-                        fontSize: 15,
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 32),
+                      child: Text(
+                        "Fuwari Time is your intuitive productivity companion, blending minimalist Pomodoro timers with relaxing Lofi soundscapes to create a distraction-free sanctuary for deep work.\n\n"
+                        "Created by Krittatee Kerdklinhom and Wish Nakthong, this project was born from a desire to make productivity feel more like a retreat than a chore. Our mission is to support your daily goals while maintaining your mental well-being.\n\n"
+                        "We are committed to constant improvement and appreciate your patience as we work to perfect the experience. Let’s make every minute count, together.",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Color(0xFF4B5563),
+                          fontSize: 14, // ปรับเล็กลงนิดนึงเพื่อให้ดูคลีน
+                          height: 1.5,
+                          letterSpacing: 0.2,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 60),
@@ -96,15 +102,23 @@ class Welcome extends StatelessWidget {
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const HomeScreen(), // 💡 เปลี่ยนชื่อคลาสให้ตรงกับหน้าของคุณ
+                            builder: (context) =>
+                                const HomeScreen(), // 💡 เปลี่ยนชื่อคลาสให้ตรงกับหน้าของคุณ
                           ),
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFECD4F0), // สีพื้นหลังปุ่ม
-                        foregroundColor: Colors.black, // สีข้อความและเอฟเฟกต์ตอนกด/Hover
-                        elevation: 0, // ตั้งค่าเงาเป็น 0 เพื่อให้ปุ่มแบนเรียบตามดีไซน์เดิม
-                        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
+                        backgroundColor: const Color(
+                          0xFFECD4F0,
+                        ), // สีพื้นหลังปุ่ม
+                        foregroundColor:
+                            Colors.black, // สีข้อความและเอฟเฟกต์ตอนกด/Hover
+                        elevation:
+                            0, // ตั้งค่าเงาเป็น 0 เพื่อให้ปุ่มแบนเรียบตามดีไซน์เดิม
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 40,
+                          vertical: 16,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12), // ขอบมน
                         ),
