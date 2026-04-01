@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:fuwari_time/features/music/music_state.dart';
+import 'package:fuwari_time/features/music/music.dart';
 
 class BottomNavBar extends StatelessWidget {
   // ตัวแปรรับค่าว่าหน้าปัจจุบันคือหน้าไหน (0=Home, 1=Stats, 2=Shop, 3=Profile)
