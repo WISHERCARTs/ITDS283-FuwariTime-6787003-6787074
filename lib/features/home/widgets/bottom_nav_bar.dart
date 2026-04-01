@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:fuwari_time/features/home/screens/home_screen.dart';
+import 'package:fuwari_time/features/shop/shop.dart';
+// import 'package:fuwari_time/features/profile/profile.dart'; // ยังไม่มีใน branch นี้
 
 class BottomNavBar extends StatelessWidget {
   // ตัวแปรรับค่าว่าหน้าปัจจุบันคือหน้าไหน (0=Home, 1=Stats, 2=Shop, 3=Profile)
@@ -41,7 +44,35 @@ class BottomNavBar extends StatelessWidget {
     return InkWell(
       onTap: () {
         if (!isActive) {
-          // TODO: ใส่คำสั่ง Navigator เพื่อเปลี่ยนหน้าตรงนี้
+          // จัดการเปลี่ยนหน้าไปที่ต่างๆ ตาม Index
+          if (index == 0) {
+            Navigator.pushReplacement(
+              context,
+              PageRouteBuilder(
+                pageBuilder: (context, animation1, animation2) => const HomeScreen(),
+                transitionDuration: Duration.zero,
+                reverseTransitionDuration: Duration.zero,
+              ),
+            );
+          } else if (index == 2) { // 2 = Shop
+            Navigator.pushReplacement(
+              context,
+              PageRouteBuilder(
+                pageBuilder: (context, animation1, animation2) => const Shop(),
+                transitionDuration: Duration.zero,
+                reverseTransitionDuration: Duration.zero,
+              ),
+            );
+          } else if (index == 3) { // 3 = Profile
+            // Navigator.pushReplacement(
+            //   context,
+            //   PageRouteBuilder(
+            //     pageBuilder: (context, animation1, animation2) => const Profile(),
+            //     transitionDuration: Duration.zero,
+            //     reverseTransitionDuration: Duration.zero,
+            //   ),
+            // );
+          }
           print('เปลี่ยนไปหน้า $label');
         }
       },
