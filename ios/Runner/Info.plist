@@ -66,5 +66,10 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	----- Permissions for image picking ----------------
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>ขออนุญาตเข้าถึงคลังภาพเพื่อเปลี่ยนรูปโปรไฟล์ครับ</string>
+	<key>NSCameraUsageDescription</key>
+	<string>ขออนุญาตเข้าถึงกล้องเพื่อถ่ายรูปโปรไฟล์ครับ</string>
 </dict>
 </plist>
