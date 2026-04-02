@@ -70,17 +70,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
             // 2.2 วาง Music Player และ Navigation Bar ซ้อนกันด้านล่างสุด
             const Positioned(
-              bottom: 0, 
-              left: 0, 
+              bottom: 0,
+              left: 0,
               right: 0,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   BottomMusicPlayer(), // เครื่องเล่นเพลงส่วนล่าง
-                  SafeArea(
-                    top: false,
-                    child: BottomNavBar(), // แถบปุ่มกดเมนู 4 หน้า
-                  ),
+                  BottomNavBar(), // แถบปุ่มกดเมนู 4 หน้า แบก Padding เองแล้วเพื่อความเนียน
                 ],
               ),
             ),
