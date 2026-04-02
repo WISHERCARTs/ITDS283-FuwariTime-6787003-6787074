@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fuwari_time/features/auth/screens/login_screen.dart';
+import 'package:fuwari_time/features/music/music.dart';
+import 'package:fuwari_time/features/music/music_bar.dart';
 import 'package:fuwari_time/features/shop/shop.dart';
 import 'package:fuwari_time/features/shop/shop_pay/shop_pay.dart';
 import 'package:fuwari_time/services/supabase_service.dart';
