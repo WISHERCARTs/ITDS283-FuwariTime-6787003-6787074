@@ -11,7 +11,7 @@ import '../widgets/bottom_nav_bar.dart';
 /// โดยใช้โครงสร้างแบบ Stack เพื่อซ้อนเลเยอร์ของหน้าจอที่ปัดได้ (PageView)
 /// ไว้ข้างใต้ UI ที่ลอยอยู่กับที่ (เช่น แถบเมนูด้านล่าง และด้านบน)
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
