@@ -54,21 +54,6 @@ class ShopInventoryPage extends StatelessWidget {
 
             const Spacer(),
 
-            // Arrow Icon (Left pointing to Center Page)
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 14, bottom: 120),
-                child: SizedBox(
-                  width: 30,
-                  height: 30,
-                  child: Image.network(
-                    "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/zG8hWyVkYp/1lqepkon_expires_30_days.png",
-                    fit: BoxFit.fill,
-                  ),
-                ),
-              ),
-            ),
           ],
         ),
       ),

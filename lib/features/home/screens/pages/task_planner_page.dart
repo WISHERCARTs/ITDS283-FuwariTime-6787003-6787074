@@ -116,23 +116,7 @@ class TaskPlannerPage extends StatelessWidget {
               ),
             ),
 
-            const Spacer(), // ดันก้อนต่อไปลงด้านล่างสุดของพื้นที่
-            // ==========================================
-            // ไอคอนลูกศรบอกทาง (Indicator Direction)
-            // ==========================================
-            // ไอคอนชี้ไปทางขวา เพื่อไกด์ผู้ใช้ว่าหน้าหลัก (Core Room) อยู่ฝั่งขวา
-            Align(
-              alignment: Alignment.centerRight,
-              child: SizedBox(
-                width: 30,
-                height: 30,
-                child: Image.network(
-                  "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/zG8hWyVkYp/r1xmywj6_expires_30_days.png",
-                  fit: BoxFit.fill,
-                ),
-              ),
-            ),
-            // สำรองพื้นที่ด้านล่างไว้ไม่ให้ Navigation Bar และ Music Player บังไอคอน
+            // สำรองพื้นที่ด้านล่างไว้ไม่ให้ Navigation Bar และ Music Player บังเนื้อหา
             const SizedBox(height: 160),
           ],
         ),

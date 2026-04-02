@@ -4,23 +4,36 @@ class TopBar extends StatelessWidget {
   const TopBar({super.key});
 
   @override
-  // 💡 แก้ไขตรงนี้: เปลี่ยนจาก _buildHeader() เป็น build(BuildContext context)
   Widget build(BuildContext context) {
+    // ดึงค่าระยะห่างจากขอบจอด้านบน (ติ่งหน้าจอ หรือ แถบสถานะ)
+    final topPadding = MediaQuery.of(context).padding.top;
+
     return Container(
-      padding: const EdgeInsets.only(top: 20, bottom: 30, left: 24, right: 24),
+      // ตัวพื้นหลังจะรวมระยะ Top Padding เข้าไปด้วยเพื่อให้สีมันคลุมไปถึงขอบบนสุด
+      padding: EdgeInsets.only(
+        top: topPadding > 0 ? topPadding + 10 : 20, 
+        bottom: 30, 
+        left: 24, 
+        right: 24,
+      ),
       decoration: BoxDecoration(
-        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(25)),
+        // ปรับขอบล่างให้โค้งมนดูนุ่มนวล
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(30)),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x1A000000),
-            blurRadius: 15,
-            offset: Offset(0, 10),
+            color: Color(0x1A000000), // เงาสีดำจางๆ
+            blurRadius: 20,
+            offset: Offset(0, 8),
           ),
         ],
+        // ไล่สีจากมุมบนซ้ายไปล่างขวา
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFFFFD6E8), Color(0xFFE4D4F4)],
+          colors: [
+            Color(0xFFFFD6E8), // ชมพูพาสเทล
+            Color(0xFFE4D4F4), // ม่วงพาสเทล
+          ],
         ),
       ),
       child: Row(
