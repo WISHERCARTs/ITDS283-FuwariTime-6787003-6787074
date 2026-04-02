@@ -48,6 +48,10 @@ dependencies:
   google_sign_in: ^7.2.0
   flutter_dotenv: ^6.0.0
   image_picker: ^1.2.1
+
+  url_launcher: ^6.3.2
+
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -72,10 +76,12 @@ flutter:
   assets:
     - .env
 
-  # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
 
+
+    - lib/features/setting/assets/wish.jpg
+    - lib/features/setting/assets/me.png
+    - lib/features/setting/assets/wishercarts.jpg
+ 
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

@@ -46,7 +46,7 @@ class ProfileState extends State<Profile> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               
-              const TopBar(),
+              const TopBar(currentIndex: 3),
               // ===========================================
               // 💡 ส่วนที่ 2: รูปโปรไฟล์ (แก้ไขเพื่อให้เลือกได้)
               // ===========================================

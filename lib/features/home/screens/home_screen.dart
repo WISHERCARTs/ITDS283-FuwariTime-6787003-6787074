@@ -63,7 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
             left: 0,
             right: 0,
             // ครอบ SafeArea ป้องกันการแสดงผลทับรอยแหว่ง (Notch) ด้านบนของสมาร์ทโฟน
-            child: SafeArea(child: TopBar()), 
+            child: SafeArea(child: TopBar(currentIndex: 0)), 
           ),
 
           // 2.2 วาง Music Player และ Navigation Bar ซ้อนกันด้านล่างสุด

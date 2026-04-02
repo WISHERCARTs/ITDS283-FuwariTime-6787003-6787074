@@ -18,7 +18,12 @@ import 'package:fuwari_time/features/auth/screens/auth_gate.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 
+
 import 'features/welcome/welcome.dart';
+
+import 'package:fuwari_time/features/profile/profile.dart';
+import 'package:fuwari_time/features/setting/setting.dart';
+
 
 import 'dart:ui';
 

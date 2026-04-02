@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
 import 'package:fuwari_time/features/home/screens/home_screen.dart';
+import 'package:fuwari_time/features/profile/profile.dart';
 import 'package:fuwari_time/features/shop/shop.dart';
-// import 'package:fuwari_time/features/profile/profile.dart'; // ยังไม่มีใน branch นี้
-
+import 'package:fuwari_time/features/stats/stat.dart';
+// import 'package:fuwari_time/features/stat/stat_screen.dart'; // 💡 รอเพิ่มหน้า Stats
+// import 'package:fuwari_time/features/profile/profile.dart'; // 💡 รอเพิ่มหน้า Profile
 
 class BottomNavBar extends StatelessWidget {
   // ตัวแปรรับค่าว่าหน้าปัจจุบันคือหน้าไหน (0=Home, 1=Stats, 2=Shop, 3=Profile)
@@ -46,8 +48,37 @@ class BottomNavBar extends StatelessWidget {
     return InkWell(
       onTap: () {
         if (!isActive) {
+          // 🚀 ระบบ Routing เปลี่ยนหน้า
+          Widget nextScreen;
 
-          print('เปลี่ยนไปหน้า $label');
+          switch (index) {
+            case 0:
+              nextScreen = const HomeScreen();
+              break;
+            case 1:
+              // nextScreen = const StatScreen(); // 💡 ปลดคอมเมนต์เมื่อมีหน้า Stat แล้ว
+              nextScreen = const Stat();;
+              break; 
+            case 2:
+              nextScreen = const Shop(); // 💡 แก้ชื่อ ShopScreen ให้ตรงกับคลาสของคุณถ้าชื่อไม่ตรง
+              break;
+            case 3:
+              // nextScreen = const ProfileScreen(); // 💡 ปลดคอมเมนต์เมื่อมีหน้า Profile แล้ว
+              nextScreen = const Profile();
+              break; 
+            default:
+              return;
+          }
+
+          // 🚀 คำสั่งเปลี่ยนหน้าแบบไม่วางซ้อนกัน และปิดแอนิเมชันให้เนียนตา
+          Navigator.pushReplacement(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation1, animation2) => nextScreen,
+              transitionDuration: Duration.zero, // ปิดเวลาแอนิเมชัน
+              reverseTransitionDuration: Duration.zero,
+            ),
+          );
         }
       },
       child: Column(
@@ -59,7 +90,7 @@ class BottomNavBar extends StatelessWidget {
             width: 48,
             height: 48,
             decoration: isActive 
-                ? BoxDecoration( // ถ้า Active ให้วาดกล่องสีชมพู Gradient
+                ? BoxDecoration( 
                     borderRadius: BorderRadius.circular(16),
                     gradient: const LinearGradient(
                       begin: Alignment.topLeft,
@@ -70,11 +101,10 @@ class BottomNavBar extends StatelessWidget {
                       BoxShadow(color: Color(0x1A000000), blurRadius: 6, offset: Offset(0, 4)),
                     ],
                   )
-                : null, // ถ้าไม่ Active ก็ไม่ต้องมีกล่องพื้นหลัง
+                : null,
             child: Icon(
               icon,
               size: 28,
-              // ถ้า Active ให้ไอคอนสีขาว ถ้าไม่ให้เป็นสีเทา
               color: isActive ? Colors.white : const Color(0xFF9CA3AF),
             ),
           ),
@@ -83,7 +113,6 @@ class BottomNavBar extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              // ข้อความสีม่วงเมื่อ Active สีเทาเมื่อไม่ Active
               color: isActive ? const Color(0xFFC8B8E6) : const Color(0xFF9CA3AF),
               fontSize: 12,
               fontWeight: isActive ? FontWeight.bold : FontWeight.normal,

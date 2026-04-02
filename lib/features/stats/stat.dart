@@ -22,7 +22,7 @@ class StatState extends State<Stat> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // 💡 เรียกใช้ TopBar ที่เราแยกไฟล์ไว้
-              const TopBar(),
+              const TopBar(currentIndex: 1),
               
               const SizedBox(height: 30),
               

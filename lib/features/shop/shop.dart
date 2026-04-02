@@ -21,7 +21,7 @@ class ShopState extends State<Shop> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const TopBar(),
+              const TopBar(currentIndex: 2),
               
               const SizedBox(height: 24),
               

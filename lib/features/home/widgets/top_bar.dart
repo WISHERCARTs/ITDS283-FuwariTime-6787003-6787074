@@ -1,23 +1,28 @@
 import 'package:flutter/material.dart';
+// 💡 อย่าลืม Import หน้า Setting เข้ามานะครับ
+import 'package:fuwari_time/features/setting/setting.dart'; 
 
 class TopBar extends StatelessWidget {
-  const TopBar({Key? key}) : super(key: key);
+  // 🚀 1. เพิ่มตัวแปรเพื่อรับค่าว่าตอนนี้อยู่หน้าไหน
+  final int currentIndex;
 
+  // 🚀 2. ใส่ this.currentIndex เข้ามา (กำหนดให้ค่าเริ่มต้นเป็น 0)
+  const TopBar({Key? key, this.currentIndex = 0}) : super(key: key);
+  
   @override
-  // 💡 แก้ไขตรงนี้: เปลี่ยนจาก _buildHeader() เป็น build(BuildContext context)
   Widget build(BuildContext context) { 
     return Container(
       padding: const EdgeInsets.only(top: 20, bottom: 30, left: 24, right: 24),
-      decoration: BoxDecoration(
-        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(25)),
-        boxShadow: const [
+      decoration: const BoxDecoration(
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(25)),
+        boxShadow: [
           BoxShadow(
             color: Color(0x1A000000),
             blurRadius: 15,
             offset: Offset(0, 10),
           ),
         ],
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [Color(0xFFFFD6E8), Color(0xFFE4D4F4)],
@@ -41,6 +46,7 @@ class TopBar extends StatelessWidget {
               ),
             ],
           ),
+          
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
@@ -62,16 +68,39 @@ class TopBar extends StatelessWidget {
               ],
             ),
           ),
-          // รูปโปรไฟล์เล็กมุมขวา
-          ClipRRect(
-            borderRadius: BorderRadius.circular(25),
-            child: Image.network(
-              "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/y0beqz0yoq/959ud1zb_expires_30_days.png",
-              width: 40,
-              height: 40,
-              fit: BoxFit.cover,
+          
+          // 💡 วาง Material ครอบไว้เพื่อให้โชว์เอฟเฟกต์ Hover/Splash ได้
+          Material(
+            color: Colors.transparent, // ให้พื้นหลังใส จะได้เห็นไล่สีของ TopBar
+            child: InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  // 🚀 3. แนบ currentIndex ส่งต่อไปให้หน้า Setting ด้วย!
+                  MaterialPageRoute(builder: (context) => Setting(currentIndex: currentIndex)),
+                );
+              },
+              borderRadius: BorderRadius.circular(25),
+              // 💡 ตั้งค่าสีตอนเอาเมาส์ชี้ (Hover) หรือตอนกด (Splash) ให้เป็นสีขาวจางๆ
+              hoverColor: Colors.white.withOpacity(0.3),
+              splashColor: Colors.white.withOpacity(0.4),
+              highlightColor: Colors.white.withOpacity(0.2),
+              
+              // 💡 เปลี่ยนจาก ClipRRect มาใช้ Ink()
+              child: Ink(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(25),
+                  image: const DecorationImage(
+                    image: NetworkImage("https://storage.googleapis.com/tagjs-prod.appspot.com/v1/y0beqz0yoq/959ud1zb_expires_30_days.png"),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
             ),
           ),
+          
         ],
       ),
     );
