@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 /// หน้า Task Planner / Work Zone (หน้าซ้ายสุด)
 /// ใช้สำหรับจัดการ To-Do list และแสดงผลความสำเร็จ (Recent Achievements)
 class TaskPlannerPage extends StatelessWidget {
-  const TaskPlannerPage({Key? key}) : super(key: key);
+  const TaskPlannerPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -11,15 +11,18 @@ class TaskPlannerPage extends StatelessWidget {
       // โหลดรูปภาพพื้นหลังเต็มเฟรมสำหรับ Work Zone (ภาพโซนซ้าย)
       decoration: const BoxDecoration(
         image: DecorationImage(
-          image: NetworkImage("https://storage.googleapis.com/tagjs-prod.appspot.com/v1/zG8hWyVkYp/3wq8cvs8_expires_30_days.png"),
+          image: NetworkImage(
+            "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/zG8hWyVkYp/3wq8cvs8_expires_30_days.png",
+          ),
           fit: BoxFit.cover,
         ),
       ),
       child: Scaffold(
-        backgroundColor: Colors.transparent, // โปร่งใสเพื่อโชว์ฉากหลัง Container
+        backgroundColor:
+            Colors.transparent, // โปร่งใสเพื่อโชว์ฉากหลัง Container
         body: Padding(
           // ดัน UI ทั้งหมดหนีจาก TopBar ระดับ Global เพื่อไม่ให้บังกัน
-          padding: const EdgeInsets.only(top: 140, left: 24, right: 24), 
+          padding: const EdgeInsets.only(top: 140, left: 24, right: 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -62,10 +65,7 @@ class TaskPlannerPage extends StatelessWidget {
                         gradient: const LinearGradient(
                           begin: Alignment(-1, -1),
                           end: Alignment(-1, 1),
-                          colors: [
-                            Color(0x33E4D4F4),
-                            Color(0x33FFD6E8),
-                          ],
+                          colors: [Color(0x33E4D4F4), Color(0x33FFD6E8)],
                         ),
                       ),
                       padding: const EdgeInsets.all(12),
@@ -103,7 +103,10 @@ class TaskPlannerPage extends StatelessWidget {
                                 SizedBox(height: 4),
                                 Text(
                                   "Complete 7 days streak",
-                                  style: TextStyle(color: Color(0xFF6B7280), fontSize: 12),
+                                  style: TextStyle(
+                                    color: Color(0xFF6B7280),
+                                    fontSize: 12,
+                                  ),
                                 ),
                               ],
                             ),
@@ -123,9 +126,8 @@ class TaskPlannerPage extends StatelessWidget {
                   ],
                 ),
               ),
-              
+
               const Spacer(), // ดันก้อนต่อไปลงด้านล่างสุดของพื้นที่
-              
               // ==========================================
               // ไอคอนลูกศรบอกทาง (Indicator Direction)
               // ==========================================
@@ -142,7 +144,7 @@ class TaskPlannerPage extends StatelessWidget {
                 ),
               ),
               // สำรองพื้นที่ด้านล่างไว้ไม่ให้ Navigation Bar และ Music Player บังไอคอน
-              const SizedBox(height: 160), 
+              const SizedBox(height: 160),
             ],
           ),
         ),
