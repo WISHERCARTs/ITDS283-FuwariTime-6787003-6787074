@@ -18,7 +18,7 @@ class FocusRoomPage extends StatelessWidget {
           Align(
             alignment: Alignment.bottomRight,
             child: Padding(
-              padding: const EdgeInsets.only(bottom: 218, right: 46),
+              padding: const EdgeInsets.only(bottom: 287, right: 80),
               child: SizedBox(
                 width: 172,
                 height: 184,
@@ -29,7 +29,7 @@ class FocusRoomPage extends StatelessWidget {
               ),
             ),
           ),
-          
+
           // พื้นที่ด้านบนว่างเพื่อไม่ให้บัง Global Action Menu ที่ลอยอยู่หน้า Home
         ],
       ),
