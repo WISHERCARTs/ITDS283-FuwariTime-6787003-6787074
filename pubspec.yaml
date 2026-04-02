@@ -48,6 +48,7 @@ dependencies:
   google_sign_in: ^7.2.0
   flutter_dotenv: ^6.0.0
   image_picker: ^1.2.1
+  video_player: ^2.9.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -71,6 +72,7 @@ flutter:
 
   assets:
     - .env
+    - assets/videos/
 
   # To add assets to your application, add an assets section, like this:
   # assets:

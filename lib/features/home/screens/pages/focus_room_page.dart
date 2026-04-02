@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../widgets/pomodoro_timer_dialog.dart';
 import '../../widgets/todo_list_dialog.dart';
+import '../../services/background_controller.dart';
 
 /// หน้า Focus Room (ห้องกลาง)
 /// เป็นหน้าหลักที่ใช้แสดงตัวละครและโต๊ะทำงาน (ฉากศูนย์กลางภาพ Panorama)
@@ -42,106 +44,96 @@ class _FocusRoomPageState extends State<FocusRoomPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      // โหลดรูปภาพพื้นหลังเต็มเฟรมสำหรับหน้า Focus Room
-      decoration: const BoxDecoration(
-        image: DecorationImage(
-          image: NetworkImage(
-            "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/zG8hWyVkYp/bkel5x1z_expires_30_days.png",
-          ),
-          fit: BoxFit.cover,
-        ),
-      ),
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: Stack(
-          children: [
-            // ==========================================
-            // เลเยอร์ตัวละคร (Character)
-            // ==========================================
-            Align(
-              alignment: Alignment.bottomRight,
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 218, right: 46),
-                child: SizedBox(
-                  width: 172,
-                  height: 184,
-                  child: Image.network(
-                    "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/zG8hWyVkYp/122rtjhm_expires_30_days.png",
-                    fit: BoxFit.fill,
-                  ),
+    // เอา Container decoration ออกเพื่อให้มองเห็นวิดีโอพื้นหลังที่ซ้อนอยู่ด้านล่าง
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: Stack(
+        children: [
+          // ==========================================
+          // เลเยอร์ตัวละคร (Character)
+          // ==========================================
+          Align(
+            alignment: Alignment.bottomRight,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 218, right: 46),
+              child: SizedBox(
+                width: 172,
+                height: 184,
+                child: Image.network(
+                  "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/zG8hWyVkYp/122rtjhm_expires_30_days.png",
+                  fit: BoxFit.fill,
                 ),
               ),
             ),
+          ),
 
-            // ==========================================
-            // เมนู (ไอคอนต่างๆ)
-            // ==========================================
+          // ==========================================
+          // เมนู (ไอคอนต่างๆ)
+          // ==========================================
+          Positioned(
+            top: 100,
+            left: 24,
+            child: FocusRoomMenu(
+              onClockTap: () {
+                setState(() => _isTodoExpanded = false);
+                _pomodoroController.expand();
+              },
+              onDocumentTap: () {
+                setState(() {
+                  _isTodoExpanded = !_isTodoExpanded;
+                });
+              },
+              isTimerActive: _pomodoroController.sessionActive,
+              isTodoActive: _isTodoExpanded,
+            ),
+          ),
+
+          // ==========================================
+          // Mini Timer (โชว์ตอน Timer กำลังเดิน)
+          // ==========================================
+          if (_pomodoroController.state == PomodoroState.running)
             Positioned(
-              top: 100,
-              left: 24,
-              child: FocusRoomMenu(
-                onClockTap: () {
-                  setState(() => _isTodoExpanded = false);
-                  _pomodoroController.expand();
-                },
-                onDocumentTap: () {
+              top: _miniTimerY,
+              left: _miniTimerX,
+              child: GestureDetector(
+                onPanUpdate: (details) {
                   setState(() {
-                    _isTodoExpanded = !_isTodoExpanded;
+                    _miniTimerX += details.delta.dx;
+                    _miniTimerY += details.delta.dy;
+                    // จำกัดไม่ให้ลากออกนอกจอ
+                    final size = MediaQuery.of(context).size;
+                    _miniTimerX = _miniTimerX.clamp(0, size.width - 80);
+                    _miniTimerY = _miniTimerY.clamp(0, size.height - 80);
                   });
                 },
-                isTimerActive: _pomodoroController.sessionActive,
-                isTodoActive: _isTodoExpanded,
+                child: PomodoroMiniTimer(controller: _pomodoroController),
               ),
             ),
 
-            // ==========================================
-            // Mini Timer (โชว์ตอน Timer กำลังเดิน)
-            // ==========================================
-            if (_pomodoroController.state == PomodoroState.running)
-              Positioned(
-                top: _miniTimerY,
-                left: _miniTimerX,
-                child: GestureDetector(
-                  onPanUpdate: (details) {
-                    setState(() {
-                      _miniTimerX += details.delta.dx;
-                      _miniTimerY += details.delta.dy;
-                      // จำกัดไม่ให้ลากออกนอกจอ
-                      final size = MediaQuery.of(context).size;
-                      _miniTimerX = _miniTimerX.clamp(0, size.width - 80);
-                      _miniTimerY = _miniTimerY.clamp(0, size.height - 80);
-                    });
-                  },
-                  child: PomodoroMiniTimer(controller: _pomodoroController),
-                ),
-              ),
+          // ==========================================
+          // Expanded Overlay (โชว์ตอนตั้งค่า/ดูรายละเอียด Pomodoro)
+          // ==========================================
+          if (_pomodoroController.state == PomodoroState.expanded)
+            Positioned.fill(
+              child: PomodoroExpandedOverlay(
+                  controller: _pomodoroController),
+            ),
 
-            // ==========================================
-            // Expanded Overlay (โชว์ตอนตั้งค่า/ดูรายละเอียด Pomodoro)
-            // ==========================================
-            if (_pomodoroController.state == PomodoroState.expanded)
-              Positioned.fill(
-                child: PomodoroExpandedOverlay(
-                    controller: _pomodoroController),
+          // ==========================================
+          // To-Do List Overlay (โชว์ตอนเปิดกระดาษโน้ต)
+          // ==========================================
+          if (_isTodoExpanded)
+            Positioned.fill(
+              child: TodoListOverlay(
+                controller: _todoController,
+                onDismiss: () {
+                  setState(() {
+                    _isTodoExpanded = false;
+                  });
+                },
               ),
-
-            // ==========================================
-            // To-Do List Overlay (โชว์ตอนเปิดกระดาษโน้ต)
-            // ==========================================
-            if (_isTodoExpanded)
-              Positioned.fill(
-                child: TodoListOverlay(
-                  controller: _todoController,
-                  onDismiss: () {
-                    setState(() {
-                      _isTodoExpanded = false;
-                    });
-                  },
-                ),
-              ),
-          ],
-        ),
+            ),
+        ],
       ),
     );
   }
@@ -173,6 +165,9 @@ class _FocusRoomMenuState extends State<FocusRoomMenu> {
 
   @override
   Widget build(BuildContext context) {
+    // ดึง BackgroundController มาใช้
+    final bgController = context.watch<BackgroundController>();
+
     return SizedBox(
       width: 200,
       height: 300,
@@ -200,16 +195,25 @@ class _FocusRoomMenuState extends State<FocusRoomMenu> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      // ปุ่มพระอาทิตย์ (กลางวัน)
                       _buildIconBtn(
                         "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/zG8hWyVkYp/au6pn518_expires_30_days.png",
+                        onTap: () => bgController.setTime(TimeState.day),
+                        highlight: bgController.timeState == TimeState.day,
                       ),
                       const SizedBox(height: 12),
+                      // ปุ่มพระจันทร์ (กลางคืน)
                       _buildIconBtn(
                         "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/zG8hWyVkYp/qgtz05wd_expires_30_days.png",
+                        onTap: () => bgController.setTime(TimeState.night),
+                        highlight: bgController.timeState == TimeState.night,
                       ),
                       const SizedBox(height: 12),
+                      // ปุ่มฝนตก
                       _buildIconBtn(
                         "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/zG8hWyVkYp/oabfeq7e_expires_30_days.png",
+                        onTap: () => bgController.toggleWeather(),
+                        highlight: bgController.weatherState == WeatherState.rain,
                       ),
                     ],
                   ),
@@ -289,7 +293,7 @@ class _FocusRoomMenuState extends State<FocusRoomMenu> {
       child: Image.network(url, fit: BoxFit.contain),
     );
 
-    // ถ้ากำลังใช้ feature นี้อยู่ → เปลี่ยนสีไอคอนเป็นม่วงเข้ม
+    // ถ้ากำลังเลือกโหมดนี้อยู่ หรือฟีเจอร์นี้ถูกเปิดใช้งาน → เปลี่ยนสีไอคอนเป็นม่วงเข้ม
     if (highlight) {
       icon = ColorFiltered(
         colorFilter: const ColorFilter.mode(
