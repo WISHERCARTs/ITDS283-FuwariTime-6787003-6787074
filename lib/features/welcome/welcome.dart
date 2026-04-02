@@ -16,9 +16,7 @@ class Welcome extends StatelessWidget {
             width: double.infinity,
             decoration: const BoxDecoration(
               // ปรับให้ขอบมนแค่ 'ด้านล่าง' ด้านบนจะได้ตัดตรงติดขอบจอ
-              borderRadius: BorderRadius.vertical(
-                bottom: Radius.circular(25),
-              ),
+              borderRadius: BorderRadius.vertical(bottom: Radius.circular(25)),
               boxShadow: [
                 BoxShadow(
                   color: Color(0x1A000000),
@@ -29,10 +27,7 @@ class Welcome extends StatelessWidget {
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [
-                  Color(0xFFFFD6E8),
-                  Color(0xFFE4D4F4),
-                ],
+                colors: [Color(0xFFFFD6E8), Color(0xFFE4D4F4)],
               ),
             ),
           ),
@@ -43,7 +38,10 @@ class Welcome extends StatelessWidget {
               top: false, // ปิดการเว้นระยะขอบบน เพราะเรามี Navbar แล้ว
               child: SingleChildScrollView(
                 // เว้นระยะขอบซ้ายขวาล่างให้ส่วนข้อความ
-                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24.0,
+                  vertical: 32.0,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -82,10 +80,7 @@ class Welcome extends StatelessWidget {
                     const Text(
                       "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Color(0xFF000000),
-                        fontSize: 15,
-                      ),
+                      style: TextStyle(color: Color(0xFF000000), fontSize: 15),
                     ),
                     const SizedBox(height: 60),
                     // 4. ปุ่ม GOTCHA
@@ -95,10 +90,17 @@ class Welcome extends StatelessWidget {
                         // TODO: สั่งเปลี่ยนหน้าไป Login ตรงนี้
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFECD4F0), // สีพื้นหลังปุ่ม
-                        foregroundColor: Colors.black, // สีข้อความและเอฟเฟกต์ตอนกด/Hover
-                        elevation: 0, // ตั้งค่าเงาเป็น 0 เพื่อให้ปุ่มแบนเรียบตามดีไซน์เดิม
-                        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
+                        backgroundColor: const Color(
+                          0xFFECD4F0,
+                        ), // สีพื้นหลังปุ่ม
+                        foregroundColor:
+                            Colors.black, // สีข้อความและเอฟเฟกต์ตอนกด/Hover
+                        elevation:
+                            0, // ตั้งค่าเงาเป็น 0 เพื่อให้ปุ่มแบนเรียบตามดีไซน์เดิม
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 40,
+                          vertical: 16,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12), // ขอบมน
                         ),
