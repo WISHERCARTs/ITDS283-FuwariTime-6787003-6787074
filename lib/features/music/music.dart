@@ -17,27 +17,25 @@ class _MusicScreenState extends State<MusicScreen> {
     {
       "title": "Lemon Lofi", 
       "artist": "LemonMusicLab", 
-      "img": "image/LemonMusic.webp",
+      "img": "assets/image/LemonMusic.webp",
       "path": "audio_asset/lemon-music.mp3" 
     },
     {
       "title": "Dreamy Nostalgia", 
       "artist": "Aventure", 
-      "img": "image/AventureMusic.webp",
+      "img": "assets/image/AventureMusic.webp",
       "path": "audio_asset/nostalgia-music.mp3"
     },
     {
       "title": "Chill", 
       "artist": "Monda Music", 
-      "img": "image/MondaMusic.webp",
+      "img": "assets/image/MondaMusic.webp",
       "path": "audio_asset/chill-music.mp3"
     },
   ];
 
   int currentIndex = 0;
   bool isPlaying = false;
-  
-  // 🚀 1. เพิ่มตัวแปรสำหรับเก็บสถานะการวนลูป (เริ่มต้นคือไม่วนลูป)
   bool isLooping = false; 
   
   final AudioPlayer _audioPlayer = AudioPlayer();
@@ -49,44 +47,38 @@ class _MusicScreenState extends State<MusicScreen> {
     super.initState();
 
     _audioPlayer.onPlayerStateChanged.listen((state) {
-      setState(() {
-        isPlaying = state == PlayerState.playing;
-        isMusicBarVisible.value = isPlaying;
-      });
+      if (mounted) {
+        setState(() {
+          isPlaying = state == PlayerState.playing;
+          // 💡 ถ้าตัวแปร isMusicBarVisible อยู่ในไฟล์อื่น และมี Error ให้ลองคอมเมนต์บรรทัดล่างนี้ดูนะครับ
+          isMusicBarVisible.value = isPlaying; 
+        });
+      }
     });
 
     _audioPlayer.onDurationChanged.listen((newDuration) {
-      setState(() {
-        _duration = newDuration;
-      });
+      if (mounted) setState(() => _duration = newDuration);
     });
 
     _audioPlayer.onPositionChanged.listen((newPosition) {
-      setState(() {
-        _position = newPosition;
-      });
+      if (mounted) setState(() => _position = newPosition);
     });
 
-    // 🚀 2. แก้ไขระบบเมื่อ "เพลงเล่นจบ"
     _audioPlayer.onPlayerComplete.listen((event) {
       if (isLooping) {
-        // 👉 ถ้าเปิดลูปไว้: ให้เล่นเพลงเดิมซ้ำ
-        setState(() {
-          _position = Duration.zero; // กลับไปวิที่ 0
-        });
+        if (mounted) setState(() => _position = Duration.zero);
         _playMusic(musicList[currentIndex]['path']!);
       } else {
-        // 👉 ถ้าปิดลูปไว้: ให้เช็คว่ามีเพลงถัดไปไหม
         if (currentIndex < musicList.length - 1) {
-          // มีเพลงถัดไป -> สั่งเล่นเพลงถัดไป
           _changeSong(currentIndex + 1);
         } else {
-          // หมดเพลย์ลิสต์แล้ว -> กลับไปเพลงแรกสุดและหยุดเล่น
-          setState(() {
-            currentIndex = 0;
-            _position = Duration.zero;
-            isPlaying = false;
-          });
+          if (mounted) {
+            setState(() {
+              currentIndex = 0;
+              _position = Duration.zero;
+              isPlaying = false;
+            });
+          }
         }
       }
     });
@@ -129,13 +121,17 @@ class _MusicScreenState extends State<MusicScreen> {
   Widget build(BuildContext context) {
     final currentSong = musicList[currentIndex];
 
+    // 🚀 ปรับตรรกะ Slider ให้ปลอดภัย 100% ป้องกันแอปค้างตอนคำนวณเวลาผิดพลาด
+    final double maxDuration = _duration.inSeconds > 0 ? _duration.inSeconds.toDouble() : 1.0;
+    final double currentValue = _position.inSeconds.toDouble().clamp(0.0, maxDuration);
+
     return Scaffold(
       backgroundColor: const Color(0xFFFFF8F0),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
             children: [
-              const TopBar(),
+              const TopBar(), // 💡 ถ้ายังมีจอขาว ให้ลองคอมเมนต์บรรทัด TopBar() นี้ทิ้งดูครับ
               const SizedBox(height: 10),
 
               Padding(
@@ -150,6 +146,7 @@ class _MusicScreenState extends State<MusicScreen> {
                         borderRadius: BorderRadius.circular(40),
                       ),
                       child: Column(
+                        mainAxisSize: MainAxisSize.min, // 🚀 ล็อกไม่ให้ Column ทะลุกล่อง
                         children: [
                           const SizedBox(height: 10),
                           ClipRRect(
@@ -159,12 +156,16 @@ class _MusicScreenState extends State<MusicScreen> {
                               width: 220,
                               height: 220,
                               fit: BoxFit.cover,
+                              // 💡 เผื่อรูปโหลดไม่ขึ้น จะได้ไม่พัง
+                              errorBuilder: (context, error, stackTrace) => 
+                                Container(width: 220, height: 220, color: Colors.grey.shade300, child: const Icon(Icons.music_note, size: 50)),
                             ),
                           ),
                           const SizedBox(height: 15),
                           Text(
                             currentSong['title']!,
                             style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF4B5563)),
+                            textAlign: TextAlign.center,
                           ),
                           Text(
                             currentSong['artist']!,
@@ -184,8 +185,8 @@ class _MusicScreenState extends State<MusicScreen> {
                             ),
                             child: Slider(
                               min: 0.0,
-                              max: _duration.inSeconds.toDouble() > 0 ? _duration.inSeconds.toDouble() : 1.0,
-                              value: _position.inSeconds.toDouble().clamp(0.0, _duration.inSeconds.toDouble() > 0 ? _duration.inSeconds.toDouble() : 1.0),
+                              max: maxDuration, // 🚀 ใช้ค่าที่ประมวลผลให้ปลอดภัยแล้ว
+                              value: currentValue, // 🚀 ใช้ค่าที่ประมวลผลให้ปลอดภัยแล้ว
                               onChanged: (value) {
                                 final position = Duration(seconds: value.toInt());
                                 _audioPlayer.seek(position);
@@ -205,13 +206,10 @@ class _MusicScreenState extends State<MusicScreen> {
                           ),
                           const SizedBox(height: 10),
 
-                          // 🚀 แถวของปุ่มควบคุมการเล่น
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              // 💡 ใส่ SizedBox ว่างๆ ไว้ทางซ้ายเพื่อถ่วงน้ำหนักปุ่มวนลูปทางขวาให้อยู่ตรงกลางเป๊ะๆ
                               const SizedBox(width: 40), 
-
                               IconButton(
                                 icon: const Icon(Icons.skip_previous_rounded, size: 36, color: Color(0xFF6B7280)),
                                 onPressed: () {
@@ -219,7 +217,6 @@ class _MusicScreenState extends State<MusicScreen> {
                                 },
                               ),
                               const SizedBox(width: 16),
-                              
                               GestureDetector(
                                 onTap: _togglePlayPause, 
                                 child: Container(
@@ -233,11 +230,7 @@ class _MusicScreenState extends State<MusicScreen> {
                                       colors: [Color(0xFFF9A8D4), Color(0xFFD8B4FE)],
                                     ),
                                     boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.1),
-                                        blurRadius: 8,
-                                        offset: const Offset(0, 4),
-                                      ),
+                                      BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 8, offset: const Offset(0, 4)),
                                     ],
                                   ),
                                   child: Icon(
@@ -247,7 +240,6 @@ class _MusicScreenState extends State<MusicScreen> {
                                   ),
                                 ),
                               ),
-                              
                               const SizedBox(width: 16),
                               IconButton(
                                 icon: const Icon(Icons.skip_next_rounded, size: 36, color: Color(0xFF6B7280)),
@@ -255,19 +247,15 @@ class _MusicScreenState extends State<MusicScreen> {
                                   if (currentIndex < musicList.length - 1) _changeSong(currentIndex + 1);
                                 },
                               ),
-
-                              // 🚀 3. ปุ่มวนลูป (Loop) เพิ่มไว้ด้านขวาสุด
                               IconButton(
                                 icon: Icon(
-                                  // เปลี่ยนไอคอนระหว่าง 1 (วนเพลงเดียว) กับ All (ปิดลูป/เล่นตามลำดับ)
                                   isLooping ? Icons.repeat_one_rounded : Icons.repeat_rounded, 
                                   size: 28, 
-                                  // เปลี่ยนสีเป็นม่วงพาสเทลเมื่อกดเปิด
                                   color: isLooping ? const Color(0xFFD8B4FE) : const Color(0xFF9CA3AF),
                                 ),
                                 onPressed: () {
                                   setState(() {
-                                    isLooping = !isLooping; // สลับค่าไปมา
+                                    isLooping = !isLooping; 
                                   });
                                 },
                               ),
@@ -307,6 +295,7 @@ class _MusicScreenState extends State<MusicScreen> {
                       return InkWell(
                         onTap: () {
                           _changeSong(index); 
+                          // 💡 ลองเช็คบรรทัดนี้นะครับ ถ้า isMusicBarVisible มีปัญหาอาจจะเกิดจากตรงนี้
                           isMusicBarVisible.value = true;
                         },
                         child: Container(
@@ -319,12 +308,17 @@ class _MusicScreenState extends State<MusicScreen> {
                             children: [
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(12),
-                                child: Image.asset(music['img']!, width: 60, height: 60, fit: BoxFit.cover),
+                                child: Image.asset(
+                                  music['img']!, 
+                                  width: 60, height: 60, fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) => Container(width: 60, height: 60, color: Colors.grey.shade300),
+                                ),
                               ),
                               const SizedBox(width: 16),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min, // 🚀 นี่คือพระเอกตัวจริง! บังคับไม่ให้ Column เด้งทะลุ ListView
                                   children: [
                                     Text(
                                       music['title']!,

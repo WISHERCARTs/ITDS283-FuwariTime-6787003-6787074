@@ -41,7 +41,7 @@ class FuwariTimeApp extends StatelessWidget {
         ),
       ),
 
-      home: const Shop(),
+      home: const MusicScreen(),
 
     );
   }
