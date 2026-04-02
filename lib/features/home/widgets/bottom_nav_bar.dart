@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 
+import 'package:fuwari_time/features/home/screens/home_screen.dart';
+import 'package:fuwari_time/features/shop/shop.dart';
+// import 'package:fuwari_time/features/profile/profile.dart'; // ยังไม่มีใน branch นี้
+
+
 class BottomNavBar extends StatelessWidget {
   // ตัวแปรรับค่าว่าหน้าปัจจุบันคือหน้าไหน (0=Home, 1=Stats, 2=Shop, 3=Profile)
   final int currentIndex;
@@ -41,7 +46,7 @@ class BottomNavBar extends StatelessWidget {
     return InkWell(
       onTap: () {
         if (!isActive) {
-          // TODO: ใส่คำสั่ง Navigator เพื่อเปลี่ยนหน้าตรงนี้
+
           print('เปลี่ยนไปหน้า $label');
         }
       },
