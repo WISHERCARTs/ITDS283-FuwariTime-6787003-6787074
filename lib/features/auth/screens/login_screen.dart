@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../services/supabase_service.dart';
 import 'sign_up_screen.dart';
+// 🚀 1. อย่าลืม Import หน้า Welcome เข้ามานะครับ (แก้ Path ให้ตรงกับแฟ้มของคุณด้วยนะ)
+import 'package:fuwari_time/features/welcome/welcome.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -133,6 +135,12 @@ class LoginState extends State<LoginScreen> {
                             child: InkWell(
                               onTap: () {
                                 print('Pressed Login');
+                                // 🚀 2. เด้งไปหน้า Welcome แบบไม่ให้กดย้อนกลับ (สำหรับล็อกอินธรรมดา)
+                                // หมายเหตุ: อนาคตตอนต่อระบบฐานข้อมูลแล้ว เอาโค้ดนี้ไปใส่หลังเช็ค Password ถูกต้องนะครับ
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const Welcome()), // เปลี่ยนชื่อคลาสให้ตรงกับหน้า Welcome ของคุณ
+                                );
                               },
                               child: Container(
                                 alignment: Alignment.center,
@@ -164,6 +172,14 @@ class LoginState extends State<LoginScreen> {
                                   final response = await SupabaseService.signInWithGoogle();
                                   if (response != null) {
                                     print('✅ ล็อกอินด้วย Google สำเร็จ: ${response.user?.email}');
+                                    
+                                    // 🚀 3. เด้งไปหน้า Welcome เมื่อ Google Login ผ่าน
+                                    if (mounted) {
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(builder: (context) => const Welcome()), // เปลี่ยนชื่อคลาสให้ตรงกับหน้า Welcome ของคุณ
+                                      );
+                                    }
                                   }
                                 } catch (e) {
                                   if (mounted) {

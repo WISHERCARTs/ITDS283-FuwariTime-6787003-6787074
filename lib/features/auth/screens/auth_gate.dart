@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:fuwari_time/features/auth/screens/login_screen.dart';
 import '../../home/screens/home_screen.dart';
+import 'package:fuwari_time/features/welcome/welcome.dart';
 
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
@@ -19,7 +20,7 @@ class AuthGate extends StatelessWidget {
 
         // ถ้ามี session กลับมาแล้ว พาไปหน้า Home เลย
         if (session != null) {
-          return HomeScreen();
+          return Welcome();
         }
 
         // ไม่มี session ก็ให้ไปหน้า Login เลย! ไม่ต้องมีวงแหวนหมุนแล้ว
