@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+
 import 'package:fuwari_time/services/supabase_service.dart';
 import 'package:fuwari_time/features/auth/screens/auth_gate.dart';
 import 'package:fuwari_time/features/home/services/background_controller.dart';
@@ -51,7 +54,9 @@ class FuwariTimeApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF6B4E3D)),
       ),
 
+
       home: const AuthGate(),
+
 
 
     );
