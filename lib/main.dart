@@ -1,25 +1,9 @@
 import 'package:flutter/material.dart';
-
-
-
-
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-
-
-
-
 import 'package:fuwari_time/services/supabase_service.dart';
 import 'package:fuwari_time/features/auth/screens/auth_gate.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-
-
-
-
-
 import 'dart:ui';
-
-
 
 
 
