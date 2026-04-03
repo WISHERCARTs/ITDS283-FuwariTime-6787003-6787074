@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fuwari_time/services/supabase_service.dart';
 import 'package:fuwari_time/features/auth/screens/auth_gate.dart';
+import 'package:fuwari_time/features/home/services/background_controller.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'dart:ui';
 
 
@@ -17,7 +19,14 @@ void main() async {
   // Initialize Supabase
   await SupabaseService.initialize();
 
-  runApp(const FuwariTimeApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => BackgroundController()),
+      ],
+      child: const FuwariTimeApp(),
+    ),
+  );
 }
 
 class FuwariTimeApp extends StatelessWidget {

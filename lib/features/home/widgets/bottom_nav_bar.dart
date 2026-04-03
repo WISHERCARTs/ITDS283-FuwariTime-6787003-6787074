@@ -15,18 +15,26 @@ class BottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ดึงค่าระยห่างด้านล่างของหน้าจอมือถือแต่ละรุ่น (เช่น ขีด Home ของ iPhone/Android)
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+
     return Container(
       decoration: const BoxDecoration(
-        color: Color(0xFFFFFFFF),
+        color: Color(0xFFFFFFFF), // สีขาวสะอาด
+        // เพิ่มเงาให้ดูมีมิติมากขึ้น
         boxShadow: [
           BoxShadow(
-            color: Color(0x40000000),
-            blurRadius: 50,
-            offset: Offset(0, 25),
+            color: Color(0x0D000000), // ดำเจือจางมาก (5%)
+            blurRadius: 20,
+            offset: Offset(0, -5), // ดันเงาขึ้นด้านบนเล็กน้อย
           ),
         ],
       ),
-      padding: const EdgeInsets.symmetric(vertical: 14),
+      // Padding ด้านล่างจะบวกเพิ่มตามความเหมาะสมของโทรศัพท์เครื่องนั้นๆ
+      padding: EdgeInsets.only(
+        top: 14, 
+        bottom: bottomPadding > 0 ? bottomPadding : 14,
+      ),
       width: double.infinity,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,

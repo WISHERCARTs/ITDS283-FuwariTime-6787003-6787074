@@ -2,40 +2,45 @@ import 'package:flutter/material.dart';
 // 💡 อย่าลืม Import หน้า Setting เข้ามานะครับ
 import 'package:fuwari_time/features/setting/setting.dart'; 
 
-
 class TopBar extends StatelessWidget {
 
   // 🚀 1. เพิ่มตัวแปรเพื่อรับค่าว่าตอนนี้อยู่หน้าไหน
   final int currentIndex;
 
- 
-
-
   // 🚀 2. ใส่ this.currentIndex เข้ามา (กำหนดให้ค่าเริ่มต้นเป็น 0)
   const TopBar({Key? key, this.currentIndex = 0}) : super(key: key);
   
   @override
-
-  
-
-  // 💡 แก้ไขตรงนี้: เปลี่ยนจาก _buildHeader() เป็น build(BuildContext context)
   Widget build(BuildContext context) {
+    // ดึงค่าระยะห่างจากขอบจอด้านบน (ติ่งหน้าจอ หรือ แถบสถานะ)
+    final topPadding = MediaQuery.of(context).padding.top;
 
     return Container(
-      padding: const EdgeInsets.only(top: 20, bottom: 30, left: 24, right: 24),
-      decoration: const BoxDecoration(
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(25)),
-        boxShadow: [
+      // ตัวพื้นหลังจะรวมระยะ Top Padding เข้าไปด้วยเพื่อให้สีมันคลุมไปถึงขอบบนสุด
+      padding: EdgeInsets.only(
+        top: topPadding > 0 ? topPadding + 10 : 20, 
+        bottom: 30, 
+        left: 24, 
+        right: 24,
+      ),
+      decoration: BoxDecoration(
+        // ปรับขอบล่างให้โค้งมนดูนุ่มนวล
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(30)),
+        boxShadow: const [
           BoxShadow(
-            color: Color(0x1A000000),
-            blurRadius: 15,
-            offset: Offset(0, 10),
+            color: Color(0x1A000000), // เงาสีดำจางๆ
+            blurRadius: 20,
+            offset: Offset(0, 8),
           ),
         ],
-        gradient: LinearGradient(
+        // ไล่สีจากมุมบนซ้ายไปล่างขวา
+        gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFFFFD6E8), Color(0xFFE4D4F4)],
+          colors: [
+            Color(0xFFFFD6E8), // ชมพูพาสเทล
+            Color(0xFFE4D4F4), // ม่วงพาสเทล
+          ],
         ),
       ),
       child: Row(

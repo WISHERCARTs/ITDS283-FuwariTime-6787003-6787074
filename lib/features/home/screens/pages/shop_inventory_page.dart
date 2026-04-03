@@ -7,79 +7,54 @@ class ShopInventoryPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        image: DecorationImage(
-          image: NetworkImage(
-            "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/zG8hWyVkYp/kolhpnpa_expires_30_days.png",
-          ),
-          fit: BoxFit.cover,
-        ),
-      ),
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Push past the Global Top Bar
-              const SizedBox(height: 100),
+    return Scaffold(
+      backgroundColor: Colors.transparent, // โปร่งใสเพื่อโชว์วิดีโอพื้นหลัง
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Push past the Global Top Bar
+            const SizedBox(height: 100),
 
-              // Inner Item Display Card
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Container(
-                  width: double.infinity,
-                  height: 300,
-                  decoration: const BoxDecoration(
-                    image: DecorationImage(
-                      image: NetworkImage(
-                        "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/zG8hWyVkYp/3xnnri8u_expires_30_days.png",
-                      ),
-                      fit: BoxFit.fill,
+            // Inner Item Display Card
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Container(
+                width: double.infinity,
+                height: 300,
+                decoration: const BoxDecoration(
+                  image: DecorationImage(
+                    image: NetworkImage(
+                      "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/zG8hWyVkYp/3xnnri8u_expires_30_days.png",
                     ),
-                  ),
-                  padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
-                  child: Column(
-                    children: [
-                      // Badges Row
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          _buildBadge(
-                            "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/zG8hWyVkYp/vmqes3k7_expires_30_days.png",
-                            "7 days",
-                          ),
-                          _buildBadge(
-                            "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/zG8hWyVkYp/a6fwtz5b_expires_30_days.png",
-                            "Level 12",
-                          ),
-                        ],
-                      ),
-                    ],
+                    fit: BoxFit.fill,
                   ),
                 ),
-              ),
-
-              const Spacer(),
-
-              // Arrow Icon (Left pointing to Center Page)
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 14, bottom: 120),
-                  child: SizedBox(
-                    width: 30,
-                    height: 30,
-                    child: Image.network(
-                      "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/zG8hWyVkYp/1lqepkon_expires_30_days.png",
-                      fit: BoxFit.fill,
+                padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
+                child: Column(
+                  children: [
+                    // Badges Row
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _buildBadge(
+                          "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/zG8hWyVkYp/vmqes3k7_expires_30_days.png",
+                          "7 days",
+                        ),
+                        _buildBadge(
+                          "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/zG8hWyVkYp/a6fwtz5b_expires_30_days.png",
+                          "Level 12",
+                        ),
+                      ],
                     ),
-                  ),
+                  ],
                 ),
               ),
-            ],
-          ),
+            ),
+
+            const Spacer(),
+
+          ],
         ),
       ),
     );
