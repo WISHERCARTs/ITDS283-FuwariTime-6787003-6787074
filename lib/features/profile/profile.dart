@@ -55,7 +55,7 @@ class ProfileState extends State<Profile> {
               
               const TopBar(currentIndex: 3),
 
-              const TopBar(),
+              
 
               // ===========================================
               // 💡 ส่วนที่ 2: รูปโปรไฟล์ (แก้ไขเพื่อให้เลือกได้)
