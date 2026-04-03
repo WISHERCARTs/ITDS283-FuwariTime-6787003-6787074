@@ -60,13 +60,14 @@ class MusicController {
   }
 
   void skipNext() {
-    if (currentIndex.value < globalMusicList.length - 1) {
-      playSong(currentIndex.value + 1);
-    } else {
-      isPlaying.value = false;
-      position.value = Duration.zero;
+      if (currentIndex.value < globalMusicList.length - 1) {
+        // ถ้ายังไม่ใช่เพลงสุดท้าย ก็เล่นเพลงถัดไปปกติ
+        playSong(currentIndex.value + 1);
+      } else {
+        // ถ้าเป็นเพลงสุดท้ายแล้ว ให้วนกลับไปเล่นเพลงแรกสุด (index 0)
+        playSong(0);
+      }
     }
-  }
 
   void skipPrevious() {
     if (currentIndex.value > 0) {
