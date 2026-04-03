@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 /// แถบ Music Player (แสดงผลด้านล่างของจอ เหนือ Navigation Bar)
 /// ออกแบบ UI เลียนแบบ YouTube Music Mini-Player สไตล์ Dark Theme เพื่อความทันสมัย
 class BottomMusicPlayer extends StatelessWidget {
-  const BottomMusicPlayer({Key? key}) : super(key: key);
+  const BottomMusicPlayer({super.key});
 
   @override
   Widget build(BuildContext context) {

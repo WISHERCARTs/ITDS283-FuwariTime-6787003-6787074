@@ -2,15 +2,25 @@ import 'package:flutter/material.dart';
 // 💡 อย่าลืม Import หน้า Setting เข้ามานะครับ
 import 'package:fuwari_time/features/setting/setting.dart'; 
 
+
 class TopBar extends StatelessWidget {
+
   // 🚀 1. เพิ่มตัวแปรเพื่อรับค่าว่าตอนนี้อยู่หน้าไหน
   final int currentIndex;
+
+ 
+
 
   // 🚀 2. ใส่ this.currentIndex เข้ามา (กำหนดให้ค่าเริ่มต้นเป็น 0)
   const TopBar({Key? key, this.currentIndex = 0}) : super(key: key);
   
   @override
-  Widget build(BuildContext context) { 
+
+  
+
+  // 💡 แก้ไขตรงนี้: เปลี่ยนจาก _buildHeader() เป็น build(BuildContext context)
+  Widget build(BuildContext context) {
+
     return Container(
       padding: const EdgeInsets.only(top: 20, bottom: 30, left: 24, right: 24),
       decoration: const BoxDecoration(
@@ -42,7 +52,12 @@ class TopBar extends StatelessWidget {
               const SizedBox(width: 12),
               const Text(
                 "Fuwari Time",
-                style: TextStyle(color: Colors.white, fontSize: 20, height: 1.2, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  height: 1.2,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),

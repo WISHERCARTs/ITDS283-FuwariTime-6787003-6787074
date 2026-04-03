@@ -1,9 +1,10 @@
 import 'dart:io'; // 💡 สำหรับจัดการไฟล์รูปในเครื่อง
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart'; // 💡 แพ็กเกจเลือกรูปภาพ
-import 'package:fuwari_time/features/home/screens/home_screen.dart'; // 💡 นำเข้า HomeScreen เพื่อใช้เป็นหน้าเริ่มต้น (ถ้าต้องการ)
+// 💡 นำเข้า HomeScreen เพื่อใช้เป็นหน้าเริ่มต้น (ถ้าต้องการ)
 import 'package:fuwari_time/features/home/widgets/bottom_nav_bar.dart';
 import 'package:fuwari_time/features/home/widgets/top_bar.dart';
+
 class Profile extends StatefulWidget {
   const Profile({super.key});
   @override
@@ -12,18 +13,21 @@ class Profile extends StatefulWidget {
 
 class ProfileState extends State<Profile> {
   String username = '';
-  
+
   // 💡 ตัวแปรเก็บไฟล์รูปภาพที่เลือกใหม่ (อาจจะเป็น null ถ้ายังไม่ได้เลือก)
   File? _profileImage;
-  
+
   // 💡 ลิงก์รูปภาพเริ่มต้น (Default) ถ้ายังไม่ได้เลือกรูป
-  final String _defaultImageUrl = "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/y0beqz0yoq/anfl69ph_expires_30_days.png";
+  final String _defaultImageUrl =
+      "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/y0beqz0yoq/anfl69ph_expires_30_days.png";
 
   // 💡 ฟังก์ชันเปิดแกลเลอรี่เพื่อเลือกรูปภาพ
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
     // เลือกรูปภาพจากแกลเลอรี่ (ถ้าต้องการเปิดกล้องให้เปลี่ยนเป็น ImageSource.camera)
-    final XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    final XFile? pickedFile = await picker.pickImage(
+      source: ImageSource.gallery,
+    );
 
     if (pickedFile != null) {
       // อัปเดตสถานะ (setState) เพื่อแสดงรูปภาพใหม่บนหน้าจอ
@@ -39,19 +43,25 @@ class ProfileState extends State<Profile> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFFF8F0),
-      bottomNavigationBar: const BottomNavBar(currentIndex: 3), //highlight icon profile
+      bottomNavigationBar: const BottomNavBar(
+        currentIndex: 3,
+      ), //highlight icon profile
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+
               
               const TopBar(currentIndex: 3),
+
+              const TopBar(),
+
               // ===========================================
               // 💡 ส่วนที่ 2: รูปโปรไฟล์ (แก้ไขเพื่อให้เลือกได้)
               // ===========================================
-              _buildProfileImagePicker(), 
-              
+              _buildProfileImagePicker(),
+
               const SizedBox(height: 30),
               _buildInfoSection(), // ฟอร์มข้อมูล
               const SizedBox(height: 40),
@@ -65,7 +75,6 @@ class ProfileState extends State<Profile> {
   // ==========================================
   // Header สี Gradient เหมือนเดิม
   // ==========================================
-  
 
   // ===========================================
   // 💡 ส่วนย่อยที่ 2 (แก้ไขใหม่): รูปโปรไฟล์ที่มีปุ่มเลือกรูป
@@ -90,7 +99,7 @@ class ProfileState extends State<Profile> {
                   fit: BoxFit.cover,
                 ),
         ),
-        
+
         // 2. ปุ่มกล้องถ่ายรูปเล็กๆ แปะที่มุม (OnTop)
         Positioned(
           bottom: 0,
@@ -103,7 +112,11 @@ class ProfileState extends State<Profile> {
                 color: Color(0xFFD8B4FE), // สีม่วงอ่อน
                 shape: BoxShape.circle,
                 boxShadow: [
-                  BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2)),
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 4,
+                    offset: Offset(0, 2),
+                  ),
                 ],
               ),
               child: const Icon(
@@ -145,14 +158,20 @@ class ProfileState extends State<Profile> {
           ),
           const SizedBox(height: 10),
           _buildInfoItem(
-            child: const Text("Email: Wishnak@gmail.com", style: TextStyle(fontSize: 18)),
+            child: const Text(
+              "Email: Wishnak@gmail.com",
+              style: TextStyle(fontSize: 18),
+            ),
           ),
           const SizedBox(height: 10),
           _buildInfoItem(
-            child: const Text("Password: xxxxx", style: TextStyle(fontSize: 18)),
+            child: const Text(
+              "Password: xxxxx",
+              style: TextStyle(fontSize: 18),
+            ),
           ),
         ],
-          ),
+      ),
     );
   }
 
