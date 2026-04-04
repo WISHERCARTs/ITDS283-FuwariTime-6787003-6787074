@@ -102,7 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
             // 4. Global Action Menu (เมนูก้อนกลม - ตรึงตำแหน่ง)
             Positioned(
-              top: 100,
+              top: 140,
               left: 24,
               child: GlobalActionMenu(
                 onClockTap: () {

@@ -32,6 +32,21 @@ class ShopPayState extends State<ShopPay> {
     );
   }
 
+  // 💡 3. ฟังก์ชันซื้อด้วยเหรียญ (โชว์ข้อความ)
+  void _buyWithCoin() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          "Successfully purchased with coin",
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: Colors.green, // แถบสีเขียวให้ดู Success
+        duration: Duration(seconds: 2), // โชว์ 2 วินาทีแล้วหายไป
+        behavior: SnackBarBehavior.floating, // ลอยขึ้นมาเหนือบาร์ด้านล่าง
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -118,26 +133,31 @@ class ShopPayState extends State<ShopPay> {
                               ),
                               Row(
                                 children: [
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFFEF9C3),
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Image.network("https://storage.googleapis.com/tagjs-prod.appspot.com/v1/y0beqz0yoq/51tkk9j2_expires_30_days.png", width: 14),
-                                        const SizedBox(width: 6),
-                                        Text(
-                                          "${widget.itemPrice}",
-                                          style: const TextStyle(color: Color(0xFFA16207), fontWeight: FontWeight.bold)
-                                        ),
-                                      ],
+                                  // 💡 4. เอา InkWell มาครอบกล่องเหรียญ เพื่อให้กดได้
+                                  InkWell(
+                                    onTap: _buyWithCoin, // 👈 เรียกฟังก์ชันโชว์ข้อความ
+                                    borderRadius: BorderRadius.circular(20),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFFEF9C3),
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Image.network("https://storage.googleapis.com/tagjs-prod.appspot.com/v1/y0beqz0yoq/51tkk9j2_expires_30_days.png", width: 14),
+                                          const SizedBox(width: 6),
+                                          Text(
+                                            "${widget.itemPrice}",
+                                            style: const TextStyle(color: Color(0xFFA16207), fontWeight: FontWeight.bold)
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                   const SizedBox(width: 12),
                                   ElevatedButton(
-                                    onPressed: _goToPayment, // 💡 3. เรียกใช้ฟังก์ชันเด้งไปหน้า QR ตรงนี้
+                                    onPressed: _goToPayment, 
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: const Color(0xFF00FF7B),
                                       foregroundColor: Colors.black,

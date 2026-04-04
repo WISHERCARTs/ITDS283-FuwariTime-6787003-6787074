@@ -29,20 +29,41 @@ class SettingState extends State<Setting> {
             children: [
               const TopBar(),
               
-              const SizedBox(height: 30),
+              const SizedBox(height: 20), // 💡 ปรับระยะห่างนิดหน่อยให้พอดีกับปุ่ม
               
-              const Center(
-                child: Text(
-                  "Setting",
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
+              // 🚀 3. ใช้ Stack จัดปุ่ม Back ไว้ซ้าย และข้อความไว้ตรงกลาง
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 16),
+                      child: IconButton(
+                        icon: const Icon(
+                          Icons.arrow_back_rounded, 
+                          color: Color(0xFF1F2937),
+                          size: 24,
+                        ),
+                        onPressed: () {
+                          // 🚀 คำสั่งสำหรับกดย้อนกลับไปหน้าก่อนหน้า
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ),
                   ),
-                ),
+                  const Text(
+                    "Setting",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
               
-              const SizedBox(height: 40),
+              const SizedBox(height: 30),
               
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),

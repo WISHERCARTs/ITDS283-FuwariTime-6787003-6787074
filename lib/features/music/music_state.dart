@@ -12,13 +12,13 @@ final List<Map<String, String>> globalMusicList = [
 ];
 
 // 🚀 3. ระบบควบคุมเพลงส่วนกลาง (สมองหลัก)
+// 🚀 3. ระบบควบคุมเพลงส่วนกลาง (สมองหลักที่อัปเกรดให้เสถียรขึ้น!)
 class MusicController {
   static final MusicController _instance = MusicController._internal();
   factory MusicController() => _instance;
 
   final AudioPlayer audioPlayer = AudioPlayer();
   
-  // ตัวแปรสถานะที่แจ้งเตือนหน้าจอให้อัปเดตอัตโนมัติ
   final ValueNotifier<int> currentIndex = ValueNotifier<int>(0);
   final ValueNotifier<bool> isPlaying = ValueNotifier<bool>(false);
   final ValueNotifier<bool> isLooping = ValueNotifier<bool>(false);
@@ -45,38 +45,63 @@ class MusicController {
     });
   }
 
+  // 💡 อัปเกรดฟังก์ชันเล่นเพลง
   Future<void> playSong(int index) async {
-    currentIndex.value = index;
-    String path = globalMusicList[index]['path']!;
-    await audioPlayer.play(AssetSource(path));
+    try {
+      // 🚀 1. สั่ง Stop และเคลียร์ระบบเก่าให้เกลี้ยงก่อนเริ่มเพลงใหม่
+      await audioPlayer.stop(); 
+      
+      currentIndex.value = index;
+      String path = globalMusicList[index]['path']!;
+      
+      // 🚀 2. ค่อยสั่ง Play ไฟล์ใหม่
+      await audioPlayer.play(AssetSource(path));
+    } catch (e) {
+      debugPrint("❌ Error playing audio: $e");
+    }
   }
 
+  // 💡 อัปเกรดปุ่ม Play/Pause ให้ถูกต้อง
   Future<void> togglePlayPause() async {
-    if (isPlaying.value) {
-      await audioPlayer.pause();
-    } else {
-      await playSong(currentIndex.value);
+    try {
+      if (isPlaying.value) {
+        await audioPlayer.pause();
+      } else {
+        // 🚀 3. ถ้าเพลงถูกหยุดไว้ ให้ใช้คำสั่ง "resume" (เล่นต่อ) แทนที่จะเริ่มใหม่
+        if (position.value > Duration.zero && position.value < duration.value) {
+          await audioPlayer.resume();
+        } else {
+          await playSong(currentIndex.value);
+        }
+      }
+    } catch (e) {
+      debugPrint("❌ Error toggling audio: $e");
     }
   }
 
   void skipNext() {
-      if (currentIndex.value < globalMusicList.length - 1) {
-        // ถ้ายังไม่ใช่เพลงสุดท้าย ก็เล่นเพลงถัดไปปกติ
-        playSong(currentIndex.value + 1);
-      } else {
-        // ถ้าเป็นเพลงสุดท้ายแล้ว ให้วนกลับไปเล่นเพลงแรกสุด (index 0)
-        playSong(0);
-      }
+    if (currentIndex.value < globalMusicList.length - 1) {
+      playSong(currentIndex.value + 1);
+    } else {
+      playSong(0); // วนกลับไปเพลงแรก
     }
+  }
 
   void skipPrevious() {
     if (currentIndex.value > 0) {
       playSong(currentIndex.value - 1);
+    } else {
+      // 💡 ถ้ากด Back หน้าเพลงแรก ให้เด้งไปเพลงสุดท้ายเลย
+      playSong(globalMusicList.length - 1); 
     }
   }
 
   void seek(Duration pos) {
-    audioPlayer.seek(pos);
+    try {
+      audioPlayer.seek(pos);
+    } catch (e) {
+      debugPrint("❌ Error seeking audio: $e");
+    }
   }
   
   void toggleLoop() {
