@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fuwari_time/features/music/music_state.dart';
-import 'package:fuwari_time/features/music/music.dart';
 // 🚀 1. อย่าลืม Import หน้า MusicBar เข้ามาด้วยนะครับ
-import 'package:fuwari_time/features/music/music_bar.dart'; 
+import 'package:fuwari_time/features/music/music_bar.dart';
 
 import 'package:fuwari_time/features/home/screens/home_screen.dart';
 import 'package:fuwari_time/features/profile/profile.dart';
@@ -22,19 +21,19 @@ class BottomNavBar extends StatelessWidget {
 
     // 🚀 2. ครอบด้วย Column แบบ min size เพื่อให้แถบเพลงซ้อนอยู่บนเมนู
     return Column(
-      mainAxisSize: MainAxisSize.min, // 💡 สำคัญมาก: ห้ามเอาออก ไม่งั้นมันจะดันจนทะลุจอ
+      mainAxisSize:
+          MainAxisSize.min, // 💡 สำคัญมาก: ห้ามเอาออก ไม่งั้นมันจะดันจนทะลุจอ
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        
         // 🎵 3. ส่วนของ Music Bar (จะโชว์ก็ต่อเมื่อ isMusicBarVisible เป็น true)
         ValueListenableBuilder<bool>(
           valueListenable: isMusicBarVisible,
           builder: (context, isVisible, child) {
             // ถ้าไม่ได้เปิดเพลง ให้ซ่อนแถบไปเลย (คืนค่าเป็นกล่องว่างๆ)
             if (!isVisible) return const SizedBox.shrink();
-            
+
             // ถ้าเปิดเพลงอยู่ ให้แสดงแถบ MusicBar
-            return const LofiMusicBar(); 
+            return const LofiMusicBar();
           },
         ),
 
@@ -53,7 +52,7 @@ class BottomNavBar extends StatelessWidget {
           ),
           // Padding ด้านล่างจะบวกเพิ่มตามความเหมาะสมของโทรศัพท์เครื่องนั้นๆ
           padding: EdgeInsets.only(
-            top: 14, 
+            top: 14,
             bottom: bottomPadding > 0 ? bottomPadding : 14,
           ),
           width: double.infinity,
@@ -93,13 +92,13 @@ class BottomNavBar extends StatelessWidget {
               break;
             case 1:
               nextScreen = const Stat();
-              break; 
+              break;
             case 2:
-              nextScreen = const Shop(); 
+              nextScreen = const Shop();
               break;
             case 3:
               nextScreen = const Profile();
-              break; 
+              break;
             default:
               return;
           }
@@ -123,8 +122,8 @@ class BottomNavBar extends StatelessWidget {
           Container(
             width: 48,
             height: 48,
-            decoration: isActive 
-                ? BoxDecoration( 
+            decoration: isActive
+                ? BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
                     gradient: const LinearGradient(
                       begin: Alignment.topLeft,
@@ -151,7 +150,9 @@ class BottomNavBar extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              color: isActive ? const Color(0xFFC8B8E6) : const Color(0xFF9CA3AF),
+              color: isActive
+                  ? const Color(0xFFC8B8E6)
+                  : const Color(0xFF9CA3AF),
               fontSize: 12,
               fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
             ),

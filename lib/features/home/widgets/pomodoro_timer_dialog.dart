@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:fuwari_time/core/services/notification_service.dart';
 
 /// สถานะของ Pomodoro Timer
 enum PomodoroState { idle, expanded, running }
@@ -41,6 +42,7 @@ class PomodoroController extends ChangeNotifier {
 
   /// เริ่มจับเวลา
   void start() {
+    NotificationService().requestPermissions();
     currentLoop = 1;
     isWorkPhase = true;
     totalTime = workMinutes * 60;
@@ -70,6 +72,10 @@ class PomodoroController extends ChangeNotifier {
       // Work จบ
       if (breakMinutes > 0) {
         // เข้า Break อัตโนมัติ
+        NotificationService().showNotification(
+          title: "Time's up! 🍵",
+          body: "Focus session complete. Time for a short break!",
+        );
         isWorkPhase = false;
         totalTime = breakMinutes * 60;
         timeRemaining = totalTime;
@@ -88,6 +94,10 @@ class PomodoroController extends ChangeNotifier {
   void _checkNextLoop() {
     if (loopCount > 0 && currentLoop < loopCount) {
       currentLoop++;
+      NotificationService().showNotification(
+        title: "Break ended! 🔥",
+        body: "Rest over. Time to start Focus loop $currentLoop!",
+      );
       isWorkPhase = true;
       totalTime = workMinutes * 60;
       timeRemaining = totalTime;
@@ -95,6 +105,10 @@ class PomodoroController extends ChangeNotifier {
       _tick();
     } else {
       // ครบทุก Loop แล้ว (หรือ loop=0 คือทำรอบเดียว)
+      NotificationService().showNotification(
+        title: "All sessions complete! 🎉",
+        body: "Great job! You've finished your focus session.",
+      );
       _sessionActive = false;
       _state = PomodoroState.idle;
       notifyListeners();

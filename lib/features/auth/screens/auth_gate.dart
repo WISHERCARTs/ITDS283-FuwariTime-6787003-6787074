@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:fuwari_time/features/auth/screens/login_screen.dart';
-import '../../home/screens/home_screen.dart';
 import 'package:fuwari_time/features/welcome/welcome.dart';
 
 class AuthGate extends StatelessWidget {

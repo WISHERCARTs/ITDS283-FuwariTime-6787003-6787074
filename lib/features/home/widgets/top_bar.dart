@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 // 💡 อย่าลืม Import หน้า Setting เข้ามานะครับ
-import 'package:fuwari_time/features/setting/setting.dart'; 
+import 'package:fuwari_time/features/setting/setting.dart';
 
 class TopBar extends StatelessWidget {
-
   // 🚀 1. เพิ่มตัวแปรเพื่อรับค่าว่าตอนนี้อยู่หน้าไหน
   final int currentIndex;
 
   // 🚀 2. ใส่ this.currentIndex เข้ามา (กำหนดให้ค่าเริ่มต้นเป็น 0)
-  const TopBar({Key? key, this.currentIndex = 0}) : super(key: key);
-  
+  const TopBar({super.key, this.currentIndex = 0});
+
   @override
   Widget build(BuildContext context) {
     // ดึงค่าระยะห่างจากขอบจอด้านบน (ติ่งหน้าจอ หรือ แถบสถานะ)
@@ -18,9 +17,9 @@ class TopBar extends StatelessWidget {
     return Container(
       // ตัวพื้นหลังจะรวมระยะ Top Padding เข้าไปด้วยเพื่อให้สีมันคลุมไปถึงขอบบนสุด
       padding: EdgeInsets.only(
-        top: topPadding > 0 ? topPadding + 10 : 20, 
-        bottom: 30, 
-        left: 24, 
+        top: topPadding > 0 ? topPadding + 10 : 20,
+        bottom: 30,
+        left: 24,
         right: 24,
       ),
       decoration: BoxDecoration(
@@ -66,7 +65,7 @@ class TopBar extends StatelessWidget {
               ),
             ],
           ),
-          
+
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
@@ -88,7 +87,7 @@ class TopBar extends StatelessWidget {
               ],
             ),
           ),
-          
+
           // 💡 วาง Material ครอบไว้เพื่อให้โชว์เอฟเฟกต์ Hover/Splash ได้
           Material(
             color: Colors.transparent, // ให้พื้นหลังใส จะได้เห็นไล่สีของ TopBar
@@ -97,7 +96,9 @@ class TopBar extends StatelessWidget {
                 Navigator.push(
                   context,
                   // 🚀 3. แนบ currentIndex ส่งต่อไปให้หน้า Setting ด้วย!
-                  MaterialPageRoute(builder: (context) => Setting(currentIndex: currentIndex)),
+                  MaterialPageRoute(
+                    builder: (context) => Setting(currentIndex: currentIndex),
+                  ),
                 );
               },
               borderRadius: BorderRadius.circular(25),
@@ -105,7 +106,7 @@ class TopBar extends StatelessWidget {
               hoverColor: Colors.white.withOpacity(0.3),
               splashColor: Colors.white.withOpacity(0.4),
               highlightColor: Colors.white.withOpacity(0.2),
-              
+
               // 💡 เปลี่ยนจาก ClipRRect มาใช้ Ink()
               child: Ink(
                 width: 40,
@@ -113,14 +114,15 @@ class TopBar extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(25),
                   image: const DecorationImage(
-                    image: NetworkImage("https://storage.googleapis.com/tagjs-prod.appspot.com/v1/y0beqz0yoq/959ud1zb_expires_30_days.png"),
+                    image: NetworkImage(
+                      "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/y0beqz0yoq/959ud1zb_expires_30_days.png",
+                    ),
                     fit: BoxFit.cover,
                   ),
                 ),
               ),
             ),
           ),
-          
         ],
       ),
     );

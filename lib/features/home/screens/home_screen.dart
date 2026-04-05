@@ -3,7 +3,6 @@ import 'pages/task_planner_page.dart';
 import 'pages/focus_room_page.dart';
 import 'pages/shop_inventory_page.dart';
 import '../widgets/top_bar.dart';
-import '../widgets/bottom_music_player.dart';
 import '../widgets/bottom_nav_bar.dart';
 import '../widgets/video_background_layer.dart';
 import '../widgets/global_action_menu.dart';
@@ -21,7 +20,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final PageController _pageController = PageController(initialPage: 1);
-  
+
   // ==========================================
   // Global Controllers & States (ย้ายมาจาก FocusRoomPage)
   // ==========================================
@@ -64,7 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Positioned.fill(
               child: PageView(
                 controller: _pageController,
-                physics: const ClampingScrollPhysics(), 
+                physics: const ClampingScrollPhysics(),
                 children: const [
                   TaskPlannerPage(),
                   FocusRoomPage(), // ตอนนี้หน้านี้จะคลีนขึ้นมาก
@@ -83,17 +82,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
             // 3. เครื่องเล่นเพลงและ Navigation Bar ด้านล่าง
             const Positioned(
-              bottom: 0, 
-              left: 0, 
+              bottom: 0,
+              left: 0,
               right: 0,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
-                children: [
-                  
-                  BottomNavBar(),
-                ],
+                children: [BottomNavBar()],
               ),
-
             ),
 
             // ==========================================

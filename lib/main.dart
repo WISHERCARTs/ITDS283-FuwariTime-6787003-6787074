@@ -4,6 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 
 import 'package:fuwari_time/services/supabase_service.dart';
+import 'package:fuwari_time/core/services/notification_service.dart';
 import 'package:fuwari_time/features/auth/screens/auth_gate.dart';
 import 'package:fuwari_time/features/home/services/background_controller.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -21,6 +22,9 @@ void main() async {
 
   // Initialize Supabase
   await SupabaseService.initialize();
+
+  // Initialize Notification Service
+  await NotificationService().init();
 
   runApp(
     MultiProvider(
