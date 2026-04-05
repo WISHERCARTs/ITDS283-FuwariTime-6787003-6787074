@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-
 import 'package:fuwari_time/services/supabase_service.dart';
 import 'package:fuwari_time/core/services/notification_service.dart';
 import 'package:fuwari_time/features/auth/screens/auth_gate.dart';
@@ -11,12 +10,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'dart:ui';
 
-
-
+import 'package:fuwari_time/features/home/widgets/pomodoro_timer_dialog.dart';
+import 'package:fuwari_time/features/home/widgets/todo_list_dialog.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Load environment variables
   await dotenv.load(fileName: ".env");
 
@@ -30,6 +29,8 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => BackgroundController()),
+        ChangeNotifierProvider(create: (_) => PomodoroController()),
+        ChangeNotifierProvider(create: (_) => TodoController()),
       ],
       child: const FuwariTimeApp(),
     ),
@@ -58,11 +59,7 @@ class FuwariTimeApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF6B4E3D)),
       ),
 
-
       home: const AuthGate(),
-
-
-
     );
   }
 }

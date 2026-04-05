@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-// 💡 อย่าลืมเช็ค Path การ Import ให้ตรงกับโฟลเดอร์ในโปรเจกต์ของคุณนะครับ
+import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:fuwari_time/features/home/widgets/top_bar.dart';
 import 'package:fuwari_time/features/home/widgets/bottom_nav_bar.dart';
+import 'package:fuwari_time/features/home/widgets/pomodoro_timer_dialog.dart';
+import '../../services/timer_service.dart';
 
 class Stat extends StatefulWidget {
   const Stat({super.key});
@@ -10,36 +13,74 @@ class Stat extends StatefulWidget {
 }
 
 class StatState extends State<Stat> {
+  final TimerService _timerService = TimerService();
+  double focusHours = 0.0;
+  double breakHours = 0.0;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStats();
+  }
+
+  Future<void> _loadStats() async {
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user == null) return;
+
+    final stats = await _timerService.getTodayStats(user.id);
+    setState(() {
+      focusHours = stats['focus_hours'] ?? 0.0;
+      breakHours = stats['break_hours'] ?? 0.0;
+      _isLoading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    // 🚀 ดึง Timer Controller จาก Global
+    final pomodoroController = context.watch<PomodoroController>();
+
     return Scaffold(
       backgroundColor: const Color(0xFFFFF8F0),
-      // 💡 เรียกใช้ BottomNavBar และส่งค่า 1 เพื่อไฮไลท์ปุ่ม Stats
       bottomNavigationBar: const BottomNavBar(currentIndex: 1), 
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // 💡 เรียกใช้ TopBar ที่เราแยกไฟล์ไว้
-              const TopBar(currentIndex: 1),
-              
-              const SizedBox(height: 30),
-              
-              // กล่องแสดงสถิติ (Stats Card)
-              _buildStatsCard(),
-              
-              const SizedBox(height: 40),
-            ],
-          ),
+        child: Stack(
+          children: [
+            // 1. เนื้อหาสถิติ
+            SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const TopBar(currentIndex: 1),
+                  const SizedBox(height: 30),
+                  _isLoading 
+                    ? const Center(child: CircularProgressIndicator())
+                    : _buildStatsCard(),
+                  const SizedBox(height: 40),
+                ],
+              ),
+            ),
+
+            // 2. 🕒 Mini Timer (ลอยทับหน้า Stats เมื่อรันอยู่)
+            if (pomodoroController.state == PomodoroState.running)
+              Positioned(
+                top: 150,
+                right: 20,
+                child: PomodoroMiniTimer(controller: pomodoroController),
+              ),
+
+             // 3. ⚙️ Pomodoro Expanded Overlay
+            if (pomodoroController.state == PomodoroState.expanded)
+              Positioned.fill(
+                child: PomodoroExpandedOverlay(controller: pomodoroController),
+              ),
+          ],
         ),
       ),
     );
   }
 
-  // ==========================================
-  // ส่วนสร้างกล่องสถิติ (Stats Card)
-  // ==========================================
   Widget _buildStatsCard() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 24),
@@ -60,7 +101,7 @@ class StatState extends State<Stat> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            "Stats",
+            "Stats Today",
             style: TextStyle(
               color: Color(0xFF111827),
               fontSize: 20,
@@ -69,80 +110,69 @@ class StatState extends State<Stat> {
           ),
           const SizedBox(height: 24),
           
-          // 💡 แถบที่ 1: App Usage Time
+          // 💡 แถบที่ 1: Focus Time
           _buildStatRow(
-            dotColor: const Color(0xFF3B82F6), // สีน้ำเงิน
-            label: "App Usage Time",
-            time: "15.2h",
-            percent: 0.6, // ความยาวหลอด (0.0 - 1.0)
+            dotColor: const Color(0xFFEF4444), // สีแดง
+            label: "Focus Time",
+            time: "${focusHours.toStringAsFixed(1)}h",
+            percent: (focusHours / 8).clamp(0.0, 1.0), // เต็มหลอดที่ 8 ชม.
           ),
           
           const SizedBox(height: 20),
           
-          // 💡 แถบที่ 2: Pomodoro Time
+          // 💡 แถบที่ 2: Break Time
           _buildStatRow(
             dotColor: const Color(0xFF22C55E), // สีเขียว
-            label: "Pomodo Time",
-            time: "10.8h",
-            percent: 0.4, // ความยาวหลอด (0.0 - 1.0)
+            label: "Break Time",
+            time: "${breakHours.toStringAsFixed(1)}h",
+            percent: (breakHours / 4).clamp(0.0, 1.0), // เต็มหลอดที่ 4 ชม.
           ),
         ],
       ),
     );
   }
 
-  // ==========================================
-  // ฟังก์ชันย่อยสำหรับวาด "แต่ละแถว" ของสถิติ
-  // ==========================================
   Widget _buildStatRow({
     required Color dotColor,
     required String label,
     required String time,
-    required double percent, // รับค่า % ของความยาวหลอดสี
+    required double percent,
   }) {
     return Row(
       children: [
-        // 1. จุดสี
         Container(
           width: 12,
           height: 12,
           decoration: BoxDecoration(color: dotColor, shape: BoxShape.circle),
         ),
         const SizedBox(width: 8),
-        
-        // 2. ข้อความ Label
         SizedBox(
-          width: 110, // ล็อกความกว้างไว้ให้ข้อความตรงกัน
+          width: 110,
           child: Text(
             label,
             style: const TextStyle(color: Color(0xFF374151), fontSize: 13),
           ),
         ),
-        
-        // 3. หลอดกราฟ (ใช้ Expanded เพื่อให้ยืดเต็มพื้นที่ที่เหลือ)
         Expanded(
           child: Container(
             height: 8,
             decoration: BoxDecoration(
-              color: const Color(0xFFE5E7EB), // สีพื้นหลังหลอด (สีเทา)
+              color: const Color(0xFFE5E7EB),
               borderRadius: BorderRadius.circular(4),
             ),
             alignment: Alignment.centerLeft,
             child: FractionallySizedBox(
-              widthFactor: percent, // กำหนดความยาวของแถบสีตามค่า percent
+              widthFactor: percent,
               child: Container(
                 decoration: BoxDecoration(
-                  color: dotColor, // สีหลอดกราฟ
+                  color: dotColor,
                   borderRadius: BorderRadius.circular(4),
                 ),
               ),
             ),
           ),
         ),
-        
         const SizedBox(width: 12),
-        
-        // 4. ข้อความเวลา
         SizedBox(
           width: 40,
           child: Text(

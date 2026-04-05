@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'pages/task_planner_page.dart';
 import 'pages/focus_room_page.dart';
 import 'pages/shop_inventory_page.dart';
@@ -21,11 +22,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final PageController _pageController = PageController(initialPage: 1);
 
-  // ==========================================
-  // Global Controllers & States (ย้ายมาจาก FocusRoomPage)
-  // ==========================================
-  final PomodoroController _pomodoroController = PomodoroController();
-  final TodoController _todoController = TodoController();
   bool _isTodoExpanded = false;
 
   // ตำแหน่ง Mini Timer (ลากย้ายได้)
@@ -33,26 +29,17 @@ class _HomeScreenState extends State<HomeScreen> {
   double _miniTimerY = 150;
 
   @override
-  void initState() {
-    super.initState();
-    _pomodoroController.addListener(_onPomodoroChanged);
-  }
-
-  @override
   void dispose() {
-    _pomodoroController.removeListener(_onPomodoroChanged);
-    _pomodoroController.dispose();
-    _todoController.dispose();
     _pageController.dispose();
     super.dispose();
   }
 
-  void _onPomodoroChanged() {
-    setState(() {}); // Rebuild เมื่อสถานะเวลาเปลี่ยน
-  }
-
   @override
   Widget build(BuildContext context) {
+    // 🚀 ดึง Controllers จาก Global Provider
+    final pomodoroController = context.watch<PomodoroController>();
+    final todoController = context.watch<TodoController>();
+
     return Scaffold(
       extendBody: true,
       body: VideoBackgroundLayer(
@@ -66,7 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 physics: const ClampingScrollPhysics(),
                 children: const [
                   TaskPlannerPage(),
-                  FocusRoomPage(), // ตอนนี้หน้านี้จะคลีนขึ้นมาก
+                  FocusRoomPage(),
                   ShopInventoryPage(),
                 ],
               ),
@@ -102,20 +89,20 @@ class _HomeScreenState extends State<HomeScreen> {
               child: GlobalActionMenu(
                 onClockTap: () {
                   setState(() => _isTodoExpanded = false);
-                  _pomodoroController.expand();
+                  pomodoroController.expand();
                 },
                 onDocumentTap: () {
                   setState(() {
                     _isTodoExpanded = !_isTodoExpanded;
                   });
                 },
-                isTimerActive: _pomodoroController.sessionActive,
+                isTimerActive: pomodoroController.sessionActive,
                 isTodoActive: _isTodoExpanded,
               ),
             ),
 
             // 5. Mini Timer (ลอยนิ่งและลากได้ข้ามหน้า)
-            if (_pomodoroController.state == PomodoroState.running)
+            if (pomodoroController.state == PomodoroState.running)
               Positioned(
                 top: _miniTimerY,
                 left: _miniTimerX,
@@ -130,21 +117,21 @@ class _HomeScreenState extends State<HomeScreen> {
                       _miniTimerY = _miniTimerY.clamp(0, size.height - 200);
                     });
                   },
-                  child: PomodoroMiniTimer(controller: _pomodoroController),
+                  child: PomodoroMiniTimer(controller: pomodoroController),
                 ),
               ),
 
             // 6. Pomodoro Expanded Overlay (หน้าตั้งค่าเวลา)
-            if (_pomodoroController.state == PomodoroState.expanded)
+            if (pomodoroController.state == PomodoroState.expanded)
               Positioned.fill(
-                child: PomodoroExpandedOverlay(controller: _pomodoroController),
+                child: PomodoroExpandedOverlay(controller: pomodoroController),
               ),
 
             // 7. To-Do List Overlay (หน้าสมุดโน้ต)
             if (_isTodoExpanded)
               Positioned.fill(
                 child: TodoListOverlay(
-                  controller: _todoController,
+                  controller: todoController,
                   onDismiss: () {
                     setState(() {
                       _isTodoExpanded = false;

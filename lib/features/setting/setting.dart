@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:fuwari_time/features/auth/screens/auth_gate.dart';
 import 'package:fuwari_time/features/home/widgets/top_bar.dart';
 import 'package:fuwari_time/features/home/widgets/bottom_nav_bar.dart';
 import 'package:fuwari_time/features/setting/about_us.dart';
@@ -14,23 +16,24 @@ class Setting extends StatefulWidget {
 }
 
 class SettingState extends State<Setting> {
-  double soundVolume = 0.5; 
+  double soundVolume = 0.5;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFFF8F0),
       // 🚀 2. โยนค่า widget.currentIndex ไปให้ BottomNavBar ใช้
-      bottomNavigationBar: BottomNavBar(currentIndex: widget.currentIndex), 
+      bottomNavigationBar: BottomNavBar(currentIndex: widget.currentIndex),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const TopBar(),
-              
-              const SizedBox(height: 20), // 💡 ปรับระยะห่างนิดหน่อยให้พอดีกับปุ่ม
-              
+
+              const SizedBox(
+                height: 20,
+              ), // 💡 ปรับระยะห่างนิดหน่อยให้พอดีกับปุ่ม
               // 🚀 3. ใช้ Stack จัดปุ่ม Back ไว้ซ้าย และข้อความไว้ตรงกลาง
               Stack(
                 alignment: Alignment.center,
@@ -41,7 +44,7 @@ class SettingState extends State<Setting> {
                       padding: const EdgeInsets.only(left: 16),
                       child: IconButton(
                         icon: const Icon(
-                          Icons.arrow_back_rounded, 
+                          Icons.arrow_back_rounded,
                           color: Color(0xFF1F2937),
                           size: 24,
                         ),
@@ -62,9 +65,9 @@ class SettingState extends State<Setting> {
                   ),
                 ],
               ),
-              
+
               const SizedBox(height: 30),
-              
+
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Row(
@@ -77,38 +80,47 @@ class SettingState extends State<Setting> {
                     const SizedBox(width: 16),
                     const Text(
                       "Sound",
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                    
+
                     Expanded(
                       child: Slider(
                         value: soundVolume,
                         min: 0.0,
                         max: 1.0,
-                        activeColor: const Color(0xFFDAB7FD), 
-                        inactiveColor: Colors.grey.shade300,  
+                        activeColor: const Color(0xFFDAB7FD),
+                        inactiveColor: Colors.grey.shade300,
                         onChanged: (value) {
                           setState(() {
                             soundVolume = value;
                           });
-                          print("ระดับเสียงตอนนี้: ${(soundVolume * 100).toInt()}%");
+                          print(
+                            "ระดับเสียงตอนนี้: ${(soundVolume * 100).toInt()}%",
+                          );
                         },
                       ),
                     ),
-                    
+
                     SizedBox(
                       width: 40,
                       child: Text(
                         "${(soundVolume * 100).toInt()}%",
                         textAlign: TextAlign.right,
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF6B7280)),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF6B7280),
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
               const SizedBox(height: 30),
-              
+
               // 💡 เมนู About Us
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -143,15 +155,29 @@ class SettingState extends State<Setting> {
                   ),
                 ),
               ),
-              
+
               const SizedBox(height: 30),
-              
+
               // 💡 ปุ่ม Log out
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 32),
                 child: InkWell(
-                  onTap: () {
-                    print("กด Log out");
+                  onTap: () async {
+                    // 🚀 1. สั่ง Sign Out จาก Supabase
+                    await Supabase.instance.client.auth.signOut();
+
+                    // 🚀 2. พากลับไปหน้า AuthGate (ที่อยู่ในจุดเริ่มต้นของแอป) และล้างหน้ากระดานทั้งหมด
+                    if (context.mounted) {
+                      Navigator.of(
+                        context,
+                        rootNavigator: true,
+                      ).pushAndRemoveUntil(
+                        MaterialPageRoute(
+                          builder: (context) => const AuthGate(),
+                        ),
+                        (route) => false,
+                      );
+                    }
                   },
                   borderRadius: BorderRadius.circular(8),
                   child: Padding(
@@ -163,13 +189,13 @@ class SettingState extends State<Setting> {
                           "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/y0beqz0yoq/bo4l4cgu_expires_30_days.png",
                           width: 30,
                           height: 30,
-                          color: Colors.redAccent, 
+                          color: Colors.redAccent,
                         ),
                         const SizedBox(width: 16),
                         const Text(
                           "Log out",
                           style: TextStyle(
-                            color: Colors.redAccent, 
+                            color: Colors.redAccent,
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                           ),
@@ -179,8 +205,8 @@ class SettingState extends State<Setting> {
                   ),
                 ),
               ),
-              
-              const SizedBox(height: 100), 
+
+              const SizedBox(height: 100),
             ],
           ),
         ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 // 💡 อย่าลืม Import หน้า Setting เข้ามานะครับ
 import 'package:fuwari_time/features/setting/setting.dart';
 
@@ -8,6 +9,8 @@ class TopBar extends StatelessWidget {
 
   // 🚀 2. ใส่ this.currentIndex เข้ามา (กำหนดให้ค่าเริ่มต้นเป็น 0)
   const TopBar({super.key, this.currentIndex = 0});
+
+  String? get _currentUserId => Supabase.instance.client.auth.currentUser?.id;
 
   @override
   Widget build(BuildContext context) {
@@ -66,26 +69,49 @@ class TopBar extends StatelessWidget {
             ],
           ),
 
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: const Color(0x4DFFFFFF),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Row(
-              children: [
-                Image.network(
-                  "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/y0beqz0yoq/hevi4h27_expires_30_days.png",
-                  width: 16,
-                  height: 24,
+          // 💰 [ส่วนที่แก้] ใช้ StreamBuilder ดึงแต้ม Real-time จาก Supabase
+          StreamBuilder<List<Map<String, dynamic>>>(
+            stream: _currentUserId != null
+                ? Supabase.instance.client
+                      .from('profiles')
+                      .stream(primaryKey: ['id'])
+                      .eq('id', _currentUserId!)
+                : null,
+            builder: (context, snapshot) {
+              int points = 0;
+              if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                points = snapshot.data!.first['points'] ?? 0;
+              }
+
+              return Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
                 ),
-                const SizedBox(width: 8),
-                const Text(
-                  "1,250",
-                  style: TextStyle(color: Colors.white, fontSize: 14),
+                decoration: BoxDecoration(
+                  color: const Color(0x4DFFFFFF),
+                  borderRadius: BorderRadius.circular(20),
                 ),
-              ],
-            ),
+                child: Row(
+                  children: [
+                    Image.network(
+                      "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/y0beqz0yoq/hevi4h27_expires_30_days.png",
+                      width: 16,
+                      height: 24,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      points.toString(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
 
           // 💡 วาง Material ครอบไว้เพื่อให้โชว์เอฟเฟกต์ Hover/Splash ได้

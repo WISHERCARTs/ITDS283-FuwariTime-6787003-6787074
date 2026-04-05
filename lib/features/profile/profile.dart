@@ -1,10 +1,13 @@
-import 'dart:io'; 
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart'; 
+import 'package:provider/provider.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:fuwari_time/features/home/widgets/bottom_nav_bar.dart';
 import 'package:fuwari_time/features/home/widgets/top_bar.dart';
-// 🚀 1. Import Supabase เข้ามาเพื่อใช้ดึงข้อมูล User
+import 'package:fuwari_time/features/home/widgets/pomodoro_timer_dialog.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../services/profile_service.dart';
+import '../../models/profile_model.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -13,30 +16,91 @@ class Profile extends StatefulWidget {
 }
 
 class ProfileState extends State<Profile> {
-  String username = '';
-  
-  // 🚀 2. สร้างตัวแปรไว้รอรับ Email จากฐานข้อมูล
+  final ProfileService _profileService = ProfileService();
+  final TextEditingController _usernameController = TextEditingController();
+
   String userEmail = 'Loading...';
+  bool _isSaving = false;
+  bool _isEditing = false; // 🚀 เพิ่มโหมดแก้ไข
 
   File? _profileImage;
   final String _defaultImageUrl =
       "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/y0beqz0yoq/anfl69ph_expires_30_days.png";
 
-  // 🚀 3. ใช้ initState เพื่อดึงข้อมูลทันทีที่เปิดหน้านี้ขึ้นมา
+  String? get _currentUserId => Supabase.instance.client.auth.currentUser?.id;
+
   @override
   void initState() {
     super.initState();
     _loadUserData();
   }
 
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    super.dispose();
+  }
+
   // 💡 ฟังก์ชันดึงข้อมูลจาก Supabase
-  void _loadUserData() {
-    // ดึง User ปัจจุบันที่กำลังล็อกอินอยู่
+  Future<void> _loadUserData() async {
     final user = Supabase.instance.client.auth.currentUser;
+    if (user == null) return;
+
     setState(() {
-      // ถ้าพบข้อมูล User ให้ดึง email มาใส่ตัวแปร แต่ถ้าหาไม่เจอให้แสดง 'No email found'
-      userEmail = user?.email ?? 'No email found';
+      userEmail = user.email ?? 'No email found';
     });
+
+    // โหลดครั้งแรกเท่านั้น เพื่อให้มีข้อมูลเริ่มต้นใน Controller
+    final profile = await _profileService.getProfile(user.id);
+    if (profile != null && !_isEditing) {
+      _usernameController.text = profile.username ?? '';
+    }
+  }
+
+  // ฟังก์ชันบันทึกชื่อใหม่
+  Future<void> _saveProfile() async {
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user == null) return;
+
+    setState(() => _isSaving = true);
+
+    try {
+      // ดึงค่าโปรไฟล์ล่าสุดมาเพื่อรักษาแต้มไว้
+      final profile = await _profileService.getProfile(user.id);
+
+      final updatedProfile = ProfileModel(
+        id: user.id,
+        username: _usernameController.text,
+        points: profile?.points ?? 0,
+        avatarUrl: profile?.avatarUrl,
+      );
+
+      await _profileService.updateProfile(updatedProfile);
+
+      setState(() {
+        _isSaving = false;
+        _isEditing = false; // ปิดโหมดแก้ไขเมื่อเซฟเสร็จ
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Profile updated successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      setState(() => _isSaving = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error saving profile: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   Future<void> _pickImage() async {
@@ -55,27 +119,154 @@ class ProfileState extends State<Profile> {
 
   @override
   Widget build(BuildContext context) {
+    // 🚀 ดึง Timer Controller จาก Global
+    final pomodoroController = context.watch<PomodoroController>();
+
     return Scaffold(
       backgroundColor: const Color(0xFFFFF8F0),
-      bottomNavigationBar: const BottomNavBar(
-        currentIndex: 3,
-      ), 
+      bottomNavigationBar: const BottomNavBar(currentIndex: 3),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const TopBar(currentIndex: 3),
+        child: StreamBuilder<List<Map<String, dynamic>>>(
+          stream: _currentUserId != null
+              ? Supabase.instance.client
+                  .from('profiles')
+                  .stream(primaryKey: ['id'])
+                  .eq('id', _currentUserId!)
+              : null,
+          builder: (context, snapshot) {
+            // ดึงข้อมูลจาก Stream
+            Map<String, dynamic>? profileData;
+            if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+              profileData = snapshot.data!.first;
+              
+              // 🚀 อัปเดตชื่อใน Controller เฉพาะตอนที่ไม่ได้กำลังแก้ไขอยู่
+              if (!_isEditing) {
+                _usernameController.text = profileData['username'] ?? '';
+              }
+            }
 
-              const SizedBox(height: 20),
-              _buildProfileImagePicker(),
+            final int points = profileData?['points'] ?? 0;
 
-              const SizedBox(height: 30),
-              _buildInfoSection(), 
-              const SizedBox(height: 40),
-            ],
-          ),
+            return Stack(
+              children: [
+                // 1. เนื้อหาหลักของหน้า Profile
+                SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const TopBar(currentIndex: 3),
+                      const SizedBox(height: 20),
+                      _buildProfileImagePicker(),
+                      const SizedBox(height: 10),
+                      // 💰 แต้มพ้อยท์ (ตอนนี้ดึงจาก Stream ตัวเดียวกับชื่อแล้ว)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFEF9C3),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Image.network(
+                              "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/y0beqz0yoq/siq2ut46_expires_30_days.png",
+                              width: 20,
+                              height: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              "$points Points",
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFFA16207),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      _buildInfoSection(),
+                      const SizedBox(height: 20),
+                      if (_isEditing) _buildEditButtons(),
+                      const SizedBox(height: 40),
+                    ],
+                  ),
+                ),
+
+                // 2. 🕒 Mini Timer (ลอยทับหน้า Profile เมื่อรันอยู่)
+                if (pomodoroController.state == PomodoroState.running)
+                  Positioned(
+                    top: 150,
+                    right: 20,
+                    child: PomodoroMiniTimer(controller: pomodoroController),
+                  ),
+
+                // 3. ⚙️ Settings Overlay
+                if (pomodoroController.state == PomodoroState.expanded)
+                  Positioned.fill(
+                    child:
+                        PomodoroExpandedOverlay(controller: pomodoroController),
+                  ),
+              ],
+            );
+          },
         ),
+      ),
+    );
+  }
+
+  Widget _buildEditButtons() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Row(
+        children: [
+          Expanded(
+            child: OutlinedButton(
+              onPressed: () => setState(() => _isEditing = false),
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.all(16),
+                side: const BorderSide(color: Color(0xFF8B5CF6)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text("Cancel"),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: ElevatedButton(
+              onPressed: _isSaving ? null : _saveProfile,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF8B5CF6),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.all(16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: _isSaving
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : const Text(
+                      "Save",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -87,13 +278,13 @@ class ProfileState extends State<Profile> {
           borderRadius: BorderRadius.circular(30),
           child: _profileImage != null
               ? Image.file(
-                  _profileImage!, 
+                  _profileImage!,
                   width: 150,
                   height: 150,
                   fit: BoxFit.cover,
                 )
               : Image.network(
-                  _defaultImageUrl, 
+                  _defaultImageUrl,
                   width: 150,
                   height: 150,
                   fit: BoxFit.cover,
@@ -103,11 +294,11 @@ class ProfileState extends State<Profile> {
           bottom: 0,
           right: 0,
           child: InkWell(
-            onTap: _pickImage, 
+            onTap: _pickImage,
             child: Container(
               padding: const EdgeInsets.all(10),
               decoration: const BoxDecoration(
-                color: Color(0xFFD8B4FE), 
+                color: Color(0xFFD8B4FE),
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
@@ -118,7 +309,7 @@ class ProfileState extends State<Profile> {
                 ],
               ),
               child: const Icon(
-                Icons.camera_alt_rounded, 
+                Icons.camera_alt_rounded,
                 color: Colors.white,
                 size: 20,
               ),
@@ -139,31 +330,49 @@ class ProfileState extends State<Profile> {
       ),
       child: Column(
         children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "General Info",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+              IconButton(
+                onPressed: () => setState(() => _isEditing = !_isEditing),
+                icon: Icon(
+                  _isEditing ? Icons.close : Icons.edit_rounded,
+                  size: 20,
+                  color: const Color(0xFF8B5CF6),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
           _buildInfoItem(
             child: TextField(
-              onChanged: (value) => setState(() => username = value),
+              controller: _usernameController,
+              enabled: _isEditing, // 🚀 ปลดล็อกเฉพาะตอนแก้ไข
               decoration: const InputDecoration(
-                hintText: "Username: Wishercart",
+                labelText: "Username",
+                hintText: "Enter your name",
                 border: InputBorder.none,
                 isDense: true,
-                contentPadding: EdgeInsets.zero,
               ),
               style: const TextStyle(fontSize: 18),
             ),
           ),
           const SizedBox(height: 10),
           _buildInfoItem(
-            // 🚀 4. เอาตัวแปร userEmail มาแสดงผลแทนข้อความตายตัว
             child: Text(
               "Email: $userEmail",
-              style: const TextStyle(fontSize: 18),
+              style: const TextStyle(fontSize: 18, color: Colors.black54),
             ),
           ),
           const SizedBox(height: 10),
           _buildInfoItem(
             child: const Text(
-              "Password: xxxxx",
-              style: TextStyle(fontSize: 18),
+              "Password: ••••••••",
+              style: TextStyle(fontSize: 18, color: Colors.black54),
             ),
           ),
         ],
@@ -178,6 +387,9 @@ class ProfileState extends State<Profile> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
+        border: _isEditing && child is TextField
+            ? Border.all(color: const Color(0xFF8B5CF6), width: 1)
+            : null,
       ),
       child: child,
     );

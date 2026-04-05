@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:fuwari_time/core/services/notification_service.dart';
+import '../../../services/timer_service.dart';
+import '../../../services/profile_service.dart';
 
 /// สถานะของ Pomodoro Timer
 enum PomodoroState { idle, expanded, running }
@@ -9,6 +12,11 @@ enum PomodoroState { idle, expanded, running }
 /// PomodoroController - จัดการ Logic ทั้งหมดของ Timer
 /// ===================================================
 class PomodoroController extends ChangeNotifier {
+  final TimerService _timerService = TimerService();
+  final ProfileService _profileService = ProfileService();
+  
+  String? get _currentUserId => Supabase.instance.client.auth.currentUser?.id;
+
   PomodoroState _state = PomodoroState.idle;
   PomodoroState get state => _state;
 
@@ -69,6 +77,17 @@ class PomodoroController extends ChangeNotifier {
 
   void _onPhaseComplete() {
     if (isWorkPhase) {
+      // ✅ 1. จดบันทึก Focus Session ที่จบลง
+      if (_currentUserId != null) {
+        _timerService.saveSession(
+          userId: _currentUserId!,
+          type: 'focus',
+          durationMins: workMinutes,
+        );
+        // ✅ 2. ให้รางวัลคนตั้งใจเรียน/ทำงาน (เพิ่ม 10 แต้ม)
+        _profileService.addPoints(_currentUserId!, 10);
+      }
+
       // Work จบ
       if (breakMinutes > 0) {
         // เข้า Break อัตโนมัติ
@@ -86,6 +105,15 @@ class PomodoroController extends ChangeNotifier {
         _checkNextLoop();
       }
     } else {
+      // ✅ 3. จดบันทึก Break Session ที่จบลง
+      if (_currentUserId != null) {
+        _timerService.saveSession(
+          userId: _currentUserId!,
+          type: 'break',
+          durationMins: breakMinutes,
+        );
+      }
+
       // Break จบ → เช็ก Loop
       _checkNextLoop();
     }
