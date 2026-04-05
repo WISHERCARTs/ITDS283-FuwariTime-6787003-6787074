@@ -15,10 +15,13 @@ final List<Map<String, String>> baseMusicList = [
 
 // 🚀 3. แคตตาล็อกเพลงใน Shop (ใช้แมตช์ข้อมูลเวลาซื้อสำเร็จ)
 final List<Map<String, String>> shopMusicCatalog = [
-  {"title": "Lofi Study", "artist": "Study Beats", "img": "assets/image/LemonMusic.webp", "path": "audio_asset/lemon-music.mp3"}, // 💡 ใช้ไฟล์ตัวอย่างไปก่อน
-  {"title": "Summer Vibe", "artist": "Ocean Waves", "img": "assets/image/AventureMusic.webp", "path": "audio_asset/nostalgia-music.mp3"},
-  {"title": "Midnight Jazz", "artist": "Jazz Club", "img": "assets/image/MondaMusic.webp", "path": "audio_asset/chill-music.mp3"},
-  {"title": "Rainy Day", "artist": "Nature Sound", "img": "assets/image/LemonMusic.webp", "path": "audio_asset/lemon-music.mp3"},
+  {"title": "rose water", "artist": "massobeats", "img": "assets/image/Massobeats.jpg", "path": "audio_asset/rosewater-music.mp3"},
+  {"title": "Lofi-girl", "artist": "Watermello", "img": "assets/image/Watermello.webp", "path": "audio_asset/lofi-girl-music.mp3"},
+  {"title": "Sad-love", "artist": "Oliver Hoss", "img": "assets/image/mizuharaaa.jpg", "path": "audio_asset/sad-love-music.mp3"},
+  {"title": "Relax", "artist": "VibeHorn", "img": "assets/image/VibeHorn.webp", "path": "audio_asset/relax-Music.mp3"},
+  {"title": "honey jam", "artist": "massobeats", "img": "assets/image/Honeyjam.webp", "path": "audio_asset/honeyjam-music.mp3"},
+  {"title": "Donut", "artist": "Lukrembo", "img": "assets/image/Lukrembo.webp", "path": "audio_asset/donut-music.mp3"},
+  
 ];
 
 // 🚀 4. รายชื่อเพลงปัจจุบัน (Base + Purchased)
@@ -146,6 +149,22 @@ class MusicController {
   
   void toggleLoop() {
     isLooping.value = !isLooping.value;
+  }
+
+  // 🚀 ฟังก์ชันสำหรับเอาเพลงใหม่เข้าคลังแบบฉับพลัน (Local Update)
+  void buyNewSong(Map<String, String> newSong) {
+    // ก๊อปปี้ List เดิมออกมาก่อน
+    List<Map<String, String>> currentList = List.from(globalMusicList.value);
+    
+    // เช็คว่ามีเพลงนี้อยู่แล้วหรือยัง
+    if (!currentList.any((song) => song['title'] == newSong['title'])) {
+      currentList.add(newSong);
+      
+      // 💥 สำคัญมาก! การใส่ค่ากลับไปแบบนี้ จะไปสะกิดให้หน้า Shop เปลี่ยนเป็น Sold Out 
+      // และสะกิดให้หน้า Inventory กับ Music สร้างปุ่มเพลงใหม่ทันทีครับ!
+      globalMusicList.value = currentList; 
+      debugPrint("✅ ซื้อเพลง ${newSong['title']} เข้าคลังสำเร็จ!");
+    }
   }
 }
 

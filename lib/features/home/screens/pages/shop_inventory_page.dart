@@ -10,23 +10,28 @@ class ShopInventoryPage extends StatefulWidget {
 }
 
 class _ShopInventoryPageState extends State<ShopInventoryPage> {
-  final PageController _pageController = PageController();
-  int _currentPage = 0;
+  // 🚀 ตัวควบคุมการเลื่อนขึ้นลง
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void dispose() {
-    _pageController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // 🚀 ใช้ ValueListenableBuilder เพื่อให้ตู้เพลงอัปเดตทันทีที่ซื้อเพลงใหม่
     return ValueListenableBuilder<List<Map<String, String>>>(
       valueListenable: globalMusicList,
       builder: (context, musicList, _) {
-        int totalPages = (musicList.length / 9).ceil();
-        if (totalPages == 0) totalPages = 1;
+        
+        // 💡 บังคับให้มีขั้นต่ำ 12 ช่อง (4 แถว) เพื่อให้มันล้นตู้และไถเลื่อนได้เสมอ
+        int totalSlots = musicList.length;
+        if (totalSlots < 12) {
+          totalSlots = 12; 
+        } else if (totalSlots % 3 != 0) {
+          totalSlots = totalSlots + (3 - (totalSlots % 3)); 
+        }
 
         return Scaffold(
           backgroundColor: Colors.transparent, 
@@ -36,7 +41,6 @@ class _ShopInventoryPageState extends State<ShopInventoryPage> {
               children: [
                 const SizedBox(height: 200),
 
-                // 🚀 หัวข้อตู้เพลง
                 const Text(
                   "My Inventory",
                   style: TextStyle(
@@ -48,119 +52,107 @@ class _ShopInventoryPageState extends State<ShopInventoryPage> {
                 
                 const SizedBox(height: 16),
 
-                // 🚀 ตู้หนังสือ 3x3
+                // 🚀 2. ตู้เพลงแบบรวมเป็นก้อนเดียว (ซ่อนแถบเลื่อนไว้ข้างใน)
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: 20),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // ⬅️ ลูกศรซ้าย
-                        Padding(
-                          padding: const EdgeInsets.only(top: 100),
-                          child: Opacity(
-                            opacity: _currentPage > 0 ? 1.0 : 0.0,
-                            child: IconButton(
-                              icon: const Icon(Icons.arrow_back_ios_rounded, color: Color(0xFFD8B4FE), size: 28),
-                              onPressed: _currentPage > 0 ? () {
-                                _pageController.previousPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
-                              } : null,
-                            ),
-                          ),
+                    child: Align(
+                      alignment: Alignment.topCenter,
+                      child: Container(
+                        width: 260, // 💡 ความกว้างของตู้
+                        height: 245, // 💡 ความสูงของตู้
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFDEB887), // สีพื้นตู้
+                          borderRadius: BorderRadius.circular(12), // โค้งทั้ง 4 มุม
+                          border: Border.all(color: const Color(0xFFC89F65), width: 4), // กรอบสีน้ำตาล
+                          boxShadow: const [
+                            BoxShadow(color: Color(0x33000000), blurRadius: 10, offset: Offset(0, 5)),
+                          ],
                         ),
+                        
+                        // 🚀 RawScrollbar จะลอยอยู่บนสุดของกล่อง
+                        child: RawScrollbar(
+                          controller: _scrollController,
+                          thumbVisibility: true, 
+                          interactive: true, 
+                          thickness: 6, // ความหนาของแถบเลื่อน
+                          radius: const Radius.circular(8),
+                          thumbColor: const Color(0xFF8B4513), // 💡 สีเทาเข้ม/ดำ เหมือนในรูป
+                          crossAxisMargin: 4, // 💡 ดันให้ห่างจากขอบขวาเล็กน้อย
+                          mainAxisMargin: 12, // ดันให้ห่างจากขอบบน/ล่าง
+                          
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: GridView.builder(
+                              controller: _scrollController, 
+                              // 💡 สำคัญ: เว้น Padding ด้านขวา (20) ให้เยอะหน่อย เพื่อไม่ให้ไอเทมโดนแถบเลื่อนบัง
+                              padding: const EdgeInsets.only(left: 8, top: 8, bottom: 8, right: 20), 
+                              physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()), 
+                              itemCount: totalSlots, 
+                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 3,
+                                crossAxisSpacing: 6, 
+                                mainAxisSpacing: 6,  
+                                childAspectRatio: 1.0,
+                              ),
+                              itemBuilder: (context, index) {
+                                bool hasItem = index < musicList.length;
 
-                        // 📚 ตัวตู้หนังสือ
-                        SizedBox(
-                          width: 240,
-                          height: 240,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFDEB887), 
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: const Color(0xFFC89F65), width: 4), 
-                              boxShadow: const [
-                                BoxShadow(color: Color(0x33000000), blurRadius: 10, offset: Offset(0, 5)),
-                              ],
-                            ),
-                            child: PageView.builder(
-                              controller: _pageController,
-                              onPageChanged: (index) {
-                                setState(() { _currentPage = index; });
-                              },
-                              itemCount: totalPages,
-                              itemBuilder: (context, pageIndex) {
-                                return GridView.builder(
-                                  padding: const EdgeInsets.all(4), 
-                                  physics: const NeverScrollableScrollPhysics(), 
-                                  itemCount: 9, 
-                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 3,
-                                    crossAxisSpacing: 4, 
-                                    mainAxisSpacing: 4,  
-                                    childAspectRatio: 1.0,
-                                  ),
-                                  itemBuilder: (context, slotIndex) {
-                                    int actualIndex = (pageIndex * 9) + slotIndex;
-                                    bool hasItem = actualIndex < musicList.length;
+                                if (!hasItem) {
+                                  return Container(
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFFDF5E6).withOpacity(0.6), 
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  );
+                                }
 
-                                    if (!hasItem) {
-                                      return Container(
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFFFDF5E6).withOpacity(0.6), 
-                                          borderRadius: BorderRadius.circular(8),
-                                        ),
-                                      );
-                                    }
+                                final music = musicList[index];
 
-                                    final music = musicList[actualIndex];
+                                return AnimatedBuilder(
+                                  animation: Listenable.merge([
+                                    musicController.currentIndex,
+                                    musicController.isPlaying,
+                                  ]),
+                                  builder: (context, child) {
+                                    bool isActive = musicController.currentIndex.value == index;
+                                    bool isPlayingNow = isActive && musicController.isPlaying.value;
 
-                                    return AnimatedBuilder(
-                                      animation: Listenable.merge([
-                                        musicController.currentIndex,
-                                        musicController.isPlaying,
-                                      ]),
-                                      builder: (context, child) {
-                                        bool isActive = musicController.currentIndex.value == actualIndex;
-                                        bool isPlayingNow = isActive && musicController.isPlaying.value;
-
-                                        return GestureDetector(
-                                          onTap: () {
-                                            musicController.playSong(actualIndex);
-                                            isMusicBarVisible.value = true;
-                                          },
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius: BorderRadius.circular(8),
-                                              image: DecorationImage(
-                                                image: music['img']!.startsWith('assets/') 
-                                                    ? AssetImage(music['img']!) as ImageProvider
-                                                    : NetworkImage(music['img']!),
-                                                fit: BoxFit.cover,
-                                              ),
-                                              border: isActive 
-                                                ? Border.all(color: const Color(0xFFD8B4FE), width: 3.5) 
-                                                : null,
-                                            ),
-                                            child: isActive
-                                              ? Container(
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.black.withOpacity(0.3), 
-                                                    borderRadius: BorderRadius.circular(8),
-                                                  ),
-                                                  child: Center(
-                                                    child: Icon(
-                                                      isPlayingNow ? Icons.equalizer_rounded : Icons.play_circle_fill_rounded,
-                                                      color: Colors.white,
-                                                      size: 28,
-                                                    ),
-                                                  ),
-                                                )
-                                              : null, 
-                                          ),
-                                        );
+                                    return GestureDetector(
+                                      onTap: () {
+                                        musicController.playSong(index);
+                                        isMusicBarVisible.value = true;
                                       },
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(8),
+                                          image: DecorationImage(
+                                            image: music['img']!.startsWith('http') 
+                                                ? NetworkImage(music['img']!) as ImageProvider
+                                                : AssetImage(music['img']!),
+                                            fit: BoxFit.cover,
+                                          ),
+                                          border: isActive 
+                                            ? Border.all(color: const Color(0xFFD8B4FE), width: 3.5) 
+                                            : null,
+                                        ),
+                                        child: isActive
+                                          ? Container(
+                                              decoration: BoxDecoration(
+                                                color: Colors.black.withOpacity(0.3), 
+                                                borderRadius: BorderRadius.circular(8),
+                                              ),
+                                              child: Center(
+                                                child: Icon(
+                                                  isPlayingNow ? Icons.equalizer_rounded : Icons.play_circle_fill_rounded,
+                                                  color: Colors.white,
+                                                  size: 28,
+                                                ),
+                                              ),
+                                            )
+                                          : null, 
+                                      ),
                                     );
                                   },
                                 );
@@ -168,21 +160,7 @@ class _ShopInventoryPageState extends State<ShopInventoryPage> {
                             ),
                           ),
                         ),
-
-                        // ➡️ ลูกศรขวา
-                        Padding(
-                          padding: const EdgeInsets.only(top: 100),
-                          child: Opacity(
-                            opacity: _currentPage < totalPages - 1 ? 1.0 : 0.0,
-                            child: IconButton(
-                              icon: const Icon(Icons.arrow_forward_ios_rounded, color: Color(0xFFD8B4FE), size: 28),
-                              onPressed: _currentPage < totalPages - 1 ? () {
-                                _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
-                              } : null,
-                            ),
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 ),

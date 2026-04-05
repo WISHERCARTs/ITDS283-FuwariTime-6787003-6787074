@@ -74,45 +74,60 @@ class _ShopState extends State<Shop> {
                         childAspectRatio: 0.8,
                       ),
                       delegate: SliverChildListDelegate([
+                        
                         _buildShopItem(
-                          title: "Rythm",
-                          category: "Decoration",
-                          price: "150",
-                          imageUrl: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/y0beqz0yoq/kl3914on_expires_30_days.png",
+                          title: "rose water",
+                          artist: "massobeats",
+                          path: "audio_asset/rosewater-music.mp3",
+                          price: 1, // 💡 ทดสอบซื้อด้วยราคา 1
+                          img: "assets/image/Massobeats.jpg", 
+                          // 🚀 💡 จุดนี้สำคัญมาก! ลืมใส่ isOwned ไปครับ ทำให้มันไม่รู้ว่าซื้อแล้ว
+                          isOwned: ownedMusic.any((m) => m['title'] == "rose water"),
+                        ),
+
+                        _buildShopItem(
+                          title: "Lofi-girl",
+                          artist: "Watermello",
+                          path: "audio_asset/lofi-girl-music.mp3",
+                          price: 1,
+                          img: "assets/image/Watermello.webp", 
+                          isOwned: ownedMusic.any((m) => m['title'] == "Lofi-girl"),
+                        ),
+                        
+                        // 🎶 ไอเทมเพลง
+                        _buildShopItem(
+                          title: "Sad-love",
+                          artist: "Oliver Hoss",
+                          path: "audio_asset/sad-love-music.mp3",
+                          price: 800,
+                          img: "assets/image/mizuharaaa.jpg",
+                          isOwned: ownedMusic.any((m) => m['title'] == "Sad-love"),
                         ),
                         _buildShopItem(
-                          title: "Bacon Hotdog",
-                          category: "Decoration",
-                          price: "200",
-                          imageUrl: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/y0beqz0yoq/0kgsyagc_expires_30_days.png",
+                          title: "Relax",
+                          artist: "VibeHorn",
+                          path: "audio_asset/relax-Music.mp3",
+                          price: 10,
+                          img: "assets/image/VibeHorn.webp",
+                          isOwned: ownedMusic.any((m) => m['title'] == "Relax"), 
                         ),
+
                         _buildShopItem(
-                          title: "Lofi Study",
-                          category: "Music",
-                          price: "500",
-                          imageUrl: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/y0beqz0yoq/o3p7q6p9_expires_30_days.png",
-                          isOwned: ownedMusic.any((m) => m['title'] == "Lofi Study"),
+                          title: "honey jam",
+                          artist: "massobeats",
+                          path: "audio_asset/honeyjam-music.mp3",
+                          price: 200,
+                          img: "assets/image/Honeyjam.webp",
+                          isOwned: ownedMusic.any((m) => m['title'] == "honey jam"), 
                         ),
+
                         _buildShopItem(
-                          title: "Summer Vibe",
-                          category: "Music",
-                          price: "500",
-                          imageUrl: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/y0beqz0yoq/v71r6p7k_expires_30_days.png",
-                          isOwned: ownedMusic.any((m) => m['title'] == "Summer Vibe"),
-                        ),
-                        _buildShopItem(
-                          title: "Midnight Jazz",
-                          category: "Music",
-                          price: "800",
-                          imageUrl: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/y0beqz0yoq/i36w7fh5_expires_30_days.png",
-                          isOwned: ownedMusic.any((m) => m['title'] == "Midnight Jazz"),
-                        ),
-                        _buildShopItem(
-                          title: "Rainy Day",
-                          category: "Music",
-                          price: "300",
-                          imageUrl: "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/y0beqz0yoq/h94kqwgy_expires_30_days.png",
-                          isOwned: ownedMusic.any((m) => m['title'] == "Rainy Day"),
+                          title: "Donut",
+                          artist: "Lukrembo",
+                          path: "audio_asset/donut-music.mp3",
+                          price: 200,
+                          img: "assets/image/Lukrembo.webp",
+                          isOwned: ownedMusic.any((m) => m['title'] == "Donut"), 
                         ),
                       ]),
                     ),
@@ -156,24 +171,84 @@ class _ShopState extends State<Shop> {
     );
   }
 
+  // 🚀 ปรับพารามิเตอร์ให้รับ title, artist, path, price (int), img
   Widget _buildShopItem({
     required String title,
-    required String category,
-    required String price,
-    required String imageUrl,
+    required String artist,
+    required String path,
+    required int price,
+    required String img,
     bool isOwned = false,
   }) {
+    
+    // 💡 1. สร้างตัวแปรเก็บรูปภาพ (เช็คว่าเป็นเน็ตหรือไฟล์ในเครื่อง)
+    Widget imageWidget = img.startsWith('http')
+        ? Image.network(
+            img,
+            fit: BoxFit.cover,
+            width: double.infinity,
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) return child;
+              return Container(
+                color: const Color(0xFFF3F4F6),
+                child: const Center(
+                  child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFFFFD6E8)),
+                ),
+              );
+            },
+            errorBuilder: (context, error, stackTrace) => Container(
+              color: const Color(0xFFF3F4F6),
+              child: const Center(child: Icon(Icons.image_not_supported_rounded, color: Colors.grey)),
+            ),
+          )
+        : Image.asset(
+            img,
+            fit: BoxFit.cover,
+            width: double.infinity,
+            errorBuilder: (context, error, stackTrace) => Container(
+              color: const Color(0xFFF3F4F6),
+              child: const Center(child: Icon(Icons.image_not_supported_rounded, color: Colors.grey)),
+            ),
+          );
+
+    // 🚀 💡 2. ใช้ Matrix เพื่อให้รูปกลายเป็นขาวดำชัวร์ 100%
+    if (isOwned) {
+      imageWidget = ColorFiltered(
+        colorFilter: const ColorFilter.matrix(<double>[
+          0.2126, 0.7152, 0.0722, 0, 0,
+          0.2126, 0.7152, 0.0722, 0, 0,
+          0.2126, 0.7152, 0.0722, 0, 0,
+          0,      0,      0,      1, 0,
+        ]),
+        child: Opacity(
+          opacity: 0.6, // ทำให้ภาพดูจางลง
+          child: imageWidget,
+        ),
+      );
+    }
+
     return InkWell(
       onTap: isOwned
-          ? null // 🚫 ถ้าซื้อแล้ว ห้ามกดเข้าไป
+          ? () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text("$title is already Sold Out!", textAlign: TextAlign.center),
+                  backgroundColor: Colors.grey.shade700,
+                  behavior: SnackBarBehavior.floating,
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+            } 
           : () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => ShopPay(
-                    itemName: title,
-                    itemPrice: int.parse(price),
-                    imageUrl: imageUrl,
+                    title: title,
+                    artist: artist,
+                    path: path,
+                    price: price,
+                    img: img,
                   ),
                 ),
               );
@@ -199,35 +274,8 @@ class _ShopState extends State<Shop> {
               child: Center(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
-                  child: Opacity(
-                    opacity: isOwned ? 0.6 : 1.0, // 💡 จางลงถ้าซื้อแล้ว
-                    child: Image.network(
-                      imageUrl,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Container(
-                          color: const Color(0xFFF3F4F6),
-                          child: const Center(
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Color(0xFFFFD6E8),
-                            ),
-                          ),
-                        );
-                      },
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          color: const Color(0xFFF3F4F6),
-                          child: const Center(
-                            child: Icon(Icons.image_not_supported_rounded,
-                                color: Colors.grey),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
+                  // 💡 เอาตัวแปรรูปภาพที่เราทำไว้ด้านบน มาแสดงตรงนี้เลย
+                  child: imageWidget, 
                 ),
               ),
             ),
@@ -242,17 +290,22 @@ class _ShopState extends State<Shop> {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
-            const SizedBox(height: 4),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  category,
-                  style: const TextStyle(
-                    color: Color(0xFF6B7280),
-                    fontSize: 11,
-                  ),
+            if (artist.isNotEmpty)
+              Text(
+                artist,
+                style: const TextStyle(
+                  color: Colors.grey,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
                 ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            const SizedBox(height: 4),
+            
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                   decoration: BoxDecoration(
@@ -270,7 +323,7 @@ class _ShopState extends State<Shop> {
                         const SizedBox(width: 4),
                       ],
                       Text(
-                        isOwned ? "Sold Out" : price,
+                        isOwned ? "Sold Out" : "$price", 
                         style: TextStyle(
                           color: isOwned ? Colors.grey : const Color(0xFFA16207),
                           fontSize: 12,
