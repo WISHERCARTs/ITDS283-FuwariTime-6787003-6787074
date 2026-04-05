@@ -29,7 +29,7 @@ class SettingState extends State<Setting> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const TopBar(),
+              TopBar(),
 
               const SizedBox(
                 height: 20,

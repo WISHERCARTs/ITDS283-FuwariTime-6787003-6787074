@@ -1,23 +1,36 @@
 import 'package:flutter/foundation.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:fuwari_time/services/inventory_service.dart';
 
 // 🚀 1. ตัวแปรโชว์แถบ Music Bar
 final ValueNotifier<bool> isMusicBarVisible = ValueNotifier<bool>(true);
 
-// 🚀 2. รายชื่อเพลง (ย้ายมาไว้ตรงกลาง เพื่อให้ดึงไปใช้ได้ทุกหน้า)
-final List<Map<String, String>> globalMusicList = [
+// 🚀 2. คลังเพลงเริ่มต้น (Default ที่ทุกคนต้องมี)
+final List<Map<String, String>> baseMusicList = [
   {"title": "Lemon Lofi", "artist": "LemonMusicLab", "img": "assets/image/LemonMusic.webp", "path": "audio_asset/lemon-music.mp3"},
   {"title": "Dreamy Nostalgia", "artist": "Aventure", "img": "assets/image/AventureMusic.webp", "path": "audio_asset/nostalgia-music.mp3"},
   {"title": "Chill", "artist": "Monda Music", "img": "assets/image/MondaMusic.webp", "path": "audio_asset/chill-music.mp3"},
 ];
 
-// 🚀 3. ระบบควบคุมเพลงส่วนกลาง (สมองหลัก)
-// 🚀 3. ระบบควบคุมเพลงส่วนกลาง (สมองหลักที่อัปเกรดให้เสถียรขึ้น!)
+// 🚀 3. แคตตาล็อกเพลงใน Shop (ใช้แมตช์ข้อมูลเวลาซื้อสำเร็จ)
+final List<Map<String, String>> shopMusicCatalog = [
+  {"title": "Lofi Study", "artist": "Study Beats", "img": "assets/image/LemonMusic.webp", "path": "audio_asset/lemon-music.mp3"}, // 💡 ใช้ไฟล์ตัวอย่างไปก่อน
+  {"title": "Summer Vibe", "artist": "Ocean Waves", "img": "assets/image/AventureMusic.webp", "path": "audio_asset/nostalgia-music.mp3"},
+  {"title": "Midnight Jazz", "artist": "Jazz Club", "img": "assets/image/MondaMusic.webp", "path": "audio_asset/chill-music.mp3"},
+  {"title": "Rainy Day", "artist": "Nature Sound", "img": "assets/image/LemonMusic.webp", "path": "audio_asset/lemon-music.mp3"},
+];
+
+// 🚀 4. รายชื่อเพลงปัจจุบัน (Base + Purchased)
+final ValueNotifier<List<Map<String, String>>> globalMusicList = ValueNotifier<List<Map<String, String>>>(baseMusicList);
+
+// 🚀 5. ระบบควบคุมเพลงส่วนกลาง
 class MusicController {
   static final MusicController _instance = MusicController._internal();
   factory MusicController() => _instance;
 
   final AudioPlayer audioPlayer = AudioPlayer();
+  final InventoryService _inventoryService = InventoryService();
   
   final ValueNotifier<int> currentIndex = ValueNotifier<int>(0);
   final ValueNotifier<bool> isPlaying = ValueNotifier<bool>(false);
@@ -45,29 +58,57 @@ class MusicController {
     });
   }
 
-  // 💡 อัปเกรดฟังก์ชันเล่นเพลง
+  // 🔄 ซิงค์ข้อมูลเพลงจาก Supabase
+  Future<void> syncInventory() async {
+    final userId = Supabase.instance.client.auth.currentUser?.id;
+    if (userId == null) {
+      globalMusicList.value = baseMusicList;
+      return;
+    }
+
+    try {
+      final ownedTitles = await _inventoryService.fetchOwnedItems(userId);
+      
+      // รวม Base เข้ากับเพลงที่ซื้อเพิ่ม (กรองเอาเฉพาะที่มีใน Catalog)
+      List<Map<String, String>> mergedList = List.from(baseMusicList);
+      
+      for (String title in ownedTitles) {
+        // ค้นหาข้อมูลเพลงเต็มใน Catalog
+        var purchasedMusic = shopMusicCatalog.firstWhere(
+          (m) => m['title'] == title,
+          orElse: () => {},
+        );
+        
+        if (purchasedMusic.isNotEmpty) {
+          // ป้องกันการแอดซ้ำ
+          if (!mergedList.any((m) => m['title'] == title)) {
+            mergedList.add(purchasedMusic);
+          }
+        }
+      }
+      
+      globalMusicList.value = mergedList;
+    } catch (e) {
+      debugPrint("❌ Error syncing inventory: $e");
+    }
+  }
+
   Future<void> playSong(int index) async {
     try {
-      // 🚀 1. สั่ง Stop และเคลียร์ระบบเก่าให้เกลี้ยงก่อนเริ่มเพลงใหม่
       await audioPlayer.stop(); 
-      
       currentIndex.value = index;
-      String path = globalMusicList[index]['path']!;
-      
-      // 🚀 2. ค่อยสั่ง Play ไฟล์ใหม่
+      String path = globalMusicList.value[index]['path']!;
       await audioPlayer.play(AssetSource(path));
     } catch (e) {
       debugPrint("❌ Error playing audio: $e");
     }
   }
 
-  // 💡 อัปเกรดปุ่ม Play/Pause ให้ถูกต้อง
   Future<void> togglePlayPause() async {
     try {
       if (isPlaying.value) {
         await audioPlayer.pause();
       } else {
-        // 🚀 3. ถ้าเพลงถูกหยุดไว้ ให้ใช้คำสั่ง "resume" (เล่นต่อ) แทนที่จะเริ่มใหม่
         if (position.value > Duration.zero && position.value < duration.value) {
           await audioPlayer.resume();
         } else {
@@ -80,10 +121,10 @@ class MusicController {
   }
 
   void skipNext() {
-    if (currentIndex.value < globalMusicList.length - 1) {
+    if (currentIndex.value < globalMusicList.value.length - 1) {
       playSong(currentIndex.value + 1);
     } else {
-      playSong(0); // วนกลับไปเพลงแรก
+      playSong(0);
     }
   }
 
@@ -91,8 +132,7 @@ class MusicController {
     if (currentIndex.value > 0) {
       playSong(currentIndex.value - 1);
     } else {
-      // 💡 ถ้ากด Back หน้าเพลงแรก ให้เด้งไปเพลงสุดท้ายเลย
-      playSong(globalMusicList.length - 1); 
+      playSong(globalMusicList.value.length - 1); 
     }
   }
 
@@ -109,5 +149,4 @@ class MusicController {
   }
 }
 
-// สร้างตัวแปรให้เรียกใช้งานง่ายๆ
 final musicController = MusicController();

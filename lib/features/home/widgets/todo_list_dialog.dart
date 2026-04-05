@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../models/todo_model.dart';
 import '../../../services/todo_service.dart';
+import '../../../services/profile_service.dart';
 
 /// Controller จัดการเรื่อง Todo List ที่เชื่อมกับฐานข้อมูลจริง
 class TodoController extends ChangeNotifier {
   final TodoService _todoService = TodoService();
+  final ProfileService _profileService = ProfileService();
   List<TodoModel> _items = [];
   bool _isLoading = false;
 
@@ -40,7 +42,8 @@ class TodoController extends ChangeNotifier {
   Future<void> toggleTask(String id) async {
     final index = _items.indexWhere((item) => item.id == id);
     if (index != -1) {
-      final newStatus = !_items[index].isCompleted;
+      final oldStatus = _items[index].isCompleted;
+      final newStatus = !oldStatus;
       
       _items[index] = TodoModel(
         id: _items[index].id,
@@ -50,6 +53,11 @@ class TodoController extends ChangeNotifier {
         createdAt: _items[index].createdAt,
       );
       notifyListeners();
+
+      // 🎁 ให้รางวัล 10 เหรียญ ถ้าเปลี่ยนจาก "ยังไม่เสร็จ" เป็น "เสร็จแล้ว"
+      if (!oldStatus && newStatus && _currentUserId != null) {
+        _profileService.addPoints(_currentUserId!, 10);
+      }
 
       await _todoService.toggleTodo(id, newStatus);
     }

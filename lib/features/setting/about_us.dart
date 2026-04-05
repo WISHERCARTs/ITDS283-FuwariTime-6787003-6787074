@@ -21,7 +21,7 @@ class AboutUs extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const TopBar(),
+              TopBar(),
               
               const SizedBox(height: 24), 
               

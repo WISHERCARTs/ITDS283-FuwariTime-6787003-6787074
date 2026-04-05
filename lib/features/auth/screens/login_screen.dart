@@ -12,6 +12,7 @@ class LoginScreen extends StatefulWidget {
 
 class LoginState extends State<LoginScreen> {
   String textField1 = '';
+  bool _isObscure = true; // 👁️ สำหรับเปิด/ปิดการมองเห็นรหัสผ่าน
 
   @override
   Widget build(BuildContext context) {
@@ -100,18 +101,29 @@ class LoginState extends State<LoginScreen> {
                             ),
                           ),
                           // PASSWORD FIELD
-                          const Padding(
-                            padding: EdgeInsets.only(left: 50, right: 29, bottom: 14),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 50, right: 29, bottom: 14),
                             child: TextField(
-                              obscureText: true,
+                              obscureText: _isObscure,
                               decoration: InputDecoration(
-                                prefixIcon: Icon(Icons.lock_outline, color: Color(0xFFB78403)),
+                                prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFFB78403)),
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _isObscure ? Icons.visibility_off : Icons.visibility,
+                                    color: const Color(0xFFB78403),
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _isObscure = !_isObscure;
+                                    });
+                                  },
+                                ),
                                 hintText: "Password",
-                                hintStyle: TextStyle(color: Color(0xFF888888), fontSize: 16),
-                                enabledBorder: UnderlineInputBorder(
+                                hintStyle: const TextStyle(color: Color(0xFF888888), fontSize: 16),
+                                enabledBorder: const UnderlineInputBorder(
                                   borderSide: BorderSide(color: Color(0x4FB78403)),
                                 ),
-                                focusedBorder: UnderlineInputBorder(
+                                focusedBorder: const UnderlineInputBorder(
                                   borderSide: BorderSide(color: Color(0xFFB78403), width: 2),
                                 ),
                               ),

@@ -3,14 +3,31 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 // 💡 อย่าลืม Import หน้า Setting เข้ามานะครับ
 import 'package:fuwari_time/features/setting/setting.dart';
 
-class TopBar extends StatelessWidget {
-  // 🚀 1. เพิ่มตัวแปรเพื่อรับค่าว่าตอนนี้อยู่หน้าไหน
+class TopBar extends StatefulWidget {
   final int currentIndex;
-
-  // 🚀 2. ใส่ this.currentIndex เข้ามา (กำหนดให้ค่าเริ่มต้นเป็น 0)
   const TopBar({super.key, this.currentIndex = 0});
 
+  @override
+  TopBarState createState() => TopBarState();
+}
+
+class TopBarState extends State<TopBar> {
   String? get _currentUserId => Supabase.instance.client.auth.currentUser?.id;
+  late Stream<List<Map<String, dynamic>>> _pointsStream;
+
+  @override
+  void initState() {
+    super.initState();
+    // 🚀 ย้ายการสร้าง Stream มาไว้ที่นี่ เพื่อไม่ให้สร้างใหม่ทุกครั้งที่ Build (ป้องกัน ANR)
+    if (_currentUserId != null) {
+      _pointsStream = Supabase.instance.client
+          .from('profiles')
+          .stream(primaryKey: ['id'])
+          .eq('id', _currentUserId!);
+    } else {
+      _pointsStream = const Stream.empty();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,8 +37,8 @@ class TopBar extends StatelessWidget {
     return Container(
       // ตัวพื้นหลังจะรวมระยะ Top Padding เข้าไปด้วยเพื่อให้สีมันคลุมไปถึงขอบบนสุด
       padding: EdgeInsets.only(
-        top: topPadding > 0 ? topPadding + 10 : 20,
-        bottom: 30,
+        top: topPadding > 0 ? topPadding : 10,
+        bottom: 20,
         left: 24,
         right: 24,
       ),
@@ -69,14 +86,9 @@ class TopBar extends StatelessWidget {
             ],
           ),
 
-          // 💰 [ส่วนที่แก้] ใช้ StreamBuilder ดึงแต้ม Real-time จาก Supabase
+          // 💰 [ส่วนที่แก้] ใช้ Stream ที่ถูก Initialize ไว้แล้ว (ไม่กระตุก)
           StreamBuilder<List<Map<String, dynamic>>>(
-            stream: _currentUserId != null
-                ? Supabase.instance.client
-                      .from('profiles')
-                      .stream(primaryKey: ['id'])
-                      .eq('id', _currentUserId!)
-                : null,
+            stream: _pointsStream,
             builder: (context, snapshot) {
               int points = 0;
               if (snapshot.hasData && snapshot.data!.isNotEmpty) {
@@ -95,7 +107,7 @@ class TopBar extends StatelessWidget {
                 child: Row(
                   children: [
                     Image.network(
-                      "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/y0beqz0yoq/hevi4h27_expires_30_days.png",
+                      "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/y0beqz0yoq/siq2ut46_expires_30_days.png",
                       width: 16,
                       height: 24,
                     ),
@@ -123,7 +135,7 @@ class TopBar extends StatelessWidget {
                   context,
                   // 🚀 3. แนบ currentIndex ส่งต่อไปให้หน้า Setting ด้วย!
                   MaterialPageRoute(
-                    builder: (context) => Setting(currentIndex: currentIndex),
+                    builder: (context) => Setting(currentIndex: widget.currentIndex),
                   ),
                 );
               },

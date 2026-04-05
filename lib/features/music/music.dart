@@ -20,17 +20,30 @@ class MusicScreen extends StatelessWidget {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              const TopBar(),
+              TopBar(currentIndex: -1), // 🚀 ไม่ได้อยู่ในหน้า Nav หลัก
               const SizedBox(height: 10),
 
               // 🚀 AnimatedBuilder ดึงค่าจากสมองกลางมาแสดงผล
               AnimatedBuilder(
                 animation: Listenable.merge([
-                  musicController.currentIndex, musicController.isPlaying, 
-                  musicController.position, musicController.duration, musicController.isLooping,
+                  musicController.currentIndex, 
+                  musicController.isPlaying, 
+                  musicController.position, 
+                  musicController.duration, 
+                  musicController.isLooping,
+                  globalMusicList, // 🔄 เพิ่มการ Listen เมื่อลิสต์เพลงอัปเดต
                 ]),
                 builder: (context, child) {
-                  final currentSong = globalMusicList[musicController.currentIndex.value];
+                  // 🚀 เข้าถึงข้อมูลผ่าน .value
+                  final musicList = globalMusicList.value;
+                  
+                  // ป้องกัน Error ถ้า Index หลุดขอบ
+                  final songIndex = musicController.currentIndex.value;
+                  if (songIndex >= musicList.length) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  final currentSong = musicList[songIndex];
                   final isPlaying = musicController.isPlaying.value;
                   final isLooping = musicController.isLooping.value;
                   
@@ -55,9 +68,7 @@ class MusicScreen extends StatelessWidget {
                                   const SizedBox(height: 10),
                                   ClipRRect(
                                     borderRadius: BorderRadius.circular(30),
-                                    child: Image.asset(currentSong['img']!, width: 220, height: 220, fit: BoxFit.cover,
-                                      errorBuilder: (context, error, stackTrace) => Container(width: 220, height: 220, color: Colors.grey.shade300, child: const Icon(Icons.music_note, size: 50)),
-                                    ),
+                                    child: musicImage(currentSong['img']!),
                                   ),
                                   const SizedBox(height: 15),
                                   Text(currentSong['title']!, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF4B5563)), textAlign: TextAlign.center),
@@ -131,11 +142,11 @@ class MusicScreen extends StatelessWidget {
                           decoration: BoxDecoration(color: const Color(0xFFD8B4FE).withOpacity(0.3), borderRadius: BorderRadius.circular(30)),
                           child: ListView.separated(
                             shrinkWrap: true, physics: const NeverScrollableScrollPhysics(),
-                            itemCount: globalMusicList.length,
+                            itemCount: musicList.length,
                             separatorBuilder: (context, index) => const SizedBox(height: 10),
                             padding: const EdgeInsets.all(16),
                             itemBuilder: (context, index) {
-                              final music = globalMusicList[index];
+                              final music = musicList[index];
                               bool isActive = musicController.currentIndex.value == index;
 
                               return InkWell(
@@ -150,7 +161,7 @@ class MusicScreen extends StatelessWidget {
                                     children: [
                                       ClipRRect(
                                         borderRadius: BorderRadius.circular(12),
-                                        child: Image.asset(music['img']!, width: 60, height: 60, fit: BoxFit.cover, errorBuilder: (context, error, stackTrace) => Container(width: 60, height: 60, color: Colors.grey.shade300)),
+                                        child: musicImage(music['img']!, size: 60),
                                       ),
                                       const SizedBox(width: 16),
                                       Expanded(
@@ -181,5 +192,17 @@ class MusicScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget musicImage(String imgPath, {double size = 220}) {
+    return imgPath.startsWith('assets/')
+      ? Image.asset(imgPath, width: size, height: size, fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) => errorWidget(size))
+      : Image.network(imgPath, width: size, height: size, fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) => errorWidget(size));
+  }
+
+  Widget errorWidget(double size) {
+    return Container(width: size, height: size, color: Colors.grey.shade300, child: const Icon(Icons.music_note, size: 50));
   }
 }

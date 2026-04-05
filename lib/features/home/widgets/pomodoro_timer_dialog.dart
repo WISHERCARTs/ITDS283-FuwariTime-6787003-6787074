@@ -112,6 +112,8 @@ class PomodoroController extends ChangeNotifier {
           type: 'break',
           durationMins: breakMinutes,
         );
+        // ✅ 4. ให้รางวัลคนพักผ่อน (เพิ่ม 10 แต้ม)
+        _profileService.addPoints(_currentUserId!, 10);
       }
 
       // Break จบ → เช็ก Loop

@@ -41,11 +41,11 @@ class ProfileService {
             .update({'points': newPoints})
             .eq('id', userId);
       } else {
-        // 💡 กรณีตารางว่าง (ยิงครั้งแรก) ให้สร้างแถวข้อมูลพร้อมพ้อยท์เริ่มต้นเลย
+        // 💡 กรณีตารางว่าง (ยิงครั้งแรก) ให้สร้างแถวข้อมูลพร้อมพ้อยท์เริ่มต้น 200 + รางวัล
         await _supabase.from('profiles').upsert({
           'id': userId,
           'username': 'New User',
-          'points': pointsToAdd,
+          'points': 200 + pointsToAdd, // 🎁 เริ่มต้นที่ 200 เหรียญ
         });
       }
     } catch (e) {

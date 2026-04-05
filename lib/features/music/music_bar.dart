@@ -22,9 +22,18 @@ class LofiMusicBar extends StatelessWidget {
         musicController.position,
         musicController.duration,
         musicController.isLooping, 
+        globalMusicList, // 🔄 เพิ่มการ Listen เมื่อลิสต์เพลงอัปเดต
       ]),
       builder: (context, child) {
-        final currentSong = globalMusicList[musicController.currentIndex.value];
+        final musicList = globalMusicList.value;
+        final songIndex = musicController.currentIndex.value;
+
+        // ป้องกัน Error ถ้า index ผิดพลาด
+        if (songIndex >= musicList.length) {
+          return const SizedBox.shrink();
+        }
+
+        final currentSong = musicList[songIndex];
         final isPlaying = musicController.isPlaying.value;
         final isLooping = musicController.isLooping.value; 
         
@@ -32,7 +41,6 @@ class LofiMusicBar extends StatelessWidget {
         final double dur = musicController.duration.value.inSeconds.toDouble();
         final double progress = dur > 0 ? (pos / dur).clamp(0.0, 1.0) : 0.0;
 
-        // 🚀 ดึงข้อความเวลามาเตรียมไว้
         final String posText = formatTime(musicController.position.value);
         final String durText = formatTime(musicController.duration.value);
 
@@ -46,7 +54,6 @@ class LofiMusicBar extends StatelessWidget {
           child: Container(
             width: double.infinity,
             color: const Color(0xFFD4B4FB), 
-            // 💡 ลดขอบซ้ายขวาลงนิดนึงเพื่อให้มีพื้นที่วางรูปมากขึ้น
             padding: const EdgeInsets.only(top: 8, bottom: 4, left: 16, right: 16),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -54,28 +61,16 @@ class LofiMusicBar extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    
                     // 🚀 1. ฝั่งซ้าย: รูปภาพ + (ชื่อเพลง & เวลา)
                     Expanded(
                       child: Row(
                         children: [
-                          // 🖼️ รูปปกเพลง
                           ClipRRect(
                             borderRadius: BorderRadius.circular(8),
-                            child: Image.asset(
-                              currentSong['img']!, 
-                              width: 38, 
-                              height: 38, 
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) => Container(
-                                width: 38, height: 38, color: Colors.white.withOpacity(0.5),
-                                child: const Icon(Icons.music_note, color: Colors.white, size: 20),
-                              ),
-                            ),
+                            child: musicImage(currentSong['img']!),
                           ),
                           const SizedBox(width: 10),
                           
-                          // 🎵 ชื่อเพลง และ เวลา
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -87,11 +82,10 @@ class LofiMusicBar extends StatelessWidget {
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                 ),
-                                // ⏱️ ตัวเลขบอกเวลาที่เพิ่มเข้ามา
                                 Text(
                                   "$posText / $durText",
                                   style: TextStyle(
-                                    color: Colors.white.withOpacity(0.8), // สีขาวโปร่งแสงให้ดูเป็นรองจากชื่อเพลง
+                                    color: Colors.white.withOpacity(0.8),
                                     fontSize: 10,
                                   ),
                                 ),
@@ -111,7 +105,7 @@ class LofiMusicBar extends StatelessWidget {
                           icon: const Icon(Icons.skip_previous_rounded, color: Colors.white, size: 26),
                           onPressed: () => musicController.skipPrevious(), 
                         ),
-                        const SizedBox(width: 8), // 💡 บีบช่องว่างลงนิดนึงกันล้น
+                        const SizedBox(width: 8),
                         GestureDetector(
                           onTap: () => musicController.togglePlayPause(), 
                           child: Container(
@@ -147,9 +141,8 @@ class LofiMusicBar extends StatelessWidget {
                   ],
                 ),
                 
-                // 🚀 3. แถบเลื่อนเวลา (Slider)
                 SizedBox(
-                  height: 16, // 💡 ลดความสูงส่วน Slider ลงอีกนิด เพราะเรามีข้อความเวลาโชว์ข้างบนแล้ว
+                  height: 16,
                   child: SliderTheme(
                     data: SliderThemeData(
                       trackHeight: 3, activeTrackColor: Colors.white, inactiveTrackColor: Colors.white.withOpacity(0.3),
@@ -171,6 +164,27 @@ class LofiMusicBar extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  Widget musicImage(String imgPath) {
+    if (imgPath.startsWith('assets/')) {
+      return Image.asset(
+        imgPath, width: 38, height: 38, fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => errorIcon(),
+      );
+    } else {
+      return Image.network(
+        imgPath, width: 38, height: 38, fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => errorIcon(),
+      );
+    }
+  }
+
+  Widget errorIcon() {
+    return Container(
+      width: 38, height: 38, color: Colors.white.withOpacity(0.5),
+      child: const Icon(Icons.music_note, color: Colors.white, size: 20),
     );
   }
 }

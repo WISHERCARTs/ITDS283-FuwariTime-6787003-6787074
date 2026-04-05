@@ -22,18 +22,22 @@ class ShopPaymentState extends State<ShopPayment> {
             crossAxisAlignment: CrossAxisAlignment.center, // จัดให้อยู่กึ่งกลาง
             children: [
               // 💡 1. เรียกใช้ TopBar
-              const TopBar(),
+              TopBar(),
               
               const SizedBox(height: 40),
               
-              // 💡 2. หัวข้อ "QR payment"
+              // 💡 2. หัวข้อ "PromptPay Scan"
               const Text(
-                "QR payment",
+                "PromptPay Scan",
                 style: TextStyle(
                   color: Colors.black,
-                  fontSize: 32, // ปรับขนาดให้พอดีจอสวยๆ
+                  fontSize: 32,
                   fontWeight: FontWeight.bold,
                 ),
+              ),
+              const Text(
+                "Please scan the QR code to pay",
+                style: TextStyle(color: Colors.grey, fontSize: 14),
               ),
               
               const SizedBox(height: 30),

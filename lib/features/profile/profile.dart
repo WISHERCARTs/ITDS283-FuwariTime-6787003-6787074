@@ -22,6 +22,7 @@ class ProfileState extends State<Profile> {
   String userEmail = 'Loading...';
   bool _isSaving = false;
   bool _isEditing = false; // 🚀 เพิ่มโหมดแก้ไข
+  bool _isPasswordVisible = false; // 👁️ สถานะการมองเห็นรหัสผ่าน
 
   File? _profileImage;
   final String _defaultImageUrl =
@@ -119,101 +120,113 @@ class ProfileState extends State<Profile> {
 
   @override
   Widget build(BuildContext context) {
-    // 🚀 ดึง Timer Controller จาก Global
-    final pomodoroController = context.watch<PomodoroController>();
+    // 🚀 ใช้ select เฝ้าดูเฉพาะสถานะ ไม่ rebuild ทุกวินาที
+    final pomodoroState = context.select<PomodoroController, PomodoroState>(
+      (c) => c.state,
+    );
 
     return Scaffold(
       backgroundColor: const Color(0xFFFFF8F0),
       bottomNavigationBar: const BottomNavBar(currentIndex: 3),
-      body: SafeArea(
-        child: StreamBuilder<List<Map<String, dynamic>>>(
-          stream: _currentUserId != null
-              ? Supabase.instance.client
-                  .from('profiles')
-                  .stream(primaryKey: ['id'])
-                  .eq('id', _currentUserId!)
-              : null,
-          builder: (context, snapshot) {
-            // ดึงข้อมูลจาก Stream
-            Map<String, dynamic>? profileData;
-            if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-              profileData = snapshot.data!.first;
-              
-              // 🚀 อัปเดตชื่อใน Controller เฉพาะตอนที่ไม่ได้กำลังแก้ไขอยู่
-              if (!_isEditing) {
-                _usernameController.text = profileData['username'] ?? '';
-              }
+      body: StreamBuilder<List<Map<String, dynamic>>>(
+        stream: _currentUserId != null
+            ? Supabase.instance.client
+                .from('profiles')
+                .stream(primaryKey: ['id'])
+                .eq('id', _currentUserId!)
+            : null,
+        builder: (context, snapshot) {
+          // ดึงข้อมูลจาก Stream
+          Map<String, dynamic>? profileData;
+          if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+            profileData = snapshot.data!.first;
+
+            // 🚀 อัปเดตชื่อใน Controller เฉพาะตอนที่ไม่ได้กำลังแก้ไขอยู่
+            if (!_isEditing) {
+              _usernameController.text = profileData['username'] ?? '';
             }
+          }
 
-            final int points = profileData?['points'] ?? 0;
+          final int points = profileData?['points'] ?? 0;
+          final topPadding = MediaQuery.of(context).padding.top;
 
-            return Stack(
-              children: [
-                // 1. เนื้อหาหลักของหน้า Profile
-                SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const TopBar(currentIndex: 3),
-                      const SizedBox(height: 20),
-                      _buildProfileImagePicker(),
-                      const SizedBox(height: 10),
-                      // 💰 แต้มพ้อยท์ (ตอนนี้ดึงจาก Stream ตัวเดียวกับชื่อแล้ว)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFEF9C3),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Image.network(
-                              "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/y0beqz0yoq/siq2ut46_expires_30_days.png",
-                              width: 20,
-                              height: 20,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              "$points Points",
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFFA16207),
-                              ),
-                            ),
-                          ],
-                        ),
+          return Stack(
+            children: [
+              // 1. เนื้อหาหลักของหน้า Profile (เลื่อนได้)
+              SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SizedBox(height: topPadding + 80), // 🚀 เว้นที่ให้ TopBar แบบไดนามิก
+                    _buildProfileImagePicker(),
+                    const SizedBox(height: 10),
+                    // 💰 แต้มพ้อยท์
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
                       ),
-                      const SizedBox(height: 10),
-                      _buildInfoSection(),
-                      const SizedBox(height: 20),
-                      if (_isEditing) _buildEditButtons(),
-                      const SizedBox(height: 40),
-                    ],
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFEF9C3),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Image.network(
+                            "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/y0beqz0yoq/siq2ut46_expires_30_days.png",
+                            width: 20,
+                            height: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            "$points Points",
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFFA16207),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    _buildInfoSection(),
+                    const SizedBox(height: 20),
+                    if (_isEditing) _buildEditButtons(),
+                    const SizedBox(height: 40),
+                  ],
+                ),
+              ),
+
+              // 2. แถบเมนูด้านบน (Top Bar - นิ่งอยูากับที่)
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: TopBar(currentIndex: 3),
+              ),
+
+              // 3. 🕒 Mini Timer (ลอยทับหน้า Profile เมื่อรันอยู่)
+              if (pomodoroState == PomodoroState.running)
+                Positioned(
+                  top: 150,
+                  right: 20,
+                  child: Consumer<PomodoroController>(
+                    builder: (context, controller, _) =>
+                        PomodoroMiniTimer(controller: controller),
                   ),
                 ),
 
-                // 2. 🕒 Mini Timer (ลอยทับหน้า Profile เมื่อรันอยู่)
-                if (pomodoroController.state == PomodoroState.running)
-                  Positioned(
-                    top: 150,
-                    right: 20,
-                    child: PomodoroMiniTimer(controller: pomodoroController),
+              // 4. ⚙️ Settings Overlay
+              if (pomodoroState == PomodoroState.expanded)
+                Consumer<PomodoroController>(
+                  builder: (context, controller, _) => Positioned.fill(
+                    child: PomodoroExpandedOverlay(controller: controller),
                   ),
-
-                // 3. ⚙️ Settings Overlay
-                if (pomodoroController.state == PomodoroState.expanded)
-                  Positioned.fill(
-                    child:
-                        PomodoroExpandedOverlay(controller: pomodoroController),
-                  ),
-              ],
-            );
-          },
-        ),
+                ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -370,9 +383,27 @@ class ProfileState extends State<Profile> {
           ),
           const SizedBox(height: 10),
           _buildInfoItem(
-            child: const Text(
-              "Password: ••••••••",
-              style: TextStyle(fontSize: 18, color: Colors.black54),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    _isPasswordVisible ? "Password: MySecurePassword123" : "Password: ••••••••",
+                    style: const TextStyle(fontSize: 18, color: Colors.black54),
+                  ),
+                ),
+                IconButton(
+                  onPressed: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
+                  icon: Icon(
+                    _isPasswordVisible ? Icons.visibility_off_rounded : Icons.visibility_rounded,
+                    size: 20,
+                    color: const Color(0xFF8B5CF6),
+                  ),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  visualDensity: VisualDensity.compact,
+                ),
+              ],
             ),
           ),
         ],
