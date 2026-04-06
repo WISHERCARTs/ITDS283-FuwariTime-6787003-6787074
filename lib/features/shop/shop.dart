@@ -107,7 +107,7 @@ class _ShopState extends State<Shop> {
                           title: "Relax",
                           artist: "VibeHorn",
                           path: "audio_asset/relax-Music.mp3",
-                          price: 10,
+                          price: 100,
                           img: "assets/image/VibeHorn.webp",
                           isOwned: ownedMusic.any((m) => m['title'] == "Relax"), 
                         ),
@@ -128,6 +128,42 @@ class _ShopState extends State<Shop> {
                           price: 200,
                           img: "assets/image/Lukrembo.webp",
                           isOwned: ownedMusic.any((m) => m['title'] == "Donut"), 
+                        ),
+
+                        _buildShopItem(
+                          title: "ChocoLate",
+                          artist: "Lukrembo",
+                          path: "audio_asset/chocolate-music.mp3",
+                          price: 50,
+                          img: "assets/image/Chocolate.webp",
+                          isOwned: ownedMusic.any((m) => m['title'] == "ChocoLate"), 
+                        ),
+
+                        _buildShopItem(
+                          title: "At Ease",
+                          artist: "Hazelwood",
+                          path: "audio_asset/at-ease-music.mp3",
+                          price: 150,
+                          img: "assets/image/AtEase.webp",
+                          isOwned: ownedMusic.any((m) => m['title'] == "At Ease"), 
+                        ),
+
+                        _buildShopItem(
+                          title: "mango tea",
+                          artist: "massobeats",
+                          path: "audio_asset/mango-tea-music.mp3",
+                          price: 150,
+                          img: "assets/image/Mangotea.webp",
+                          isOwned: ownedMusic.any((m) => m['title'] == "mango tea"), 
+                        ),
+
+                        _buildShopItem(
+                          title: "Lonely Samurai",
+                          artist: "Walen",
+                          path: "audio_asset/lonely-samurai-music.mp3",
+                          price: 150,
+                          img: "assets/image/LonelySamurai.webp",
+                          isOwned: ownedMusic.any((m) => m['title'] == "Lonely Samurai"), 
                         ),
                       ]),
                     ),

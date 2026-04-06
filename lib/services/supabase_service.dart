@@ -28,17 +28,19 @@ class SupabaseService {
   static SupabaseClient get client => Supabase.instance.client;
 
   /// ฟังก์ชันเรียกหน้าต่าง Login ด้วยบัญชี Google ขึ้นมาใช้งาน
+  /// ฟังก์ชันเรียกหน้าต่าง Login ด้วยบัญชี Google ขึ้นมาใช้งาน
   static Future<AuthResponse?> signInWithGoogle() async {
     try {
-      // [รองรับทุุก Platform: Web / Windows / iOS / Android] 
-      // ใช้ Supabase OAuth โดยตรง จะเปิดหน้าต่างเบราว์เซอร์ให้ล็อกอินได้เลย
       await client.auth.signInWithOAuth(
         OAuthProvider.google,
         redirectTo: kIsWeb ? Uri.base.origin : 'io.supabase.fuwaritime://login-callback/',
+        // 🚀 เติมโค้ดนี้เข้าไป เพื่อบังคับให้ผู้ใช้เลือกอีเมลใหม่ทุกครั้งตอนล็อกอิน!
+        queryParams: {
+          'prompt': 'select_account',
+        },
       );
       return null;
     } catch (e) {
-      // พิมพ์ข้อความ Error ออกมาดูว่าเกิดจากอะไรที่เบื้องหลังหน้าเว็บ
       print('❌ Google Sign-In Error: $e');
       rethrow;
     }

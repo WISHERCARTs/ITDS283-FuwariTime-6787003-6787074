@@ -7,6 +7,7 @@ import 'package:fuwari_time/features/setting/about_us.dart';
 
 // 🚀 1. Import ไฟล์ music_state.dart เข้ามาเพื่อจะได้สั่งการตัวเล่นเพลงได้
 import 'package:fuwari_time/features/music/music_state.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class Setting extends StatefulWidget {
   final int currentIndex;
@@ -169,11 +170,15 @@ class SettingState extends State<Setting> {
               const SizedBox(height: 30),
 
               // 💡 ปุ่ม Log out
+              // 💡 ปุ่ม Log out
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 32),
                 child: InkWell(
                   onTap: () async {
+                    // 🚀 1. สั่ง Sign Out จาก Supabase
                     await Supabase.instance.client.auth.signOut();
+
+                    // 🚀 3. พากลับไปหน้า AuthGate ล้างหน้ากระดานทั้งหมด
                     if (context.mounted) {
                       Navigator.of(
                         context,

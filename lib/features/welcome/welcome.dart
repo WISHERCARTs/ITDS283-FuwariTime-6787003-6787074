@@ -93,7 +93,7 @@ class Welcome extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 60),
+                    const SizedBox(height: 30),
                     // 4. ปุ่ม GOTCHA
                     ElevatedButton(
                       onPressed: () {
@@ -123,6 +123,7 @@ class Welcome extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12), // ขอบมน
                         ),
                       ),
+
                       child: const Text(
                         "GOTCHA",
                         style: TextStyle(
