@@ -5,10 +5,12 @@ import 'package:fuwari_time/features/home/widgets/top_bar.dart';
 import 'package:fuwari_time/features/home/widgets/bottom_nav_bar.dart';
 import 'package:fuwari_time/features/setting/about_us.dart';
 
-class Setting extends StatefulWidget {
-  // 🚀 1. เพิ่มตัวแปรรับค่า index ของหน้าที่กดเข้ามา (ค่าเริ่มต้นให้เป็น 0 คือหน้า Home)
-  final int currentIndex;
+// 🚀 1. Import ไฟล์ music_state.dart เข้ามาเพื่อจะได้สั่งการตัวเล่นเพลงได้
+import 'package:fuwari_time/features/music/music_state.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
+class Setting extends StatefulWidget {
+  final int currentIndex;
   const Setting({super.key, this.currentIndex = 0});
 
   @override
@@ -16,25 +18,36 @@ class Setting extends StatefulWidget {
 }
 
 class SettingState extends State<Setting> {
+  // 💡 กำหนดค่าเริ่มต้น (เดี๋ยวเราจะไปดึงค่าจริงจาก musicController ตอน initState)
   double soundVolume = 0.5;
+
+  @override
+  void initState() {
+    super.initState();
+    // 🚀 2. ดึงระดับเสียงปัจจุบันจากตัวเล่นเพลง มาตั้งเป็นค่าเริ่มต้นให้ Slider (ถ้าดึงไม่ได้ให้เริ่มที่ 0.5)
+    // ตรงนี้สมมติว่าใน musicController ของคุณมีตัวแปร/ฟังก์ชันเก็บระดับเสียงไว้นะครับ
+    // ถ้ายังไม่มีเดี๋ยวเราไปเติมใน สเต็ปที่ 2 ครับ
+    try {
+      soundVolume = musicController.currentVolume; 
+    } catch (e) {
+      soundVolume = 0.5;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFFF8F0),
-      // 🚀 2. โยนค่า widget.currentIndex ไปให้ BottomNavBar ใช้
       bottomNavigationBar: BottomNavBar(currentIndex: widget.currentIndex),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TopBar(),
+              const TopBar(),
 
-              const SizedBox(
-                height: 20,
-              ), // 💡 ปรับระยะห่างนิดหน่อยให้พอดีกับปุ่ม
-              // 🚀 3. ใช้ Stack จัดปุ่ม Back ไว้ซ้าย และข้อความไว้ตรงกลาง
+              const SizedBox(height: 20),
+              
               Stack(
                 alignment: Alignment.center,
                 children: [
@@ -49,7 +62,6 @@ class SettingState extends State<Setting> {
                           size: 24,
                         ),
                         onPressed: () {
-                          // 🚀 คำสั่งสำหรับกดย้อนกลับไปหน้าก่อนหน้า
                           Navigator.pop(context);
                         },
                       ),
@@ -97,9 +109,8 @@ class SettingState extends State<Setting> {
                           setState(() {
                             soundVolume = value;
                           });
-                          print(
-                            "ระดับเสียงตอนนี้: ${(soundVolume * 100).toInt()}%",
-                          );
+                          // 🚀 3. สั่งให้ตัวเล่นเพลงปรับระดับเสียงตาม Slider ทันที!
+                          musicController.setVolume(value); 
                         },
                       ),
                     ),
@@ -159,6 +170,7 @@ class SettingState extends State<Setting> {
               const SizedBox(height: 30),
 
               // 💡 ปุ่ม Log out
+              // 💡 ปุ่ม Log out
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 32),
                 child: InkWell(
@@ -166,7 +178,7 @@ class SettingState extends State<Setting> {
                     // 🚀 1. สั่ง Sign Out จาก Supabase
                     await Supabase.instance.client.auth.signOut();
 
-                    // 🚀 2. พากลับไปหน้า AuthGate (ที่อยู่ในจุดเริ่มต้นของแอป) และล้างหน้ากระดานทั้งหมด
+                    // 🚀 3. พากลับไปหน้า AuthGate ล้างหน้ากระดานทั้งหมด
                     if (context.mounted) {
                       Navigator.of(
                         context,

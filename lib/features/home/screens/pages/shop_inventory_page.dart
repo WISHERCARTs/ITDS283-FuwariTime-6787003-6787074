@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fuwari_time/features/music/music_state.dart';
+import 'package:fuwari_time/features/music/music_state.dart'; 
 
 /// หน้า Shop & Inventory (หน้าขวาสุด)
 class ShopInventoryPage extends StatefulWidget {
@@ -29,7 +29,7 @@ class _ShopInventoryPageState extends State<ShopInventoryPage> {
         if (totalPages == 0) totalPages = 1;
 
         return Scaffold(
-          backgroundColor: Colors.transparent,
+          backgroundColor: Colors.transparent, 
           body: SafeArea(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -45,7 +45,7 @@ class _ShopInventoryPageState extends State<ShopInventoryPage> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-
+                
                 const SizedBox(height: 16),
 
                 // 🚀 ตู้หนังสือ 3x3
@@ -62,21 +62,10 @@ class _ShopInventoryPageState extends State<ShopInventoryPage> {
                           child: Opacity(
                             opacity: _currentPage > 0 ? 1.0 : 0.0,
                             child: IconButton(
-                              icon: const Icon(
-                                Icons.arrow_back_ios_rounded,
-                                color: Color(0xFFD8B4FE),
-                                size: 28,
-                              ),
-                              onPressed: _currentPage > 0
-                                  ? () {
-                                      _pageController.previousPage(
-                                        duration: const Duration(
-                                          milliseconds: 300,
-                                        ),
-                                        curve: Curves.easeInOut,
-                                      );
-                                    }
-                                  : null,
+                              icon: const Icon(Icons.arrow_back_ios_rounded, color: Color(0xFFD8B4FE), size: 28),
+                              onPressed: _currentPage > 0 ? () {
+                                _pageController.previousPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                              } : null,
                             ),
                           ),
                         ),
@@ -87,55 +76,39 @@ class _ShopInventoryPageState extends State<ShopInventoryPage> {
                           height: 240,
                           child: Container(
                             decoration: BoxDecoration(
-                              color: const Color(0xFFDEB887),
+                              color: const Color(0xFFDEB887), 
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: const Color(0xFFC89F65),
-                                width: 4,
-                              ),
+                              border: Border.all(color: const Color(0xFFC89F65), width: 4), 
                               boxShadow: const [
-                                BoxShadow(
-                                  color: Color(0x33000000),
-                                  blurRadius: 10,
-                                  offset: Offset(0, 5),
-                                ),
+                                BoxShadow(color: Color(0x33000000), blurRadius: 10, offset: Offset(0, 5)),
                               ],
                             ),
                             child: PageView.builder(
                               controller: _pageController,
                               onPageChanged: (index) {
-                                setState(() {
-                                  _currentPage = index;
-                                });
+                                setState(() { _currentPage = index; });
                               },
                               itemCount: totalPages,
                               itemBuilder: (context, pageIndex) {
                                 return GridView.builder(
-                                  padding: const EdgeInsets.all(4),
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemCount: 9,
-                                  gridDelegate:
-                                      const SliverGridDelegateWithFixedCrossAxisCount(
-                                        crossAxisCount: 3,
-                                        crossAxisSpacing: 4,
-                                        mainAxisSpacing: 4,
-                                        childAspectRatio: 1.0,
-                                      ),
+                                  padding: const EdgeInsets.all(4), 
+                                  physics: const NeverScrollableScrollPhysics(), 
+                                  itemCount: 9, 
+                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 3,
+                                    crossAxisSpacing: 4, 
+                                    mainAxisSpacing: 4,  
+                                    childAspectRatio: 1.0,
+                                  ),
                                   itemBuilder: (context, slotIndex) {
-                                    int actualIndex =
-                                        (pageIndex * 9) + slotIndex;
-                                    bool hasItem =
-                                        actualIndex < musicList.length;
+                                    int actualIndex = (pageIndex * 9) + slotIndex;
+                                    bool hasItem = actualIndex < musicList.length;
 
                                     if (!hasItem) {
                                       return Container(
                                         decoration: BoxDecoration(
-                                          color: const Color(
-                                            0xFFFDF5E6,
-                                          ).withOpacity(0.6),
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
+                                          color: const Color(0xFFFDF5E6).withOpacity(0.6), 
+                                          borderRadius: BorderRadius.circular(8),
                                         ),
                                       );
                                     }
@@ -148,71 +121,43 @@ class _ShopInventoryPageState extends State<ShopInventoryPage> {
                                         musicController.isPlaying,
                                       ]),
                                       builder: (context, child) {
-                                        bool isActive =
-                                            musicController
-                                                .currentIndex
-                                                .value ==
-                                            actualIndex;
-                                        bool isPlayingNow =
-                                            isActive &&
-                                            musicController.isPlaying.value;
+                                        bool isActive = musicController.currentIndex.value == actualIndex;
+                                        bool isPlayingNow = isActive && musicController.isPlaying.value;
 
                                         return GestureDetector(
                                           onTap: () {
-                                            musicController.playSong(
-                                              actualIndex,
-                                            );
+                                            musicController.playSong(actualIndex);
                                             isMusicBarVisible.value = true;
                                           },
                                           child: Container(
                                             decoration: BoxDecoration(
                                               color: Colors.white,
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
+                                              borderRadius: BorderRadius.circular(8),
                                               image: DecorationImage(
-                                                image:
-                                                    music['img']!.startsWith(
-                                                      'assets/',
-                                                    )
-                                                    ? AssetImage(music['img']!)
-                                                          as ImageProvider
-                                                    : NetworkImage(
-                                                        music['img']!,
-                                                      ),
+                                                image: music['img']!.startsWith('assets/') 
+                                                    ? AssetImage(music['img']!) as ImageProvider
+                                                    : NetworkImage(music['img']!),
                                                 fit: BoxFit.cover,
                                               ),
-                                              border: isActive
-                                                  ? Border.all(
-                                                      color: const Color(
-                                                        0xFFD8B4FE,
-                                                      ),
-                                                      width: 3.5,
-                                                    )
-                                                  : null,
+                                              border: isActive 
+                                                ? Border.all(color: const Color(0xFFD8B4FE), width: 3.5) 
+                                                : null,
                                             ),
                                             child: isActive
-                                                ? Container(
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.black
-                                                          .withOpacity(0.3),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            8,
-                                                          ),
+                                              ? Container(
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.black.withOpacity(0.3), 
+                                                    borderRadius: BorderRadius.circular(8),
+                                                  ),
+                                                  child: Center(
+                                                    child: Icon(
+                                                      isPlayingNow ? Icons.equalizer_rounded : Icons.play_circle_fill_rounded,
+                                                      color: Colors.white,
+                                                      size: 28,
                                                     ),
-                                                    child: Center(
-                                                      child: Icon(
-                                                        isPlayingNow
-                                                            ? Icons
-                                                                  .equalizer_rounded
-                                                            : Icons
-                                                                  .play_circle_fill_rounded,
-                                                        color: Colors.white,
-                                                        size: 28,
-                                                      ),
-                                                    ),
-                                                  )
-                                                : null,
+                                                  ),
+                                                )
+                                              : null, 
                                           ),
                                         );
                                       },
@@ -230,21 +175,10 @@ class _ShopInventoryPageState extends State<ShopInventoryPage> {
                           child: Opacity(
                             opacity: _currentPage < totalPages - 1 ? 1.0 : 0.0,
                             child: IconButton(
-                              icon: const Icon(
-                                Icons.arrow_forward_ios_rounded,
-                                color: Color(0xFFD8B4FE),
-                                size: 28,
-                              ),
-                              onPressed: _currentPage < totalPages - 1
-                                  ? () {
-                                      _pageController.nextPage(
-                                        duration: const Duration(
-                                          milliseconds: 300,
-                                        ),
-                                        curve: Curves.easeInOut,
-                                      );
-                                    }
-                                  : null,
+                              icon: const Icon(Icons.arrow_forward_ios_rounded, color: Color(0xFFD8B4FE), size: 28),
+                              onPressed: _currentPage < totalPages - 1 ? () {
+                                _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                              } : null,
                             ),
                           ),
                         ),

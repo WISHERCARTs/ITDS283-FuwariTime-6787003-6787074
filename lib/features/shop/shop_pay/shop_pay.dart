@@ -8,15 +8,19 @@ import 'package:fuwari_time/features/music/music_state.dart';
 import 'package:fuwari_time/features/shop/shop_pay/qr_code.dart';
 
 class ShopPay extends StatefulWidget {
-  final String itemName;
-  final int itemPrice;
-  final String imageUrl;
+  final String title;
+  final String artist;
+  final String img;
+  final String path;
+  final int price;
 
   const ShopPay({
     super.key,
-    required this.itemName,
-    required this.itemPrice,
-    required this.imageUrl,
+    required this.title,
+    required this.artist,
+    required this.img,
+    required this.path,
+    required this.price,
   });
 
   @override
@@ -52,7 +56,7 @@ class ShopPayState extends State<ShopPay> {
             _buildPaymentOption(
               icon: Icons.monetization_on_rounded,
               title: "Pay with Coins",
-              subtitle: "${widget.itemPrice} Coins",
+              subtitle: "${widget.price} Coins", 
               color: const Color(0xFFFFD6E8),
               onTap: () {
                 Navigator.pop(context);
@@ -62,18 +66,25 @@ class ShopPayState extends State<ShopPay> {
             
             const SizedBox(height: 16),
             
-            // 💳 Option 2: Pay with PromptPay
+            // 💳 Option 2: Pay with PromptPay (💡 แก้ไขตรงนี้ให้รอรับค่า true)
             _buildPaymentOption(
               icon: Icons.qr_code_scanner_rounded,
               title: "PromptPay",
               subtitle: "Scan to pay (Real money)",
               color: const Color(0xFF00FF7B).withOpacity(0.2),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
+              onTap: () async {
+                Navigator.pop(context); // ปิดหน้าต่างเลือกวิธีจ่ายเงิน
+                
+                // รอรับผลลัพธ์กลับมาจากหน้า QR Code
+                final result = await Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const ShopPayment()),
                 );
+
+                // ถ้าผลลัพธ์คือ true (กดปุ่ม Apply) ให้ยัดเพลงเข้ากระเป๋า
+                if (result == true) {
+                  _handlePromptPaySuccess();
+                }
               },
             ),
           ],
@@ -122,33 +133,77 @@ class ShopPayState extends State<ShopPay> {
     );
   }
 
-  // 🪙 ฟังก์ชันหักเหรียญจากบัญชีจริงๆ
+  // 🚀 ฟังก์ชันสำหรับการจ่ายด้วยเหรียญ
   Future<void> _handleCoinPayment() async {
-    final userId = Supabase.instance.client.auth.currentUser?.id;
-    if (userId == null) return;
-
     setState(() => _isProcessing = true);
 
     try {
-      final profile = await _profileService.getProfile(userId);
-      if (profile != null) {
-        if (profile.points >= widget.itemPrice) {
-          // 💸 1. หักแต้ม
-          await _profileService.addPoints(userId, -widget.itemPrice);
-          
-          // 🎶 2. บันทึกลง Inventory (เฉพาะถ้าเป็นเพลง)
-          await _inventoryService.purchaseItem(userId, widget.itemName, "Music");
-          
-          // 🔄 3. ซิงค์ตู้เพลงทันทีเพื่อให้ Sold Out และเพิ่มเพลงในกระเป๋า
-          await musicController.syncInventory();
+      Map<String, String> purchasedSong = {
+        "title": widget.title,
+        "artist": widget.artist,
+        "img": widget.img,
+        "path": widget.path,
+      };
 
-          _showStatusMessage("Successfully purchased ${widget.itemName}!", Colors.green);
+      musicController.buyNewSong(purchasedSong);
+
+      final userId = Supabase.instance.client.auth.currentUser?.id;
+      if (userId != null) {
+        final profile = await _profileService.getProfile(userId);
+        if (profile != null && profile.points >= widget.price) {
+          await _profileService.addPoints(userId, -widget.price);
+          await _inventoryService.purchaseItem(userId, widget.title, "Music");
         } else {
           _showStatusMessage("Not enough coins! Go focus more. 🔥", Colors.redAccent);
+          setState(() => _isProcessing = false);
+          return; 
         }
       }
+
+      _showStatusMessage("Successfully purchased ${widget.title}!", Colors.green);
+
+      await Future.delayed(const Duration(milliseconds: 1500));
+      if (mounted) {
+        Navigator.pop(context);
+      }
+
     } catch (e) {
       _showStatusMessage("Error processing payment.", Colors.redAccent);
+    } finally {
+      if (mounted) setState(() => _isProcessing = false);
+    }
+  }
+
+  // 🚀 💡 เพิ่มฟังก์ชันใหม่: รับจบเมื่อจ่ายด้วย PromptPay สำเร็จ
+  Future<void> _handlePromptPaySuccess() async {
+    setState(() => _isProcessing = true);
+
+    try {
+      Map<String, String> purchasedSong = {
+        "title": widget.title,
+        "artist": widget.artist,
+        "img": widget.img,
+        "path": widget.path,
+      };
+
+      // ยัดเข้าคลัง Local ทันที
+      musicController.buyNewSong(purchasedSong);
+
+      final userId = Supabase.instance.client.auth.currentUser?.id;
+      if (userId != null) {
+        // 💡 จ่ายเงินจริงไปแล้ว ไม่ต้องหัก Coins แค่แอดของเข้า Inventory อย่างเดียว
+        await _inventoryService.purchaseItem(userId, widget.title, "Music");
+      }
+
+      _showStatusMessage("Successfully purchased ${widget.title} with PromptPay!", Colors.green);
+
+      await Future.delayed(const Duration(milliseconds: 1500));
+      if (mounted) {
+        Navigator.pop(context);
+      }
+
+    } catch (e) {
+      _showStatusMessage("Error updating inventory.", Colors.redAccent);
     } finally {
       if (mounted) setState(() => _isProcessing = false);
     }
@@ -157,9 +212,15 @@ class ShopPayState extends State<ShopPay> {
   void _showStatusMessage(String message, Color color) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
+        content: Text(
+          message,
+          textAlign: TextAlign.center, 
+          style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+        ),
         backgroundColor: color,
         behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)), 
+        margin: const EdgeInsets.only(bottom: 20, left: 20, right: 20),
       ),
     );
   }
@@ -173,10 +234,9 @@ class ShopPayState extends State<ShopPay> {
           SingleChildScrollView(
             child: Column(
               children: [
-                TopBar(), // 🚀 ใช้ TopBar แบบ StatefulWidget
-                const SizedBox(height: 24),
+                const TopBar(), 
+                const SizedBox(height: 50),
                 
-                // 📦 Card รายละเอียดสินค้า
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Container(
@@ -194,14 +254,39 @@ class ShopPayState extends State<ShopPay> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // 🖼️ รูปสินค้าขนาดใหญ่
                         ClipRRect(
                           borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-                          child: Image.network(
-                            widget.imageUrl,
-                            height: 300,
-                            fit: BoxFit.cover,
-                          ),
+                          child: widget.img.startsWith('http')
+                              ? Image.network(
+                                  widget.img,
+                                  height: 300,
+                                  fit: BoxFit.cover,
+                                  loadingBuilder: (context, child, loadingProgress) {
+                                    if (loadingProgress == null) return child;
+                                    return Container(
+                                      color: const Color(0xFFF3F4F6),
+                                      height: 300,
+                                      child: const Center(
+                                        child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFFFFD6E8)),
+                                      ),
+                                    );
+                                  },
+                                  errorBuilder: (context, error, stackTrace) => Container(
+                                    color: const Color(0xFFF3F4F6),
+                                    height: 300,
+                                    child: const Center(child: Icon(Icons.image_not_supported_rounded, color: Colors.grey, size: 50)),
+                                  ),
+                                )
+                              : Image.asset(
+                                  widget.img, 
+                                  height: 300,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) => Container(
+                                    color: const Color(0xFFF3F4F6),
+                                    height: 300,
+                                    child: const Center(child: Icon(Icons.image_not_supported_rounded, color: Colors.grey, size: 50)),
+                                  ),
+                                ),
                         ),
                         
                         Padding(
@@ -209,18 +294,21 @@ class ShopPayState extends State<ShopPay> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                "Product Details",
-                                style: TextStyle(color: Color(0xFF6B7280), fontSize: 14, fontWeight: FontWeight.w500),
-                              ),
+                              
                               const SizedBox(height: 8),
                               Text(
-                                widget.itemName,
+                                widget.title, 
                                 style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Color(0xFF1F2937)),
                               ),
+                              if (widget.artist.isNotEmpty)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 4),
+                                  child: Text(
+                                    widget.artist,
+                                    style: const TextStyle(fontSize: 16, color: Color(0xFF9CA3AF), fontWeight: FontWeight.w500),
+                                  ),
+                                ),
                               const SizedBox(height: 16),
-                              
-                              // 💎 ราคา
                               Row(
                                 children: [
                                   Container(
@@ -234,15 +322,12 @@ class ShopPayState extends State<ShopPay> {
                                   ),
                                   const SizedBox(width: 12),
                                   Text(
-                                    "${widget.itemPrice} Coins",
+                                    "${widget.price} Coins", 
                                     style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFFA16207)),
                                   ),
                                 ],
                               ),
-                              
                               const SizedBox(height: 32),
-                              
-                              // 🛒 ปุ่มสั่งซื้อ
                               SizedBox(
                                 width: double.infinity,
                                 height: 60,
@@ -270,13 +355,11 @@ class ShopPayState extends State<ShopPay> {
               ],
             ),
           ),
-          
-          // 🔙 ปุ่มย้อนกลับแบบลอย
           Positioned(
-            top: 60,
-            left: 20,
+            top: 90,
+            left: 5,
             child: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Color(0xFF1F2937)),
+              icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF1F2937)),
               onPressed: () => Navigator.pop(context),
             ),
           ),
