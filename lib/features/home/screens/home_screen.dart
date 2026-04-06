@@ -9,6 +9,8 @@ import '../widgets/video_background_layer.dart';
 import '../widgets/global_action_menu.dart';
 import '../widgets/pomodoro_timer_dialog.dart';
 import '../widgets/todo_list_dialog.dart';
+import 'package:fuwari_time/features/home/services/background_controller.dart';
+import 'package:fuwari_time/features/music/music_state.dart';
 
 /// หน้าจอหลักของแอปพลิเคชัน (HomeScreen)
 /// ปรับปรุงใหม่: รองรับ Global Action Menu และ Overlays ที่ลอยคงที่ทับทุกหน้า
@@ -27,6 +29,20 @@ class _HomeScreenState extends State<HomeScreen> {
   // ตำแหน่ง Mini Timer (ลากย้ายได้)
   double _miniTimerX = 100;
   double _miniTimerY = 150;
+
+  @override
+  void initState() {
+    super.initState();
+    // 🚚 ซิงค์ข้อมูลคลังเก็บของ (Inventory) จาก Supabase ทันทีที่เข้าแอป
+    musicController.syncInventory();
+
+    // 🚀 [เปิดระบบกลับมา] เริ่มซิงค์พิกัดหลังจากเข้าหน้า Home 3 วินาท เพื่อความเสถียรที่สุด
+    Future.delayed(const Duration(seconds: 3), () {
+      if (mounted) {
+        context.read<BackgroundController>().syncLocationAndWeather();
+      }
+    });
+  }
 
   @override
   void dispose() {

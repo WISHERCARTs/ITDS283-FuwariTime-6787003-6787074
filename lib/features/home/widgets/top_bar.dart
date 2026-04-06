@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:fuwari_time/features/home/services/background_controller.dart';
 // 💡 อย่าลืม Import หน้า Setting เข้ามานะครับ
 import 'package:fuwari_time/features/setting/setting.dart';
 
@@ -65,26 +67,71 @@ class TopBarState extends State<TopBar> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              Image.network(
-                "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/y0beqz0yoq/junj4an5_expires_30_days.png",
-                width: 39,
-                height: 40,
-                fit: BoxFit.cover,
-              ),
-              const SizedBox(width: 12),
-              const Text(
-                "Fuwari Time",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  height: 1.2,
-                  fontWeight: FontWeight.bold,
+          // 🚀 1. ฝั่งซ้าย (Icon + Title + Location) - หุ้มด้วย Expanded เพื่อให้มีขอบเขตแน่นอน
+          Expanded(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Image.network(
+                  "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/y0beqz0yoq/junj4an5_expires_30_days.png",
+                  width: 39,
+                  height: 40,
+                  fit: BoxFit.cover,
                 ),
-              ),
-            ],
+                const SizedBox(width: 12),
+                // 🚀 2. ใช้ Flexible ตรงนี้เพื่อป้องกันข้อความล้น (ยังอยู่ในขอบเขตของ Expanded)
+                Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text(
+                        "Fuwari Time",
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          height: 1.2,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      // 🗺️📍 แสดงชื่อสถานที่ (อำเภอ จังหวัด ประเทศ) จาก GPS
+                      GestureDetector(
+                        onTap: () => context
+                            .read<BackgroundController>()
+                            .syncLocationAndWeather(),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.location_on,
+                              size: 10,
+                              color: Colors.white70,
+                            ),
+                            const SizedBox(width: 4),
+                            // 🚀 3. ใช้ Flexible ชั้นเดียวพอ เพื่อคุมข้อความที่อยู่ (Address)
+                            Flexible(
+                              child: Text(
+                                context.watch<BackgroundController>().currentAddress,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.8),
+                                  fontSize: 9,
+                                  letterSpacing: 0.2,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
+          const SizedBox(width: 12), // เว้นที่ให้กดง่ายขึ้นแยกจาก Coins
 
           // 💰 [ส่วนที่แก้] ใช้ Stream ที่ถูก Initialize ไว้แล้ว (ไม่กระตุก)
           StreamBuilder<List<Map<String, dynamic>>>(
@@ -135,7 +182,8 @@ class TopBarState extends State<TopBar> {
                   context,
                   // 🚀 3. แนบ currentIndex ส่งต่อไปให้หน้า Setting ด้วย!
                   MaterialPageRoute(
-                    builder: (context) => Setting(currentIndex: widget.currentIndex),
+                    builder: (context) =>
+                        Setting(currentIndex: widget.currentIndex),
                   ),
                 );
               },

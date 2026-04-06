@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'package:provider/provider.dart';
-import '../services/background_controller.dart';
+import 'package:fuwari_time/features/home/services/background_controller.dart';
 
 class VideoBackgroundLayer extends StatelessWidget {
   final PageController pageController;

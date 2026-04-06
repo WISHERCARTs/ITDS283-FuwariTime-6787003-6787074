@@ -21,6 +21,10 @@ final List<Map<String, String>> shopMusicCatalog = [
   {"title": "Relax", "artist": "VibeHorn", "img": "assets/image/VibeHorn.webp", "path": "audio_asset/relax-Music.mp3"},
   {"title": "honey jam", "artist": "massobeats", "img": "assets/image/Honeyjam.webp", "path": "audio_asset/honeyjam-music.mp3"},
   {"title": "Donut", "artist": "Lukrembo", "img": "assets/image/Lukrembo.webp", "path": "audio_asset/donut-music.mp3"},
+  {"title": "ChocoLate", "artist": "Lukrembo", "img": "assets/image/Chocolate.webp", "path": "audio_asset/chocolate-music.mp3"},
+  {"title": "At Ease", "artist": "Hazelwood", "img": "assets/image/AtEase.webp", "path": "audio_asset/at-ease-music.mp3"},
+  {"title": "mango tea", "artist": "massobeats", "img": "assets/image/Mangotea.webp", "path": "audio_asset/mango-tea-music.mp3"},
+  {"title": "Lonely Samurai", "artist": "Walen", "img": "assets/image/LonelySamurai.webp", "path": "audio_asset/lonely-samurai-music.mp3"},
 ];
 
 // 🚀 4. รายชื่อเพลงปัจจุบัน (Base + Purchased)

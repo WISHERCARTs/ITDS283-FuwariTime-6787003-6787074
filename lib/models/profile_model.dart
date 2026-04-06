@@ -3,6 +3,7 @@ class ProfileModel {
   final String? username;
   final String? avatarUrl;
   final int points;
+  final bool hasClaimedBonus; // 🎁 เช็คว่าเคยรับเงินขวัญถุงไปหรือยัง
   final DateTime? updatedAt;
 
   ProfileModel({
@@ -10,6 +11,7 @@ class ProfileModel {
     this.username,
     this.avatarUrl,
     this.points = 0,
+    this.hasClaimedBonus = false,
     this.updatedAt,
   });
 
@@ -20,6 +22,7 @@ class ProfileModel {
       username: json['username'],
       avatarUrl: json['avatar_url'],
       points: json['points'] ?? 0,
+      hasClaimedBonus: json['has_claimed_bonus'] ?? false, 
       updatedAt: json['updated_at'] != null 
           ? DateTime.parse(json['updated_at']) 
           : null,
@@ -33,6 +36,7 @@ class ProfileModel {
       'username': username,
       'avatar_url': avatarUrl,
       'points': points,
+      'has_claimed_bonus': hasClaimedBonus,
       // 'updated_at' ปกติให้ Database เจนให้เอง
     };
   }

@@ -73,6 +73,7 @@ class ProfileState extends State<Profile> {
         id: user.id,
         username: _usernameController.text,
         points: profile?.points ?? 0,
+        hasClaimedBonus: profile?.hasClaimedBonus ?? false,
         avatarUrl: profile?.avatarUrl,
       );
 
@@ -189,6 +190,12 @@ class ProfileState extends State<Profile> {
                         ],
                       ),
                     ),
+                    const SizedBox(height: 10),
+
+                    // 🎁 ปุ่มกดรับเงินขวัญถุง (โชว์เฉพาะคนที่ยังไม่ได้กด)
+                    if (profileData != null && !(profileData['has_claimed_bonus'] ?? false))
+                      _buildClaimBonusButton(),
+
                     const SizedBox(height: 10),
                     _buildInfoSection(),
                     const SizedBox(height: 20),
@@ -423,6 +430,58 @@ class ProfileState extends State<Profile> {
             : null,
       ),
       child: child,
+    );
+  }
+
+  // 🎁 ปุ่มกดรับเหรียญขวัญถุง 200 เหรียญ
+  Widget _buildClaimBonusButton() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 24),
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: _isSaving
+            ? null
+            : () async {
+                setState(() => _isSaving = true);
+                try {
+                  await _profileService.claimWelcomeBonus(_currentUserId!);
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Congratulations! You've received 200 Welcome Coins! 🎁"),
+                        backgroundColor: Colors.pinkAccent,
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Error: $e")),
+                    );
+                  }
+                } finally {
+                  if (mounted) setState(() => _isSaving = false);
+                }
+              },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.pinkAccent,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          elevation: 4,
+        ),
+        child: const Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.card_giftcard_rounded),
+            SizedBox(width: 10),
+            Text(
+              "Claim 200 Welcome Coins!",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

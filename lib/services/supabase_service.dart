@@ -9,6 +9,7 @@ class SupabaseService {
   // -------------------------------------------------------------
   static String get supabaseUrl => dotenv.env['SUPABASE_URL'] ?? '';
   static String get supabaseAnonKey => dotenv.env['SUPABASE_ANON_KEY'] ?? '';
+  static String get weatherApiKey => dotenv.env['WeatherAPIkey'] ?? '';
 
   // -------------------------------------------------------------
   // [ส่วนที่ 2] ค่า Client ID เอาไว้บอกกูเกิ้ลว่าแอปเราชื่ออะไรเวลามีหน้าเว็บเด้งให้ล็อกอิน
