@@ -66,18 +66,25 @@ class ShopPayState extends State<ShopPay> {
             
             const SizedBox(height: 16),
             
-            // 💳 Option 2: Pay with PromptPay
+            // 💳 Option 2: Pay with PromptPay (💡 แก้ไขตรงนี้ให้รอรับค่า true)
             _buildPaymentOption(
               icon: Icons.qr_code_scanner_rounded,
               title: "PromptPay",
               subtitle: "Scan to pay (Real money)",
               color: const Color(0xFF00FF7B).withOpacity(0.2),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
+              onTap: () async {
+                Navigator.pop(context); // ปิดหน้าต่างเลือกวิธีจ่ายเงิน
+                
+                // รอรับผลลัพธ์กลับมาจากหน้า QR Code
+                final result = await Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const ShopPayment()),
                 );
+
+                // ถ้าผลลัพธ์คือ true (กดปุ่ม Apply) ให้ยัดเพลงเข้ากระเป๋า
+                if (result == true) {
+                  _handlePromptPaySuccess();
+                }
               },
             ),
           ],
@@ -126,12 +133,11 @@ class ShopPayState extends State<ShopPay> {
     );
   }
 
-  // 🚀 ฟังก์ชันหลัก
+  // 🚀 ฟังก์ชันสำหรับการจ่ายด้วยเหรียญ
   Future<void> _handleCoinPayment() async {
     setState(() => _isProcessing = true);
 
     try {
-      // 💡 1. สร้างก้อนข้อมูลเพลงใหม่
       Map<String, String> purchasedSong = {
         "title": widget.title,
         "artist": widget.artist,
@@ -139,27 +145,23 @@ class ShopPayState extends State<ShopPay> {
         "path": widget.path,
       };
 
-      // 💡 2. ยัดเข้าคลัง Local ทันที! (เพื่อให้หน้า Shop ขึ้น Sold out ทันที แบบไม่ต้องรอเน็ต)
       musicController.buyNewSong(purchasedSong);
 
-      // 💡 3. เช็คและหักเงินใน Database (Supabase) ถ้ามีการ Login ไว้
       final userId = Supabase.instance.client.auth.currentUser?.id;
       if (userId != null) {
         final profile = await _profileService.getProfile(userId);
         if (profile != null && profile.points >= widget.price) {
           await _profileService.addPoints(userId, -widget.price);
-          // ส่ง "Music" ไปให้ Inventory Service
           await _inventoryService.purchaseItem(userId, widget.title, "Music");
         } else {
           _showStatusMessage("Not enough coins! Go focus more. 🔥", Colors.redAccent);
           setState(() => _isProcessing = false);
-          return; // ถ้าเงินไม่พอ ให้หยุดการทำงาน
+          return; 
         }
       }
 
       _showStatusMessage("Successfully purchased ${widget.title}!", Colors.green);
 
-      // 💡 4. หน่วงเวลา 1.5 วินาทีให้โชว์ข้อความสำเร็จ แล้วเด้งกลับหน้า Shop อัตโนมัติ
       await Future.delayed(const Duration(milliseconds: 1500));
       if (mounted) {
         Navigator.pop(context);
@@ -172,18 +174,52 @@ class ShopPayState extends State<ShopPay> {
     }
   }
 
-  // 💡 ปรับให้ข้อความอยู่ตรงกลาง และขอบมนสวยงาม
+  // 🚀 💡 เพิ่มฟังก์ชันใหม่: รับจบเมื่อจ่ายด้วย PromptPay สำเร็จ
+  Future<void> _handlePromptPaySuccess() async {
+    setState(() => _isProcessing = true);
+
+    try {
+      Map<String, String> purchasedSong = {
+        "title": widget.title,
+        "artist": widget.artist,
+        "img": widget.img,
+        "path": widget.path,
+      };
+
+      // ยัดเข้าคลัง Local ทันที
+      musicController.buyNewSong(purchasedSong);
+
+      final userId = Supabase.instance.client.auth.currentUser?.id;
+      if (userId != null) {
+        // 💡 จ่ายเงินจริงไปแล้ว ไม่ต้องหัก Coins แค่แอดของเข้า Inventory อย่างเดียว
+        await _inventoryService.purchaseItem(userId, widget.title, "Music");
+      }
+
+      _showStatusMessage("Successfully purchased ${widget.title} with PromptPay!", Colors.green);
+
+      await Future.delayed(const Duration(milliseconds: 1500));
+      if (mounted) {
+        Navigator.pop(context);
+      }
+
+    } catch (e) {
+      _showStatusMessage("Error updating inventory.", Colors.redAccent);
+    } finally {
+      if (mounted) setState(() => _isProcessing = false);
+    }
+  }
+
   void _showStatusMessage(String message, Color color) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
           message,
-          textAlign: TextAlign.center, // 💡 จัดข้อความให้อยู่ตรงกลาง
+          textAlign: TextAlign.center, 
           style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
         ),
         backgroundColor: color,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)), // 💡 ขอบมน
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)), 
         margin: const EdgeInsets.only(bottom: 20, left: 20, right: 20),
       ),
     );

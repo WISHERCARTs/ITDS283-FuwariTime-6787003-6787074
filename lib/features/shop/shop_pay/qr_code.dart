@@ -14,19 +14,16 @@ class ShopPaymentState extends State<ShopPayment> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFFF8F0),
-      // 💡 ใช้ BottomNavBar เหมือนเดิม (ไฮไลท์ที่ Shop)
       bottomNavigationBar: const BottomNavBar(currentIndex: 2), 
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center, // จัดให้อยู่กึ่งกลาง
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // 💡 1. เรียกใช้ TopBar
-              TopBar(),
+              const TopBar(),
               
               const SizedBox(height: 40),
               
-              // 💡 2. หัวข้อ "PromptPay Scan"
               const Text(
                 "PromptPay Scan",
                 style: TextStyle(
@@ -42,7 +39,6 @@ class ShopPaymentState extends State<ShopPayment> {
               
               const SizedBox(height: 30),
               
-              // 💡 3. กล่องแสดงรูป QR Code
               Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(30),
@@ -58,7 +54,7 @@ class ShopPaymentState extends State<ShopPayment> {
                   borderRadius: BorderRadius.circular(30),
                   child: Image.network(
                     "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/y0beqz0yoq/xwip3n0d_expires_30_days.png",
-                    width: 280, // ปรับขนาดให้สมดุลกับหน้าจอ
+                    width: 280, 
                     height: 280,
                     fit: BoxFit.cover,
                   ),
@@ -67,40 +63,76 @@ class ShopPaymentState extends State<ShopPayment> {
               
               const SizedBox(height: 50),
               
-              // 💡 4. ปุ่ม Cancel สีแดง (กดแล้วย้อนกลับ)
+              // 💡 4. ปุ่ม Cancel สีแดง และ Apply สีเขียว
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 40),
-                child: Align(
-                  alignment: Alignment.centerRight, // จัดให้อยู่ขวาๆ ตามดีไซน์เดิมของคุณ
-                  child: InkWell(
-                    onTap: () {
-                      // 💡 คำสั่งย้อนกลับไปหน้าก่อนหน้า
-                      Navigator.pop(context);
-                    },
-                    borderRadius: BorderRadius.circular(16),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        color: const Color(0xFFF51010), // สีแดง
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Color(0x33000000),
-                            blurRadius: 8,
-                            offset: Offset(0, 4),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center, // จัดให้อยู่กึ่งกลางคู่กัน
+                  children: [
+                    // 🔴 ปุ่ม Cancel
+                    InkWell(
+                      onTap: () {
+                        // ส่งค่า false กลับไป แปลว่ายกเลิก
+                        Navigator.pop(context, false);
+                      },
+                      borderRadius: BorderRadius.circular(16),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          color: const Color(0xFFF51010), // สีแดง
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Color(0x33000000),
+                              blurRadius: 8,
+                              offset: Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 30),
+                        child: const Text(
+                          "Cancel",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20, // ปรับเล็กลงนิดนึงจะได้วางคู่กันได้สวยๆ
+                            fontWeight: FontWeight.bold,
                           ),
-                        ],
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 36),
-                      child: const Text(
-                        "Cancel",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
-                  ),
+                    
+                    const SizedBox(width: 20), // ระยะห่างระหว่างปุ่ม
+                    
+                    // 🟢 ปุ่ม Apply
+                    InkWell(
+                      onTap: () {
+                        // 💡 ส่งค่า true กลับไป แปลว่าจ่ายเงินสำเร็จแล้ว!
+                        Navigator.pop(context, true);
+                      },
+                      borderRadius: BorderRadius.circular(16),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          color: const Color(0xFF10B981), // สีเขียว
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Color(0x33000000),
+                              blurRadius: 8,
+                              offset: Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 36),
+                        child: const Text(
+                          "Apply",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               

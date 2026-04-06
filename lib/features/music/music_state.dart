@@ -21,7 +21,6 @@ final List<Map<String, String>> shopMusicCatalog = [
   {"title": "Relax", "artist": "VibeHorn", "img": "assets/image/VibeHorn.webp", "path": "audio_asset/relax-Music.mp3"},
   {"title": "honey jam", "artist": "massobeats", "img": "assets/image/Honeyjam.webp", "path": "audio_asset/honeyjam-music.mp3"},
   {"title": "Donut", "artist": "Lukrembo", "img": "assets/image/Lukrembo.webp", "path": "audio_asset/donut-music.mp3"},
-  
 ];
 
 // 🚀 4. รายชื่อเพลงปัจจุบัน (Base + Purchased)
@@ -41,6 +40,9 @@ class MusicController {
   final ValueNotifier<Duration> position = ValueNotifier<Duration>(Duration.zero);
   final ValueNotifier<Duration> duration = ValueNotifier<Duration>(Duration.zero);
 
+  // 💡 สร้างตัวแปรเก็บระดับเสียงปัจจุบัน (ค่าเริ่มต้นที่ 0.5 หรือ 50%)
+  double currentVolume = 0.5;
+
   MusicController._internal() {
     audioPlayer.onPlayerStateChanged.listen((state) {
       isPlaying.value = state == PlayerState.playing;
@@ -59,6 +61,19 @@ class MusicController {
         skipNext();
       }
     });
+
+    // เซ็ตระดับเสียงเริ่มต้นให้ audioPlayer ตอนเปิดแอปมาครั้งแรก
+    audioPlayer.setVolume(currentVolume);
+  }
+
+  // 🚀 ฟังก์ชันปรับระดับเสียงที่ถูกเรียกใช้จากหน้า Setting
+  void setVolume(double volume) {
+    currentVolume = volume;
+    try {
+      audioPlayer.setVolume(volume);
+    } catch (e) {
+      debugPrint("❌ Error setting volume: $e");
+    }
   }
 
   // 🔄 ซิงค์ข้อมูลเพลงจาก Supabase
