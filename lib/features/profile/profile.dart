@@ -55,7 +55,7 @@ class ProfileState extends State<Profile> {
 
     // โหลดครั้งแรกเท่านั้น เพื่อให้มีข้อมูลเริ่มต้นใน Controller
     final profile = await _profileService.getProfile(user.id);
-    
+
     // 🛡️ ป้องกันกรณีโหลดเสร็จแต่ผู้ใช้ออกจากหน้าไปแล้ว (Widget ถูกทำลายไปแล้ว)
     if (!mounted) return;
 
@@ -74,13 +74,36 @@ class ProfileState extends State<Profile> {
     try {
       // ดึงค่าโปรไฟล์ล่าสุดมาเพื่อรักษาแต้มไว้
       final profile = await _profileService.getProfile(user.id);
+      String? currentAvatarUrl = profile?.avatarUrl;
+
+      // 🖼️ อัปโหลดรูปภาพถ้ามีการเลือกใหม่
+      if (_profileImage != null) {
+        final fileExt = _profileImage!.path.split('.').last;
+        final fileName =
+            '${user.id}_${DateTime.now().millisecondsSinceEpoch}.$fileExt';
+
+        await Supabase.instance.client.storage
+            .from('avatars')
+            .upload(
+              fileName,
+              _profileImage!, // File ดิบนี่แหละ อัปโหลดเลย
+              fileOptions: const FileOptions(
+                cacheControl: '3600',
+                upsert: true,
+              ),
+            );
+
+        currentAvatarUrl = Supabase.instance.client.storage
+            .from('avatars')
+            .getPublicUrl(fileName);
+      }
 
       final updatedProfile = ProfileModel(
         id: user.id,
         username: _usernameController.text,
         points: profile?.points ?? 0,
         hasClaimedBonus: profile?.hasClaimedBonus ?? false,
-        avatarUrl: profile?.avatarUrl,
+        avatarUrl: currentAvatarUrl, // ใช้ลิงก์ใหม่ (ถ้ามี)
       );
 
       await _profileService.updateProfile(updatedProfile);
@@ -120,6 +143,7 @@ class ProfileState extends State<Profile> {
     if (pickedFile != null) {
       setState(() {
         _profileImage = File(pickedFile.path);
+        _isEditing = true; // 🚀 โชว์ปุ่ม Save ทันทีหลังเลือกรูป!
       });
       print('Selected image path: ${pickedFile.path}');
     }
@@ -138,9 +162,9 @@ class ProfileState extends State<Profile> {
       body: StreamBuilder<List<Map<String, dynamic>>>(
         stream: _currentUserId != null
             ? Supabase.instance.client
-                .from('profiles')
-                .stream(primaryKey: ['id'])
-                .eq('id', _currentUserId!)
+                  .from('profiles')
+                  .stream(primaryKey: ['id'])
+                  .eq('id', _currentUserId!)
             : null,
         builder: (context, snapshot) {
           // ดึงข้อมูลจาก Stream
@@ -164,8 +188,10 @@ class ProfileState extends State<Profile> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    SizedBox(height: topPadding + 80), // 🚀 เว้นที่ให้ TopBar แบบไดนามิก
-                    _buildProfileImagePicker(),
+                    SizedBox(
+                      height: topPadding + 80,
+                    ), // 🚀 เว้นที่ให้ TopBar แบบไดนามิก
+                    _buildProfileImagePicker(profileData?['avatar_url']),
                     const SizedBox(height: 10),
                     // 💰 แต้มพ้อยท์
                     Container(
@@ -199,7 +225,8 @@ class ProfileState extends State<Profile> {
                     const SizedBox(height: 10),
 
                     // 🎁 ปุ่มกดรับเงินขวัญถุง (โชว์เฉพาะคนที่ยังไม่ได้กด)
-                    if (profileData != null && !(profileData['has_claimed_bonus'] ?? false))
+                    if (profileData != null &&
+                        !(profileData['has_claimed_bonus'] ?? false))
                       _buildClaimBonusButton(),
 
                     const SizedBox(height: 10),
@@ -297,7 +324,7 @@ class ProfileState extends State<Profile> {
     );
   }
 
-  Widget _buildProfileImagePicker() {
+  Widget _buildProfileImagePicker(String? dbAvatarUrl) {
     return Stack(
       children: [
         ClipRRect(
@@ -310,7 +337,7 @@ class ProfileState extends State<Profile> {
                   fit: BoxFit.cover,
                 )
               : Image.network(
-                  _defaultImageUrl,
+                  dbAvatarUrl ?? _defaultImageUrl,
                   width: 150,
                   height: 150,
                   fit: BoxFit.cover,
@@ -401,14 +428,19 @@ class ProfileState extends State<Profile> {
               children: [
                 Expanded(
                   child: Text(
-                    _isPasswordVisible ? "Password: MySecurePassword123" : "Password: ••••••••",
+                    _isPasswordVisible
+                        ? "Password: MySecurePassword123"
+                        : "Password: ••••••••",
                     style: const TextStyle(fontSize: 18, color: Colors.black54),
                   ),
                 ),
                 IconButton(
-                  onPressed: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
+                  onPressed: () =>
+                      setState(() => _isPasswordVisible = !_isPasswordVisible),
                   icon: Icon(
-                    _isPasswordVisible ? Icons.visibility_off_rounded : Icons.visibility_rounded,
+                    _isPasswordVisible
+                        ? Icons.visibility_off_rounded
+                        : Icons.visibility_rounded,
                     size: 20,
                     color: const Color(0xFF8B5CF6),
                   ),
@@ -454,16 +486,18 @@ class ProfileState extends State<Profile> {
                   if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text("Congratulations! You've received 200 Welcome Coins! 🎁"),
+                        content: Text(
+                          "Congratulations! You've received 200 Welcome Coins! 🎁",
+                        ),
                         backgroundColor: Colors.pinkAccent,
                       ),
                     );
                   }
                 } catch (e) {
                   if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Error: $e")),
-                    );
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text("Error: $e")));
                   }
                 } finally {
                   if (mounted) setState(() => _isSaving = false);
@@ -473,7 +507,9 @@ class ProfileState extends State<Profile> {
           backgroundColor: Colors.pinkAccent,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.all(16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
           elevation: 4,
         ),
         child: const Row(
