@@ -47,12 +47,18 @@ class ProfileState extends State<Profile> {
     final user = Supabase.instance.client.auth.currentUser;
     if (user == null) return;
 
-    setState(() {
-      userEmail = user.email ?? 'No email found';
-    });
+    if (mounted) {
+      setState(() {
+        userEmail = user.email ?? 'No email found';
+      });
+    }
 
     // โหลดครั้งแรกเท่านั้น เพื่อให้มีข้อมูลเริ่มต้นใน Controller
     final profile = await _profileService.getProfile(user.id);
+    
+    // 🛡️ ป้องกันกรณีโหลดเสร็จแต่ผู้ใช้ออกจากหน้าไปแล้ว (Widget ถูกทำลายไปแล้ว)
+    if (!mounted) return;
+
     if (profile != null && !_isEditing) {
       _usernameController.text = profile.username ?? '';
     }

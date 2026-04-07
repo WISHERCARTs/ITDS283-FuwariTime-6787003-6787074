@@ -8,6 +8,8 @@ import 'package:fuwari_time/features/setting/about_us.dart';
 // 🚀 1. Import ไฟล์ music_state.dart เข้ามาเพื่อจะได้สั่งการตัวเล่นเพลงได้
 import 'package:fuwari_time/features/music/music_state.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:provider/provider.dart';
+import 'package:fuwari_time/features/home/widgets/pomodoro_timer_dialog.dart';
 
 class Setting extends StatefulWidget {
   final int currentIndex;
@@ -175,6 +177,14 @@ class SettingState extends State<Setting> {
                 padding: const EdgeInsets.symmetric(horizontal: 32),
                 child: InkWell(
                   onTap: () async {
+                    // 🛑 0. หยุดการทำงานเบื้องหลังทุกอย่างก่อน!
+                    await musicController.audioPlayer.stop();
+                    musicController.isPlaying.value = false;
+                    
+                    if (context.mounted) {
+                      context.read<PomodoroController>().stop();
+                    }
+
                     // 🚀 1. สั่ง Sign Out จาก Supabase
                     await Supabase.instance.client.auth.signOut();
 
