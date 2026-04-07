@@ -1,25 +1,44 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 import 'package:fuwari_time/services/supabase_service.dart';
+
 import 'package:fuwari_time/features/home/services/background_controller.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'features/welcome/welcome.dart';
 
+import 'package:fuwari_time/core/services/notification_service.dart';
+import 'package:fuwari_time/features/auth/screens/auth_gate.dart';
+import 'package:fuwari_time/features/home/services/background_controller.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'dart:ui';
+
+import 'package:fuwari_time/features/home/widgets/pomodoro_timer_dialog.dart';
+import 'package:fuwari_time/features/home/widgets/todo_list_dialog.dart';
+
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Load environment variables
   await dotenv.load(fileName: ".env");
 
   // Initialize Supabase
   await SupabaseService.initialize();
 
+  // Initialize Notification Service
+  await NotificationService().init();
+
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => BackgroundController()),
+        ChangeNotifierProvider(create: (_) => PomodoroController()),
+        ChangeNotifierProvider(create: (_) => TodoController()),
       ],
       child: const FuwariTimeApp(),
     ),
@@ -47,8 +66,10 @@ class FuwariTimeApp extends StatelessWidget {
         textTheme: GoogleFonts.outfitTextTheme(),
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF6B4E3D)),
       ),
-      // กำหนดให้หน้า Welcome เป็นหน้าแรกตามความต้องการล่าสุดของเพื่อน
-      home: const Welcome(),
+
+
+      home: const AuthGate(),
+
     );
   }
 }

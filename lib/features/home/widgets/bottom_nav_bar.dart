@@ -1,4 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:fuwari_time/features/music/music_state.dart';
+// 🚀 1. อย่าลืม Import หน้า MusicBar เข้ามาด้วยนะครับ
+import 'package:fuwari_time/features/music/music_bar.dart';
+
+import 'package:fuwari_time/features/home/screens/home_screen.dart';
+import 'package:fuwari_time/features/profile/profile.dart';
+import 'package:fuwari_time/features/shop/shop.dart';
+import 'package:fuwari_time/features/stats/stat.dart';
 
 class BottomNavBar extends StatelessWidget {
   // ตัวแปรรับค่าว่าหน้าปัจจุบันคือหน้าไหน (0=Home, 1=Stats, 2=Shop, 3=Profile)
@@ -8,36 +16,57 @@ class BottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ดึงค่าระยห่างด้านล่างของหน้าจอมือถือแต่ละรุ่น (เช่น ขีด Home ของ iPhone/Android)
+    // ดึงค่าระยะห่างด้านล่างของหน้าจอมือถือแต่ละรุ่น (เช่น ขีด Home ของ iPhone/Android)
     final bottomPadding = MediaQuery.of(context).padding.bottom;
 
-    return Container(
-      decoration: const BoxDecoration(
-        color: Color(0xFFFFFFFF), // สีขาวสะอาด
-        // เพิ่มเงาให้ดูมีมิติมากขึ้น
-        boxShadow: [
-          BoxShadow(
-            color: Color(0x0D000000), // ดำเจือจางมาก (5%)
-            blurRadius: 20,
-            offset: Offset(0, -5), // ดันเงาขึ้นด้านบนเล็กน้อย
+    // 🚀 2. ครอบด้วย Column แบบ min size เพื่อให้แถบเพลงซ้อนอยู่บนเมนู
+    return Column(
+      mainAxisSize:
+          MainAxisSize.min, // 💡 สำคัญมาก: ห้ามเอาออก ไม่งั้นมันจะดันจนทะลุจอ
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        // 🎵 3. ส่วนของ Music Bar (จะโชว์ก็ต่อเมื่อ isMusicBarVisible เป็น true)
+        ValueListenableBuilder<bool>(
+          valueListenable: isMusicBarVisible,
+          builder: (context, isVisible, child) {
+            // ถ้าไม่ได้เปิดเพลง ให้ซ่อนแถบไปเลย (คืนค่าเป็นกล่องว่างๆ)
+            if (!isVisible) return const SizedBox.shrink();
+
+            // ถ้าเปิดเพลงอยู่ ให้แสดงแถบ MusicBar
+            return const LofiMusicBar();
+          },
+        ),
+
+        // 🔽 ส่วนของ Bottom Navigation Bar ด้านล่าง (ของเดิมของคุณ)
+        Container(
+          decoration: const BoxDecoration(
+            color: Color(0xFFFFFFFF), // สีขาวสะอาด
+            // เพิ่มเงาให้ดูมีมิติมากขึ้น
+            boxShadow: [
+              BoxShadow(
+                color: Color(0x0D000000), // ดำเจือจางมาก (5%)
+                blurRadius: 20,
+                offset: Offset(0, -5), // ดันเงาขึ้นด้านบนเล็กน้อย
+              ),
+            ],
           ),
-        ],
-      ),
-      // Padding ด้านล่างจะบวกเพิ่มตามความเหมาะสมของโทรศัพท์เครื่องนั้นๆ
-      padding: EdgeInsets.only(
-        top: 14, 
-        bottom: bottomPadding > 0 ? bottomPadding : 14,
-      ),
-      width: double.infinity,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          _buildNavItem(context, Icons.home_rounded, "Home", 0),
-          _buildNavItem(context, Icons.bar_chart_rounded, "Stats", 1),
-          _buildNavItem(context, Icons.storefront_rounded, "Shop", 2),
-          _buildNavItem(context, Icons.person_rounded, "Profile", 3),
-        ],
-      ),
+          // Padding ด้านล่างจะบวกเพิ่มตามความเหมาะสมของโทรศัพท์เครื่องนั้นๆ
+          padding: EdgeInsets.only(
+            top: 14,
+            bottom: bottomPadding > 0 ? bottomPadding : 14,
+          ),
+          width: double.infinity,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildNavItem(context, Icons.home_rounded, "Home", 0),
+              _buildNavItem(context, Icons.bar_chart_rounded, "Stats", 1),
+              _buildNavItem(context, Icons.storefront_rounded, "Shop", 2),
+              _buildNavItem(context, Icons.person_rounded, "Profile", 3),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -54,8 +83,35 @@ class BottomNavBar extends StatelessWidget {
     return InkWell(
       onTap: () {
         if (!isActive) {
-          // TODO: ใส่คำสั่ง Navigator เพื่อเปลี่ยนหน้าตรงนี้
-          print('เปลี่ยนไปหน้า $label');
+          // 🚀 ระบบ Routing เปลี่ยนหน้า
+          Widget nextScreen;
+
+          switch (index) {
+            case 0:
+              nextScreen = const HomeScreen();
+              break;
+            case 1:
+              nextScreen = const Stat();
+              break;
+            case 2:
+              nextScreen = const Shop();
+              break;
+            case 3:
+              nextScreen = const Profile();
+              break;
+            default:
+              return;
+          }
+
+          // 🚀 คำสั่งเปลี่ยนหน้าแบบไม่วางซ้อนกัน และปิดแอนิเมชันให้เนียนตา
+          Navigator.pushReplacement(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (context, animation1, animation2) => nextScreen,
+              transitionDuration: Duration.zero, // ปิดเวลาแอนิเมชัน
+              reverseTransitionDuration: Duration.zero,
+            ),
+          );
         }
       },
       child: Column(
@@ -68,7 +124,6 @@ class BottomNavBar extends StatelessWidget {
             height: 48,
             decoration: isActive
                 ? BoxDecoration(
-                    // ถ้า Active ให้วาดกล่องสีชมพู Gradient
                     borderRadius: BorderRadius.circular(16),
                     gradient: const LinearGradient(
                       begin: Alignment.topLeft,
@@ -83,11 +138,10 @@ class BottomNavBar extends StatelessWidget {
                       ),
                     ],
                   )
-                : null, // ถ้าไม่ Active ก็ไม่ต้องมีกล่องพื้นหลัง
+                : null,
             child: Icon(
               icon,
               size: 28,
-              // ถ้า Active ให้ไอคอนสีขาว ถ้าไม่ให้เป็นสีเทา
               color: isActive ? Colors.white : const Color(0xFF9CA3AF),
             ),
           ),
@@ -96,7 +150,6 @@ class BottomNavBar extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              // ข้อความสีม่วงเมื่อ Active สีเทาเมื่อไม่ Active
               color: isActive
                   ? const Color(0xFFC8B8E6)
                   : const Color(0xFF9CA3AF),

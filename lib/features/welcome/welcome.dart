@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fuwari_time/features/home/screens/home_screen.dart';
 
 class Welcome extends StatelessWidget {
   const Welcome({super.key});
@@ -77,17 +78,36 @@ class Welcome extends StatelessWidget {
                     const SizedBox(height: 40),
 
                     // 3. ข้อความรายละเอียด
-                    const Text(
-                      "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Color(0xFF000000), fontSize: 15),
+
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 32),
+                      child: Text(
+                        "Fuwari Time is your intuitive productivity companion, blending minimalist Pomodoro timers with relaxing Lofi soundscapes to create a distraction-free sanctuary for deep work.\n\n"
+                        "Created by Krittatee Kerdklinhom and Wish Nakthong, this project was born from a desire to make productivity feel more like a retreat than a chore. Our mission is to support your daily goals while maintaining your mental well-being.\n\n"
+                        "We are committed to constant improvement and appreciate your patience as we work to perfect the experience. Let’s make every minute count, together.",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Color(0xFF4B5563),
+                          fontSize: 14, // ปรับเล็กลงนิดนึงเพื่อให้ดูคลีน
+                          height: 1.5,
+                          letterSpacing: 0.2,
+                        ),
+                      ),
+
                     ),
-                    const SizedBox(height: 60),
+                    const SizedBox(height: 30),
                     // 4. ปุ่ม GOTCHA
                     ElevatedButton(
                       onPressed: () {
                         print('Pressed');
-                        // TODO: สั่งเปลี่ยนหน้าไป Login ตรงนี้
+                        // สั่งเปลี่ยนหน้าแบบทับหน้าเดิมไปเลย (กด Back กลับมาไม่ได้)
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                const HomeScreen(), // 💡 เปลี่ยนชื่อคลาสให้ตรงกับหน้าของคุณ
+                          ),
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(
@@ -105,6 +125,7 @@ class Welcome extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12), // ขอบมน
                         ),
                       ),
+
                       child: const Text(
                         "GOTCHA",
                         style: TextStyle(

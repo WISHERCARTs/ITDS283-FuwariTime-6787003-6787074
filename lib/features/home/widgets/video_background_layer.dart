@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'package:provider/provider.dart';
-import '../services/background_controller.dart';
+import 'package:fuwari_time/features/home/services/background_controller.dart';
 
 class VideoBackgroundLayer extends StatelessWidget {
   final PageController pageController;
@@ -23,7 +23,9 @@ class VideoBackgroundLayer extends StatelessWidget {
             // 1. เลเยอร์วิดีโอพื้นหลัง (ใช้ AnimatedSwitcher เพื่อความเรียบเนียนเวลาเปลี่ยนวิดีโอ)
             Positioned.fill(
               child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 1000), // ค่อยๆ Fade 1 วินาที
+                duration: const Duration(
+                  milliseconds: 1000,
+                ), // ค่อยๆ Fade 1 วินาที
                 child: _VideoPlayerItem(
                   // ใช้ Key เพื่อให้ระบบรู้ว่าถ้า Path เปลี่ยน ต้องสร้างพระเอกตัวใหม่มาวาง
                   key: ValueKey(bgController.currentVideoPath),
@@ -32,7 +34,7 @@ class VideoBackgroundLayer extends StatelessWidget {
                 ),
               ),
             ),
-            
+
             // 2. เลเยอร์เนื้อหา (พวกปุ่มและ To-Do)
             child,
           ],
@@ -64,21 +66,41 @@ class _VideoPlayerItemState extends State<_VideoPlayerItem> {
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.asset(widget.videoPath)
-      ..initialize().then((_) {
-        if (mounted) {
-          setState(() {
-            _isInitialized = true;
-            _controller.setLooping(true);
-            _controller.play();
-            _controller.setVolume(0);
-          });
-        }
-      });
+    _initializeController();
+  }
+
+  Future<void> _initializeController() async {
+    _controller = VideoPlayerController.asset(
+      widget.videoPath,
+      // ✅ 1. ตั้งค่า mixWithOthers เพื่อให้วิดีโอเล่นพร้อมกับเสียงเพลงได้แบบอิสระ ไม่แย่ง Focus กัน
+      videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
+    );
+
+    try {
+      // ✅ 2. ตั้งค่าระดับเสียงเป็น 0 "ก่อน" เริ่มโหลด
+      await _controller.setVolume(0);
+
+      // ✅ 2. เริ่มต้นวิดีโอ (ขั้นตอนนี้หนักที่สุด)
+      await _controller.initialize();
+
+      if (mounted) {
+        setState(() {
+          _isInitialized = true;
+          _controller.setLooping(true);
+          _controller.play();
+          // 🛡️ ย้ำอีกครั้งเผื่อระบบบางรุ่นรีเซ็ตค่า
+          _controller.setVolume(0);
+        });
+      }
+    } catch (e) {
+      debugPrint("❌ VideoPlayer Init Error: $e");
+    }
   }
 
   @override
   void dispose() {
+    // 🛡️ หยุดเล่นวิดีโอก่อนทิ้ง เพื่อคืนทรัพยากรให้เร็วที่สุด
+    _controller.pause();
     _controller.dispose();
     super.dispose();
   }

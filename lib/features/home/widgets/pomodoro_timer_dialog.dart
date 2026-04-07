@@ -1,5 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:fuwari_time/core/services/notification_service.dart';
+import '../../../services/timer_service.dart';
+import '../../../services/profile_service.dart';
 
 /// สถานะของ Pomodoro Timer
 enum PomodoroState { idle, expanded, running }
@@ -8,6 +12,11 @@ enum PomodoroState { idle, expanded, running }
 /// PomodoroController - จัดการ Logic ทั้งหมดของ Timer
 /// ===================================================
 class PomodoroController extends ChangeNotifier {
+  final TimerService _timerService = TimerService();
+  final ProfileService _profileService = ProfileService();
+  
+  String? get _currentUserId => Supabase.instance.client.auth.currentUser?.id;
+
   PomodoroState _state = PomodoroState.idle;
   PomodoroState get state => _state;
 
@@ -41,6 +50,7 @@ class PomodoroController extends ChangeNotifier {
 
   /// เริ่มจับเวลา
   void start() {
+    NotificationService().requestPermissions();
     currentLoop = 1;
     isWorkPhase = true;
     totalTime = workMinutes * 60;
@@ -67,9 +77,24 @@ class PomodoroController extends ChangeNotifier {
 
   void _onPhaseComplete() {
     if (isWorkPhase) {
+      // ✅ 1. จดบันทึก Focus Session ที่จบลง
+      if (_currentUserId != null) {
+        _timerService.saveSession(
+          userId: _currentUserId!,
+          type: 'focus',
+          durationMins: workMinutes,
+        );
+        // ✅ 2. ให้รางวัลคนตั้งใจเรียน/ทำงาน (เพิ่ม 10 แต้ม)
+        _profileService.addPoints(_currentUserId!, 10);
+      }
+
       // Work จบ
       if (breakMinutes > 0) {
         // เข้า Break อัตโนมัติ
+        NotificationService().showNotification(
+          title: "Time's up! 🍵",
+          body: "Focus session complete. Time for a short break!",
+        );
         isWorkPhase = false;
         totalTime = breakMinutes * 60;
         timeRemaining = totalTime;
@@ -80,6 +105,17 @@ class PomodoroController extends ChangeNotifier {
         _checkNextLoop();
       }
     } else {
+      // ✅ 3. จดบันทึก Break Session ที่จบลง
+      if (_currentUserId != null) {
+        _timerService.saveSession(
+          userId: _currentUserId!,
+          type: 'break',
+          durationMins: breakMinutes,
+        );
+        // ✅ 4. ให้รางวัลคนพักผ่อน (เพิ่ม 10 แต้ม)
+        _profileService.addPoints(_currentUserId!, 10);
+      }
+
       // Break จบ → เช็ก Loop
       _checkNextLoop();
     }
@@ -88,6 +124,10 @@ class PomodoroController extends ChangeNotifier {
   void _checkNextLoop() {
     if (loopCount > 0 && currentLoop < loopCount) {
       currentLoop++;
+      NotificationService().showNotification(
+        title: "Break ended! 🔥",
+        body: "Rest over. Time to start Focus loop $currentLoop!",
+      );
       isWorkPhase = true;
       totalTime = workMinutes * 60;
       timeRemaining = totalTime;
@@ -95,6 +135,10 @@ class PomodoroController extends ChangeNotifier {
       _tick();
     } else {
       // ครบทุก Loop แล้ว (หรือ loop=0 คือทำรอบเดียว)
+      NotificationService().showNotification(
+        title: "All sessions complete! 🎉",
+        body: "Great job! You've finished your focus session.",
+      );
       _sessionActive = false;
       _state = PomodoroState.idle;
       notifyListeners();
@@ -453,4 +497,7 @@ class PomodoroMiniTimer extends StatelessWidget {
       ),
     );
   }
+
 }
+
+

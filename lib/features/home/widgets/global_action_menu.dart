@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../services/background_controller.dart';
+import 'package:fuwari_time/features/home/services/background_controller.dart';
 
 /// ==========================================
 /// GlobalActionMenu - เมนูก้อนกลมที่ลอยนิ่งอยู่ทุกหน้า

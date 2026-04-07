@@ -1,62 +1,93 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../models/todo_model.dart';
+import '../../../services/todo_service.dart';
+import '../../../services/profile_service.dart';
 
-/// Model สำหรับเก็บข้อมูล Task 1 งาน
-class TodoItem {
-  final String id;
-  String title;
-  bool isCompleted;
-
-  TodoItem({required this.id, required this.title, this.isCompleted = false});
-}
-
-/// Controller จัดการเรื่อง Todo List
+/// Controller จัดการเรื่อง Todo List ที่เชื่อมกับฐานข้อมูลจริง
 class TodoController extends ChangeNotifier {
-  final List<TodoItem> _items = [
-    // ข้อมูลจำลองสำหรับโชว์
-    TodoItem(id: '1', title: 'Machine Learning', isCompleted: true),
-    TodoItem(id: '2', title: 'IOT', isCompleted: false),
-    TodoItem(id: '3', title: 'Mobile-App', isCompleted: false),
-    TodoItem(id: '4', title: 'Discrete-Math', isCompleted: false),
-  ];
+  final TodoService _todoService = TodoService();
+  final ProfileService _profileService = ProfileService();
+  List<TodoModel> _items = [];
+  bool _isLoading = false;
 
-  List<TodoItem> get items => _items;
+  List<TodoModel> get items => _items;
+  bool get isLoading => _isLoading;
 
-  void addTask(String title) {
-    if (title.trim().isEmpty) return;
-    _items.add(
-      TodoItem(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        title: title,
-      ),
-    );
+  String? get _currentUserId => Supabase.instance.client.auth.currentUser?.id;
+
+  // ดึงรายการงานทั้งหมดมาจาก Supabase
+  Future<void> fetchTodos() async {
+    if (_currentUserId == null) return;
+    
+    _isLoading = true;
+    notifyListeners();
+
+    _items = await _todoService.getTodos(_currentUserId!);
+    
+    _isLoading = false;
     notifyListeners();
   }
 
-  void toggleTask(String id) {
-    final index = _items.indexWhere((item) => item.id == id);
-    if (index != -1) {
-      _items[index].isCompleted = !_items[index].isCompleted;
+  Future<void> addTask(String title) async {
+    if (title.trim().isEmpty || _currentUserId == null) return;
+    
+    final newItem = await _todoService.addTodo(_currentUserId!, title);
+    if (newItem != null) {
+      _items.insert(0, newItem);
       notifyListeners();
     }
   }
 
-  void deleteTask(String id) {
-    _items.removeWhere((item) => item.id == id);
-    notifyListeners();
+  Future<void> toggleTask(String id) async {
+    final index = _items.indexWhere((item) => item.id == id);
+    if (index != -1) {
+      final oldStatus = _items[index].isCompleted;
+      final newStatus = !oldStatus;
+      
+      _items[index] = TodoModel(
+        id: _items[index].id,
+        userId: _items[index].userId,
+        title: _items[index].title,
+        isCompleted: newStatus,
+        createdAt: _items[index].createdAt,
+      );
+      notifyListeners();
+
+      // 🎁 ให้รางวัล 10 เหรียญ ถ้าเปลี่ยนจาก "ยังไม่เสร็จ" เป็น "เสร็จแล้ว"
+      if (!oldStatus && newStatus && _currentUserId != null) {
+        _profileService.addPoints(_currentUserId!, 10);
+      }
+
+      await _todoService.toggleTodo(id, newStatus);
+    }
   }
 
-  void editTask(String id, String newTitle) {
+  Future<void> deleteTask(String id) async {
+    _items.removeWhere((item) => item.id == id);
+    notifyListeners();
+    await _todoService.deleteTodo(id);
+  }
+
+  Future<void> editTask(String id, String newTitle) async {
     if (newTitle.trim().isEmpty) return;
     final index = _items.indexWhere((item) => item.id == id);
     if (index != -1) {
-      _items[index].title = newTitle;
+      _items[index] = TodoModel(
+        id: _items[index].id,
+        userId: _items[index].userId,
+        title: newTitle,
+        isCompleted: _items[index].isCompleted,
+        createdAt: _items[index].createdAt,
+      );
       notifyListeners();
+      await _todoService.updateTodo(id, newTitle);
     }
   }
 }
 
 /// หน้าต่างแสดงผล Todo List
-class TodoListOverlay extends StatelessWidget {
+class TodoListOverlay extends StatefulWidget {
   final TodoController controller;
   final VoidCallback onDismiss;
 
@@ -67,9 +98,23 @@ class TodoListOverlay extends StatelessWidget {
   });
 
   @override
+  State<TodoListOverlay> createState() => _TodoListOverlayState();
+}
+
+class _TodoListOverlayState extends State<TodoListOverlay> {
+  @override
+  void initState() {
+    super.initState();
+    // ดึงข้อมูลจาก Supabase ทันทีที่เปิด Overlay
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.controller.fetchTodos();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onDismiss, // กดพื้นที่นอกหน้าต่าง เพื่อปิด
+      onTap: widget.onDismiss, // กดพื้นที่นอกหน้าต่าง เพื่อปิด
       child: Container(
         color: Colors.black26, // พื้นหลังมืดโปร่งใส
         child: Center(
@@ -166,9 +211,12 @@ class TodoListOverlay extends StatelessWidget {
               // === รายการ Tasks (Scrollable ListView) ===
               Expanded(
                 child: ListenableBuilder(
-                  listenable: controller,
+                  listenable: widget.controller,
                   builder: (context, _) {
-                    if (controller.items.isEmpty) {
+                    if (widget.controller.isLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (widget.controller.items.isEmpty) {
                       return const Center(
                         child: Text(
                           "ไม่มีงานค้างเลย เก่งมาก!",
@@ -178,9 +226,9 @@ class TodoListOverlay extends StatelessWidget {
                     }
                     return ListView.builder(
                       padding: const EdgeInsets.symmetric(horizontal: 24),
-                      itemCount: controller.items.length,
+                      itemCount: widget.controller.items.length,
                       itemBuilder: (context, index) {
-                        final item = controller.items[index];
+                        final item = widget.controller.items[index];
                         return _buildTaskRow(context, item);
                       },
                     );
@@ -222,14 +270,14 @@ class TodoListOverlay extends StatelessWidget {
   }
 
   /// แถบรายการ 1 แถว (Checkbox + ข้อความ + ลบ)
-  Widget _buildTaskRow(BuildContext context, TodoItem item) {
+  Widget _buildTaskRow(BuildContext context, TodoModel item) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
         children: [
           // 1. Checkbox
           GestureDetector(
-            onTap: () => controller.toggleTask(item.id),
+            onTap: () => widget.controller.toggleTask(item.id),
             child: Container(
               width: 20,
               height: 20,
@@ -273,7 +321,7 @@ class TodoListOverlay extends StatelessWidget {
 
           // 3. ปุ่มกากบาท ลบงาน
           GestureDetector(
-            onTap: () => controller.deleteTask(item.id),
+            onTap: () => widget.controller.deleteTask(item.id),
             child: const Icon(
               Icons.close_rounded,
               size: 20,
@@ -304,7 +352,7 @@ class TodoListOverlay extends StatelessWidget {
               fillColor: Colors.white,
             ),
             onSubmitted: (value) {
-              controller.addTask(value);
+              widget.controller.addTask(value);
               Navigator.pop(ctx);
             },
           ),
@@ -315,7 +363,7 @@ class TodoListOverlay extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                controller.addTask(textCtrl.text);
+                widget.controller.addTask(textCtrl.text);
                 Navigator.pop(ctx);
               },
               child: const Text("Add"),
@@ -327,7 +375,7 @@ class TodoListOverlay extends StatelessWidget {
   }
 
   /// Dialog สำหรับแก้ไขงานเดิม
-  void _showEditTaskDialog(BuildContext context, TodoItem item) {
+  void _showEditTaskDialog(BuildContext context, TodoModel item) {
     final TextEditingController textCtrl = TextEditingController(
       text: item.title,
     );
@@ -347,7 +395,7 @@ class TodoListOverlay extends StatelessWidget {
               fillColor: Colors.white,
             ),
             onSubmitted: (value) {
-              controller.editTask(item.id, value);
+              widget.controller.editTask(item.id, value);
               Navigator.pop(ctx);
             },
           ),
@@ -358,7 +406,7 @@ class TodoListOverlay extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                controller.editTask(item.id, textCtrl.text);
+                widget.controller.editTask(item.id, textCtrl.text);
                 Navigator.pop(ctx);
               },
               child: const Text("Save"),

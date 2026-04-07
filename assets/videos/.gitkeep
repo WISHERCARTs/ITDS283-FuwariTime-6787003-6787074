@@ -1,1 +1,5 @@
+
+# This file ensures the directory is tracked by git and exists in the filesystem.
+
 # This file exist to keep the assets/videos directory visible in Git and VS Code.
+
