@@ -24,6 +24,14 @@ class BackgroundController extends ChangeNotifier {
   bool _isSyncing = false; // 🛡️ ตะแกรงกั้นไม่ให้ซิงค์ซ้อนกันจนค้าง
 
   BackgroundController() {
+    // 🌅 เช็คเวลาปัจจุบันเพื่อตั้งค่าเริ่มต้นเป็น กลางวัน (6:00-17:59) หรือ กลางคืน (18:00-5:59)
+    final hour = DateTime.now().hour;
+    if (hour >= 6 && hour < 18) {
+      _timeState = TimeState.day;
+    } else {
+      _timeState = TimeState.night;
+    }
+
     // 🕒 เริ่ม Timer เพื่ออัปเดตเวลาการใช้งานทุกวินาที
     _usageTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       _checkUsageReward();
