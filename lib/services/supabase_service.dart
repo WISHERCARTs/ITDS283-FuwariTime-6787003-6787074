@@ -34,11 +34,11 @@ class SupabaseService {
     try {
       await client.auth.signInWithOAuth(
         OAuthProvider.google,
-        redirectTo: kIsWeb ? Uri.base.origin : 'io.supabase.fuwaritime://login-callback/',
+        redirectTo: kIsWeb
+            ? Uri.base.origin
+            : 'io.supabase.fuwaritime://login-callback/',
         // 🚀 เติมโค้ดนี้เข้าไป เพื่อบังคับให้ผู้ใช้เลือกอีเมลใหม่ทุกครั้งตอนล็อกอิน!
-        queryParams: {
-          'prompt': 'select_account',
-        },
+        queryParams: {'prompt': 'select_account'},
       );
       return null;
     } catch (e) {
