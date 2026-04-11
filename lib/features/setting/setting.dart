@@ -7,7 +7,6 @@ import 'package:fuwari_time/features/setting/about_us.dart';
 
 // 🚀 1. Import ไฟล์ music_state.dart เข้ามาเพื่อจะได้สั่งการตัวเล่นเพลงได้
 import 'package:fuwari_time/features/music/music_state.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import 'package:fuwari_time/features/home/widgets/pomodoro_timer_dialog.dart';
 
@@ -30,7 +29,7 @@ class SettingState extends State<Setting> {
     // ตรงนี้สมมติว่าใน musicController ของคุณมีตัวแปร/ฟังก์ชันเก็บระดับเสียงไว้นะครับ
     // ถ้ายังไม่มีเดี๋ยวเราไปเติมใน สเต็ปที่ 2 ครับ
     try {
-      soundVolume = musicController.currentVolume; 
+      soundVolume = musicController.currentVolume;
     } catch (e) {
       soundVolume = 0.5;
     }
@@ -49,7 +48,7 @@ class SettingState extends State<Setting> {
               const TopBar(),
 
               const SizedBox(height: 20),
-              
+
               Stack(
                 alignment: Alignment.center,
                 children: [
@@ -112,7 +111,7 @@ class SettingState extends State<Setting> {
                             soundVolume = value;
                           });
                           // 🚀 3. สั่งให้ตัวเล่นเพลงปรับระดับเสียงตาม Slider ทันที!
-                          musicController.setVolume(value); 
+                          musicController.setVolume(value);
                         },
                       ),
                     ),
@@ -180,7 +179,7 @@ class SettingState extends State<Setting> {
                     // 🛑 0. หยุดการทำงานเบื้องหลังทุกอย่างก่อน!
                     await musicController.audioPlayer.stop();
                     musicController.isPlaying.value = false;
-                    
+
                     if (context.mounted) {
                       context.read<PomodoroController>().stop();
                     }
