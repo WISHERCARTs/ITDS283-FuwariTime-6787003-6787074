@@ -4,6 +4,7 @@ import 'package:fuwari_time/features/auth/screens/auth_gate.dart';
 import 'package:fuwari_time/features/home/widgets/top_bar.dart';
 import 'package:fuwari_time/features/home/widgets/bottom_nav_bar.dart';
 import 'package:fuwari_time/features/setting/about_us.dart';
+import 'package:fuwari_time/services/supabase_service.dart';
 
 // 🚀 1. Import ไฟล์ music_state.dart เข้ามาเพื่อจะได้สั่งการตัวเล่นเพลงได้
 import 'package:fuwari_time/features/music/music_state.dart';
@@ -171,7 +172,6 @@ class SettingState extends State<Setting> {
               const SizedBox(height: 30),
 
               // 💡 ปุ่ม Log out
-              // 💡 ปุ่ม Log out
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 32),
                 child: InkWell(
@@ -210,11 +210,138 @@ class SettingState extends State<Setting> {
                           "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/y0beqz0yoq/bo4l4cgu_expires_30_days.png",
                           width: 30,
                           height: 30,
-                          color: Colors.redAccent,
+                          color: const Color(0xFF1F2937),
                         ),
                         const SizedBox(width: 16),
                         const Text(
                           "Log out",
+                          style: TextStyle(
+                            color: Color(0xFF1F2937),
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 30),
+
+              // 🔴 ปุ่ม Delete Account
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32),
+                child: InkWell(
+                  onTap: () async {
+                    // แสดงกล่องข้อความยืนยันลบบัญชี
+                    final bool? confirm = await showDialog<bool>(
+                      context: context,
+                      builder: (BuildContext dialogContext) {
+                        return AlertDialog(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          title: const Text(
+                            "Delete Account",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.redAccent,
+                            ),
+                          ),
+                          content: const Text(
+                            "Are you sure you want to permanently delete your account? All your progress, inventory, and data will be lost.\n\nThis action cannot be undone.",
+                            style: TextStyle(fontSize: 16),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () =>
+                                  Navigator.pop(dialogContext, false),
+                              child: const Text(
+                                "Cancel",
+                                style: TextStyle(
+                                  color: Colors.black54,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.redAccent,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              onPressed: () =>
+                                  Navigator.pop(dialogContext, true),
+                              child: const Text(
+                                "Delete",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+
+                    // ถ้าผู้ใช้กด Confirm ยืนยันการลบ
+                    if (confirm == true) {
+                      // หยุดเสียงและจับเวลาต่างๆ ก่อนเหมือนปุ่ม Log out
+                      await musicController.audioPlayer.stop();
+                      musicController.isPlaying.value = false;
+
+                      if (context.mounted) {
+                        context.read<PomodoroController>().stop();
+                      }
+
+                      // เรียกใช้ฟังก์ชัน Delete Account
+                      try {
+                        await SupabaseService.deleteAccount();
+
+                        // พากลับไปหน้าเข้าสู่ระบบ
+                        if (context.mounted) {
+                          Navigator.of(
+                            context,
+                            rootNavigator: true,
+                          ).pushAndRemoveUntil(
+                            MaterialPageRoute(
+                              builder: (context) => const AuthGate(),
+                            ),
+                            (route) => false,
+                          );
+                        }
+                      } catch (e) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text("Delete Failed: $e"),
+                              backgroundColor: Colors.redAccent,
+                              duration: const Duration(seconds: 4),
+                            ),
+                          );
+                        }
+                      }
+                    }
+                  },
+                  borderRadius: BorderRadius.circular(8),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: const [
+                        Icon(
+                          Icons.delete_forever_rounded,
+                          size: 30,
+                          color: Colors.redAccent,
+                        ),
+                        SizedBox(width: 16),
+                        Text(
+                          "Delete Account",
                           style: TextStyle(
                             color: Colors.redAccent,
                             fontSize: 20,

@@ -46,4 +46,53 @@ class SupabaseService {
       rethrow;
     }
   }
+
+  /// ฟังก์ชันลบบัญชีผู้ใช้ (Delete Account)
+  /// จะทำการลบข้อมูลทั้งหมดที่เกี่ยวข้องในตารางต่างๆ แล้วเรียก RPC `delete_user` เพื่อลบออกจาก `auth.users`
+  static Future<void> deleteAccount() async {
+    try {
+      final user = client.auth.currentUser;
+      if (user == null) return;
+
+      final userId = user.id;
+
+      // 1. ลบข้อมูลงตาราง public ต่างๆ ก่อน (เพื่อป้องกัน Foreign Key Error ถ้าไม่ได้ตั้ง Cascade ไว้)
+      // เผื่อว่าบางตารางลบไม่ได้หรือไม่เจอ ก็ให้ catch แยกแต่ละอันไปเลยเพื่อให้ลบได้มากที่สุด
+      try {
+        await client.from('todos').delete().eq('user_id', userId);
+      } catch (e) {
+        print("❌ Could not delete todos: $e");
+      }
+      try {
+        await client.from('timer_sessions').delete().eq('user_id', userId);
+      } catch (e) {
+        print("❌ Could not delete timer_sessions: $e");
+      }
+      try {
+        await client.from('user_inventory').delete().eq('user_id', userId);
+      } catch (e) {
+        print("❌ Could not delete user_inventory: $e");
+      }
+      try {
+        await client.from('profiles').delete().eq('id', userId);
+      } catch (e) {
+        print("❌ Could not delete profile: $e");
+      }
+
+      // 2. เรียกใช้ RPC function ในฐานข้อมูลเพื่อลบ User ออกจาก auth.users
+      // ข้อควรระวัง: ต้องไปสร้าง SQL Function ชื่อ delete_user() ในหน้า SQL Editor ของ Supabase ก่อน!
+      try {
+        await client.rpc('delete_user');
+      } catch (e) {
+        print("❌ RPC delete_user error (Did you create the SQL function?): $e");
+        throw Exception("ไม่สามารถลบ User จากระบบล็อกอินได้ (ลืมรันคำสั่ง SQL หรือเปล่า?)\n$e");
+      }
+
+      // 3. Sign Out ออกจากระบบ
+      await client.auth.signOut();
+    } catch (e) {
+      print('❌ Delete Account Error: $e');
+      rethrow;
+    }
+  }
 }
