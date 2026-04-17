@@ -37,7 +37,7 @@ class SupabaseService {
         redirectTo: kIsWeb
             ? Uri.base.origin
             : 'io.supabase.fuwaritime://login-callback/',
-        // 🚀 เติมโค้ดนี้เข้าไป เพื่อบังคับให้ผู้ใช้เลือกอีเมลใหม่ทุกครั้งตอนล็อกอิน!
+        // เติมโค้ดนี้เข้าไป เพื่อบังคับให้ผู้ใช้เลือกอีเมลใหม่ทุกครั้งตอนล็อกอิน!
         queryParams: {'prompt': 'select_account'},
       );
       return null;

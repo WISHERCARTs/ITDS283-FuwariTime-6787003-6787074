@@ -21,7 +21,7 @@ class WeatherService {
         final data = json.decode(response.body);
         final weatherMain = data['weather'][0]['main'].toString().toLowerCase();
 
-        // ☔ ตรวจเช็คว่าฝนตกไหม (รวมถึงพายุหรือดีเปรสชัน)
+        // ตรวจเช็คว่าฝนตกไหม (รวมถึงพายุหรือดีเปรสชัน)
         if (weatherMain.contains('rain') || 
             weatherMain.contains('thunderstorm') || 
             weatherMain.contains('drizzle')) {
@@ -37,14 +37,14 @@ class WeatherService {
   /// แปลงพิกัด Lat/Lon เป็นชื่อ "อำเภอ, จังหวัด, ประเทศ"
   Future<String> getAddressFromLatLng(double lat, double lon) async {
     try {
-      // 🕒 ตั้งเวลาตาย 5 วินาทืสำหรับการดึงชื่อที่อยู่ (ป้องกันเน็ตช้าทำแอปค้าง)
+      // ตั้งเวลาตาย 5 วินาทืสำหรับการดึงชื่อที่อยู่ (ป้องกันเน็ตช้าทำแอปค้าง)
       List<Placemark> placemarks = await placemarkFromCoordinates(lat, lon).timeout(
         const Duration(seconds: 5),
       );
       if (placemarks.isNotEmpty) {
         Placemark place = placemarks[0];
         
-        // 🏡 ดึงชื่อ อำเภอ, จังหวัด, และประเทศ
+        // ดึงชื่อ อำเภอ, จังหวัด, และประเทศ
         String subDistrict = place.subLocality ?? "";
         String district = place.locality ?? "";
         String province = place.administrativeArea ?? "";

@@ -3,7 +3,7 @@ class ProfileModel {
   final String? username;
   final String? avatarUrl;
   final int points;
-  final bool hasClaimedBonus; // 🎁 เช็คว่าเคยรับเงินขวัญถุงไปหรือยัง
+  final bool hasClaimedBonus; // เช็คว่าเคยรับเงินขวัญถุงไปหรือยัง
   final DateTime? updatedAt;
 
   ProfileModel({

@@ -40,13 +40,13 @@ class ProfileService {
     }
   }
 
-  // 🎁 ฟังก์ชันกดรับเหรียญขวัญถุง 200 เหรียญ (แบบกดรับเองจากหน้า Profile)
+  // ฟังก์ชันกดรับเหรียญขวัญถุง 200 เหรียญ (แบบกดรับเองจากหน้า Profile)
   Future<void> claimWelcomeBonus(String userId) async {
     try {
       final profile = await getProfile(userId);
 
       if (profile == null) {
-        // ✨ ถ้ายังไม่มี Profile เลย ให้สร้างใหม่พร้อมเริ่มที่ 200
+        // ถ้ายังไม่มี Profile เลย ให้สร้างใหม่พร้อมเริ่มที่ 200
         await _supabase.from('profiles').upsert({
           'id': userId,
           'username': 'Fuwari User',
@@ -54,7 +54,7 @@ class ProfileService {
           'has_claimed_bonus': true,
         });
       } else if (!profile.hasClaimedBonus) {
-        // 💰 ถ้ามี Profile แล้วแต่ยังไม่เคยรับโบนัส ให้บวกเพิ่ม 200 และเซ็ตสถานะเป็นรับแล้ว
+        // ถ้ามี Profile แล้วแต่ยังไม่เคยรับโบนัส ให้บวกเพิ่ม 200 และเซ็ตสถานะเป็นรับแล้ว
         final newPoints = profile.points + 200;
         await _supabase
             .from('profiles')
@@ -78,11 +78,11 @@ class ProfileService {
             .update({'points': newPoints})
             .eq('id', userId);
       } else {
-        // 💡 กรณีตารางว่าง (ยิงครั้งแรก) ให้สร้างแถวข้อมูลพร้อมพุซซิ่งแต้มแค่ตัวกิจกรรม (ไม่มีโบนัส 200 แล้ว)
+        // กรณีตารางว่าง (ยิงครั้งแรก) ให้สร้างแถวข้อมูลพร้อมพุซซิ่งแต้มแค่ตัวกิจกรรม (ไม่มีโบนัส 200 แล้ว)
         await _supabase.from('profiles').upsert({
           'id': userId,
           'username': 'New User',
-          'points': pointsToAdd, // 🎁 เริ่มต้นที่ 0 + แต้มกิจกรรม
+          'points': pointsToAdd, // เริ่มต้นที่ 0 + แต้มกิจกรรม
           'has_claimed_bonus': false,
         });
       }
