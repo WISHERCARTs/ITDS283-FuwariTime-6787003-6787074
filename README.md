@@ -8,21 +8,31 @@
   <img src="assets/image/app_icon.png" width="150" alt="Fuwari Time Logo">
 </p>
 
+<div align="center">
+  <h1>🌸 Fuwari Time (ฟุวาริ ไทม์) 🌸</h1>
+  <p><i>"แอปพลิเคชันช่วยบริหารเวลาเรียนและเพื่อนเสมือนจริงเพื่อสุขภาพจิต"</i></p>
+
+  <p>
+    <img src="https://img.shields.io/badge/Flutter-%2302569B.svg?style=for-the-badge&logo=Flutter&logoColor=white" alt="Flutter">
+    <img src="https://img.shields.io/badge/dart-%230175C2.svg?style=for-the-badge&logo=dart&logoColor=white" alt="Dart">
+    <img src="https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase">
+    <img src="https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL">
+    <img src="https://img.shields.io/badge/OpenWeather-EB6E4B?style=for-the-badge&logo=openweathermap&logoColor=white" alt="WeatherAPI">
+  </p>
+
+  <h4>ITDS283 Mobile Application Development Project - Section 2 Group 13</h4>
+</div>
+
 ---
 
-## 📖 Introduction / แนะนำโครงการ
+## 📖 Introduction / บทนำ
 
-**Fuwari Time** is a mobile application developed as part of the **ITDS283 Mobile Application Development** course at the **Faculty of ICT, Mahidol University**.
-
-This app is designed to help students and professionals manage their study time effectively using the **Pomodoro technique**, combined with **Gamification** and a **Virtual Companion** to reduce stress and isolation during long study sessions.
-
-**ฟุวาริ ไทม์ (Fuwari Time)** เป็นแอปพลิเคชันที่พัฒนาขึ้นในรายวิชา **ITDS283 Mobile Application Development** คณะ ICT มหาวิทยาลัยมหิดล โดยออกแบบมาเพื่อช่วยบริหารเวลาในการเรียนและทำงานผ่านเทคนิค **Pomodoro** ร่วมกับแนวคิด **Gamification** และเพื่อนเสมือนจริง (Virtual Companion) เพื่อช่วยลดความเครียดและความรู้สึกโดดเดี่ยวระหว่างการอ่านหนังสือ
+**Fuwari Time** เป็นแอปพลิเคชันช่วยบริหารเวลาที่ประยุกต์ใช้เทคนิค **Pomodoro** ร่วมกับแนวคิด **Gamification** ในรูปแบบของ **"เพื่อนเสมือนจริง (Virtual Companion)"** เพื่อสร้างสภาพแวดล้อมที่ผ่อนคลาย ลดความเครียด และเพิ่มสมาธิในการเรียนรู้ โดยตัวแอปมีจุดเด่นคือบรรยากาศภายในที่จะเปลี่ยนไปตามสภาพอากาศจริงของผู้ใช้งาน
 
 ---
 
 ## ✨ Key Features / ฟีเจอร์หลัก
 
-- 🌦️ **Dynamic Weather Background**: Background changes in real-time based on your local weather and time of day (Day/Night, Rain/Clear).
 - ⏱️ **Pomodoro Timer with Global Overlay**: A focus timer that can be minimized into a floating mini-timer for multi-tasking.
 - 📝 **Gamified To-do List**: Manage tasks and earn coins as rewards for completion.
 - 🎶 **Lo-fi Music Shop & Player**: Purchase relaxing Lo-fi tracks with earned coins to create the perfect study vibe.
@@ -101,7 +111,7 @@ _(System Integrity Check - SHA256 Checksum)_
 
 ## 🎥 Demo & Presentation / วิดีโอสาธิตและสไลด์นำเสนอ
 
-- 📺 **Demo Video**: [Watch on YouTube](YOUR_YOUTUBE_LINK_HERE)
+- 📺 **Demo Video**: [Watch on YouTube](https://youtu.be/Fyq3f3I57JI)
 
 ---
 
