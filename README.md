@@ -72,8 +72,8 @@ _(Note: Replace app_icon.png with actual screenshots for the final submission)_
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/Fuwari_Mobile_App.git
-   cd Fuwari_Mobile_App
+   git clone https://github.com/WISHERCARTS/ITDS283-FuwariTime-6787003-6787074.git
+   cd ITDS283-FuwariTime-6787003-6787074
    ```
 2. Install dependencies:
    ```bash
