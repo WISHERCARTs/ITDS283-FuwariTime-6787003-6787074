@@ -111,7 +111,7 @@ _(System Integrity Check - SHA256 Checksum)_
 
 ## 🎥 Demo & Presentation / วิดีโอสาธิตและสไลด์นำเสนอ
 
-- 📺 **Demo Video**: [Watch on YouTube](https://youtu.be/Fyq3f3I57JI)
+- 📺 **Demo Video**: [Watch on YouTube](https://youtu.be/ss8YnDs0DTE)
 
 ---
 
