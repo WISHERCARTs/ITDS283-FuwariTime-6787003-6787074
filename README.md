@@ -90,6 +90,11 @@ _(Note: Replace app_icon.png with actual screenshots for the final submission)_
 flutter run
 ```
 
+> [!WARNING]
+> **Mobile Emulator Required for Google Login**: Please test the application using a **Mobile Emulator (Android/iOS)**. Google Login is currently configured to work only on mobile platforms and will not function on Windows or Web versions.
+> 
+> **ต้องใช้ Mobile Emulator สำหรับ Google Login**: กรุณาทดสอบแอปพลิเคชันผ่าน **Mobile Emulator** เท่านั้น เนื่องจากระบบ Google Login ถูกตั้งค่าไว้สำหรับแพลตฟอร์มมือถือ และจะไม่สามารถใช้งานบนเวอร์ชัน Windows หรือ Web ได้
+
 ---
 
 ## 📥 Download Installation Files / ดาวน์โหลดไฟล์ติดตั้ง
