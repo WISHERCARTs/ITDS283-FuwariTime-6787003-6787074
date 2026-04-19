@@ -61,6 +61,15 @@ _(Note: Replace app_icon.png with actual screenshots for the final submission)_
 
 ---
 
+> [!IMPORTANT]
+> **MyCourses Submission Note (Minified ZIP)**: Due to the 20MB file size limit on MyCourses, the submitted `.zip` file has been **minified** by removing large media files from `assets/videos/` and `assets/audio_asset/`. 
+> 
+> **For the full, functional version including all media assets, please refer to the [GitHub Repository](https://github.com/WISHERCARTS/ITDS283-FuwariTime-6787003-6787074) or Clone the project directly.**
+>
+> **หมายเหตุการส่งงาน (ไฟล์ ZIP แบบย่อ)**: เนื่องจากระบบ MyCourses จำกัดขนาดไฟล์ที่ 20MB ไฟล์ `.zip` ที่ส่งมาจึงถูกนำไฟล์วิดีโอและเพลงขนาดใหญ่ออก สามารถดูโปรเจกต์เวอร์ชันสมบูรณ์ที่มี Assets ครบถ้วนได้ที่ **GitHub Repository** ครับ
+
+---
+
 ## 🚀 Getting Started / เริ่มต้นใช้งาน
 
 ### 1. Prerequisites
