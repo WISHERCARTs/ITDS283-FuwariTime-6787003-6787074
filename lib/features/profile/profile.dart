@@ -206,10 +206,10 @@ class ProfileState extends State<Profile> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Image.network(
-                            "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/y0beqz0yoq/siq2ut46_expires_30_days.png",
-                            width: 20,
-                            height: 20,
+                          Icon(
+                            Icons.monetization_on_rounded,
+                            color: Color(0xFFA16207),
+                            size: 20,
                           ),
                           const SizedBox(width: 8),
                           Text(
@@ -336,11 +336,15 @@ class ProfileState extends State<Profile> {
                   height: 150,
                   fit: BoxFit.cover,
                 )
-              : Image.network(
-                  dbAvatarUrl ?? _defaultImageUrl,
+              : Container(
                   width: 150,
                   height: 150,
-                  fit: BoxFit.cover,
+                  color: Colors.grey.shade200,
+                  child: Icon(
+                    Icons.account_circle,
+                    size: 100,
+                    color: Colors.grey.shade400,
+                  ),
                 ),
         ),
         Positioned(

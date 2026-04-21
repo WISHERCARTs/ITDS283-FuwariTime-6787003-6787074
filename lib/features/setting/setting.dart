@@ -86,10 +86,14 @@ class SettingState extends State<Setting> {
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Row(
                   children: [
-                    Image.network(
-                      "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/y0beqz0yoq/c7j0cbib_expires_30_days.png",
+                    SizedBox(
                       width: 40,
                       height: 40,
+                      child: Icon(
+                        Icons.volume_up_rounded,
+                        color: Color(0xFFDAB7FD),
+                        size: 32,
+                      ),
                     ),
                     const SizedBox(width: 16),
                     const Text(
@@ -206,11 +210,14 @@ class SettingState extends State<Setting> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Image.network(
-                          "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/y0beqz0yoq/bo4l4cgu_expires_30_days.png",
+                        SizedBox(
                           width: 30,
                           height: 30,
-                          color: const Color(0xFF1F2937),
+                          child: Icon(
+                            Icons.logout_rounded,
+                            color: Color(0xFF1F2937),
+                            size: 24,
+                          ),
                         ),
                         const SizedBox(width: 16),
                         const Text(

@@ -12,7 +12,7 @@ class WeatherService {
     if (_apiKey.isEmpty) return WeatherState.clear;
 
     final url = Uri.parse(
-      'https://api.openweathermap.org/data/2.5/weather?lat=$lat&lon=$lon&appid=$_apiKey&units=metric'
+      'https://api.openweathermap.org/data/2.5/weather?lat=$lat&lon=$lon&appid=$_apiKey&units=metric',
     );
 
     try {
@@ -22,8 +22,8 @@ class WeatherService {
         final weatherMain = data['weather'][0]['main'].toString().toLowerCase();
 
         // ตรวจเช็คว่าฝนตกไหม (รวมถึงพายุหรือดีเปรสชัน)
-        if (weatherMain.contains('rain') || 
-            weatherMain.contains('thunderstorm') || 
+        if (weatherMain.contains('rain') ||
+            weatherMain.contains('thunderstorm') ||
             weatherMain.contains('drizzle')) {
           return WeatherState.rain;
         }
@@ -38,12 +38,13 @@ class WeatherService {
   Future<String> getAddressFromLatLng(double lat, double lon) async {
     try {
       // ตั้งเวลาตาย 5 วินาทืสำหรับการดึงชื่อที่อยู่ (ป้องกันเน็ตช้าทำแอปค้าง)
-      List<Placemark> placemarks = await placemarkFromCoordinates(lat, lon).timeout(
-        const Duration(seconds: 5),
-      );
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        lat,
+        lon,
+      ).timeout(const Duration(seconds: 5));
       if (placemarks.isNotEmpty) {
         Placemark place = placemarks[0];
-        
+
         // ดึงชื่อ อำเภอ, จังหวัด, และประเทศ
         String subDistrict = place.subLocality ?? "";
         String district = place.locality ?? "";

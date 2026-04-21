@@ -72,11 +72,12 @@ class TopBarState extends State<TopBar> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Image.network(
-                  "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/y0beqz0yoq/junj4an5_expires_30_days.png",
-                  width: 39,
+                // 🚀 เปลี่ยนเป็นใช้ Asset ของแอปจริงๆ
+                Image.asset(
+                  "assets/image/app_icon.png",
+                  width: 40,
                   height: 40,
-                  fit: BoxFit.cover,
+                  fit: BoxFit.contain,
                 ),
                 const SizedBox(width: 12),
                 // 🚀 2. ใช้ Flexible ตรงนี้เพื่อป้องกันข้อความล้น (ยังอยู่ในขอบเขตของ Expanded)
@@ -112,7 +113,9 @@ class TopBarState extends State<TopBar> {
                             // 🚀 3. ใช้ Flexible ชั้นเดียวพอ เพื่อคุมข้อความที่อยู่ (Address)
                             Flexible(
                               child: Text(
-                                context.watch<BackgroundController>().currentAddress,
+                                context
+                                    .watch<BackgroundController>()
+                                    .currentAddress,
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
                                 style: TextStyle(
@@ -132,8 +135,7 @@ class TopBarState extends State<TopBar> {
             ),
           ),
           const SizedBox(width: 12), // เว้นที่ให้กดง่ายขึ้นแยกจาก Coins
-
-          // 💰 [ส่วนที่แก้] ใช้ Stream ที่ถูก Initialize ไว้แล้ว (ไม่กระตุก)
+          // 💰 [ส่วนที่แก้] ใช้ Icon มาตรฐานเพื่อความถาวร
           StreamBuilder<List<Map<String, dynamic>>>(
             stream: _pointsStream,
             builder: (context, snapshot) {
@@ -153,10 +155,10 @@ class TopBarState extends State<TopBar> {
                 ),
                 child: Row(
                   children: [
-                    Image.network(
-                      "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/y0beqz0yoq/siq2ut46_expires_30_days.png",
-                      width: 16,
-                      height: 24,
+                    const Icon(
+                      Icons.monetization_on_rounded,
+                      color: Colors.amber,
+                      size: 18,
                     ),
                     const SizedBox(width: 8),
                     Text(
@@ -193,18 +195,18 @@ class TopBarState extends State<TopBar> {
               splashColor: Colors.white.withOpacity(0.4),
               highlightColor: Colors.white.withOpacity(0.2),
 
-              // 💡 เปลี่ยนจาก ClipRRect มาใช้ Ink()
-              child: Ink(
+              // 💡 เปลี่ยนมาใช้ Icon โปรไฟล์มาตรฐานเพื่อความทนทาน
+              child: Container(
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(25),
-                  image: const DecorationImage(
-                    image: NetworkImage(
-                      "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/y0beqz0yoq/959ud1zb_expires_30_days.png",
-                    ),
-                    fit: BoxFit.cover,
-                  ),
+                ),
+                child: const Icon(
+                  Icons.settings,
+                  color: Colors.white,
+                  size: 30,
                 ),
               ),
             ),
