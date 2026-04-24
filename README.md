@@ -55,9 +55,9 @@
 
 |                    Home (Day)                     |                 Home (Night/Rain)                 |                       Shop                        |
 | :-----------------------------------------------: | :-----------------------------------------------: | :-----------------------------------------------: |
-| <img src="assets/image/app_icon.png" width="200"> | <img src="assets/image/app_icon.png" width="200"> | <img src="assets/image/app_icon.png" width="200"> |
+| <img src="assets/image/day.jpg" width="200"> | <img src="assets/image/night.jpg" width="200"> | <img src="assets/image/shop.jpg" width="200"> |
 
-_(Note: Replace app_icon.png with actual screenshots for the final submission)_
+_(Screenshots from the application)_
 
 ---
 
