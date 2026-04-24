@@ -53,8 +53,8 @@
 
 ## 📱 Screenshots / ภาพตัวอย่างหน้าจอ
 
-|                    Home (Day)                     |                 Home (Night/Rain)                 |                       Shop                        |
-| :-----------------------------------------------: | :-----------------------------------------------: | :-----------------------------------------------: |
+|                  Home (Day)                  |               Home (Night/Rain)                |                     Shop                      |
+| :------------------------------------------: | :--------------------------------------------: | :-------------------------------------------: |
 | <img src="assets/image/day.jpg" width="200"> | <img src="assets/image/night.jpg" width="200"> | <img src="assets/image/shop.jpg" width="200"> |
 
 _(Screenshots from the application)_
@@ -62,8 +62,8 @@ _(Screenshots from the application)_
 ---
 
 > [!IMPORTANT]
-> **MyCourses Submission Note (Minified ZIP)**: Due to the 20MB file size limit on MyCourses, the submitted `.zip` file has been **minified** by removing large media files from `assets/videos/` and `assets/audio_asset/`. 
-> 
+> **MyCourses Submission Note (Minified ZIP)**: Due to the 20MB file size limit on MyCourses, the submitted `.zip` file has been **minified** by removing large media files from `assets/videos/` and `assets/audio_asset/`.
+>
 > **For the full, functional version including all media assets, please refer to the [GitHub Repository](https://github.com/WISHERCARTS/ITDS283-FuwariTime-6787003-6787074) or Clone the project directly.**
 >
 > **หมายเหตุการส่งงาน (ไฟล์ ZIP แบบย่อ)**: เนื่องจากระบบ MyCourses จำกัดขนาดไฟล์ที่ 20MB ไฟล์ `.zip` ที่ส่งมาจึงถูกนำไฟล์วิดีโอและเพลงขนาดใหญ่ออก สามารถดูโปรเจกต์เวอร์ชันสมบูรณ์ที่มี Assets ครบถ้วนได้ที่ **GitHub Repository** ครับ
@@ -101,7 +101,7 @@ flutter run
 
 > [!WARNING]
 > **Mobile Emulator Required for Google Login**: Please test the application using a **Mobile Emulator (Android/iOS)**. Google Login is currently configured to work only on mobile platforms and will not function on Windows or Web versions.
-> 
+>
 > **ต้องใช้ Mobile Emulator สำหรับ Google Login**: กรุณาทดสอบแอปพลิเคชันผ่าน **Mobile Emulator** เท่านั้น เนื่องจากระบบ Google Login ถูกตั้งค่าไว้สำหรับแพลตฟอร์มมือถือ และจะไม่สามารถใช้งานบนเวอร์ชัน Windows หรือ Web ได้
 
 ---
@@ -110,15 +110,15 @@ flutter run
 
 You can download the latest version of the app for your platform here:
 
-- **Android Mobile**: [📱 Download Fuwari_Time.apk](https://github.com/WISHERCARTS/ITDS283-FuwariTime-6787003-6787074/releases/download/v1.0.0/app-arm64-v8a-release.apk)
-- **Windows Desktop**: [💻 Download Fuwari_Time_Windows.zip](https://github.com/WISHERCARTS/ITDS283-FuwariTime-6787003-6787074/releases/download/v1.0.0/Fuwari_Time_Windows.zip)
+- **Android Mobile**: [📱 Download Fuwari_Time.apk](https://github.com/WISHERCARTS/ITDS283-FuwariTime-6787003-6787074/releases/latest/download/app-arm64-v8a-release.apk)
+- **Windows Desktop**: [💻 Download Fuwari_Time_Windows.zip](https://github.com/WISHERCARTS/ITDS283-FuwariTime-6787003-6787074/releases/latest/download/Fuwari_Time_Windows.zip)
 - **iOS**: (Requires Manual Build via Xcode)
 
 ---
 
 _(System Integrity Check - SHA256 Checksum)_
 
-- Android APK: `89b16bab3ad5e1dc38149f942caf4069781624512e6ba3af523b4dd1242ca37d`
+- Android APK: `eb518785dd71fbf1f0b2551fa3441eba368d12438800dec170fe778e666b20e8`
 - Windows ZIP: `77fd91fbc08f648a186553b2e5b3aa4fc799593b36994ec032187adf6c6b7ffe`
 
 ---
