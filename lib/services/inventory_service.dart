@@ -3,7 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class InventoryService {
   final _supabase = Supabase.instance.client;
 
-  // 📥 ดึงรายชื่อไอเทมที่ User เป็นเจ้าของแล้ว
+  // ดึงรายชื่อไอเทมที่ User เป็นเจ้าของแล้ว
   Future<List<String>> fetchOwnedItems(String userId) async {
     try {
       final data = await _supabase
@@ -18,7 +18,7 @@ class InventoryService {
     }
   }
 
-  // 📤 บันทึกการซื้อไอเทมใหม่ลง Supabase
+  // บันทึกการซื้อไอเทมใหม่ลง Supabase
   Future<void> purchaseItem(String userId, String itemName, String category) async {
     try {
       await _supabase.from('user_inventory').insert({

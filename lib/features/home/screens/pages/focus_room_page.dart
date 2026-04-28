@@ -22,8 +22,8 @@ class FocusRoomPage extends StatelessWidget {
               child: SizedBox(
                 width: 172,
                 height: 184,
-                child: Image.network(
-                  "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/zG8hWyVkYp/122rtjhm_expires_30_days.png",
+                child: Image.asset(
+                  "assets/image/princess.png",
                   fit: BoxFit.fill,
                 ),
               ),

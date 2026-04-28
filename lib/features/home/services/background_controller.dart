@@ -17,25 +17,33 @@ class BackgroundController extends ChangeNotifier {
   WeatherState _weatherState = WeatherState.clear;
   String _currentAddress = "Checking location...";
 
-  // 🕒 ระบบนับเวลาการใช้งานแอป
+  // ระบบนับเวลาการใช้งานแอป
   final DateTime _appStartTime = DateTime.now();
   Timer? _usageTimer;
   int _lastRewardedMinute = 0;
-  bool _isSyncing = false; // 🛡️ ตะแกรงกั้นไม่ให้ซิงค์ซ้อนกันจนค้าง
+  bool _isSyncing = false; // ตะแกรงกั้นไม่ให้ซิงค์ซ้อนกันจนค้าง
 
   BackgroundController() {
-    // 🕒 เริ่ม Timer เพื่ออัปเดตเวลาการใช้งานทุกวินาที
+    // 🌅 เช็คเวลาปัจจุบันเพื่อตั้งค่าเริ่มต้นเป็น กลางวัน (6:00-17:59) หรือ กลางคืน (18:00-5:59)
+    final hour = DateTime.now().hour;
+    if (hour >= 6 && hour < 18) {
+      _timeState = TimeState.day;
+    } else {
+      _timeState = TimeState.night;
+    }
+
+    // เริ่ม Timer เพื่ออัปเดตเวลาการใช้งานทุกวินาที
     _usageTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       _checkUsageReward();
       notifyListeners();
     });
   }
 
-  /// 🛰️ ซิงค์พิกัด GPS เพื่อดึงอากาศและที่อยู่ล่าสุด
+  /// ซิงค์พิกัด GPS เพื่อดึงอากาศและที่อยู่ล่าสุด
   Future<void> syncLocationAndWeather() async {
-    // 🛡️ ถ้ากำลังซิงค์อยู่แล้ว ไม่ต้องทำซ้ำ (ป้องกันแอปค้างจากการเรียกซ้อน)
+    // ถ้ากำลังซิงค์อยู่แล้ว ไม่ต้องทำซ้ำ (ป้องกันแอปค้างจากการเรียกซ้อน)
     if (_isSyncing) return;
-    
+
     _isSyncing = true;
     bool serviceEnabled;
     LocationPermission permission;
@@ -46,7 +54,7 @@ class BackgroundController extends ChangeNotifier {
         const Duration(seconds: 2),
         onTimeout: () => false,
       );
-      
+
       if (!serviceEnabled) {
         _currentAddress = "Location disabled";
         return;
@@ -71,10 +79,10 @@ class BackgroundController extends ChangeNotifier {
         return;
       }
 
-      // 📍 1. พยายามดึงพิกัด (ใช้ Last Known ก่อน หรือใช้ Current แบบมี Timeout)
+      // 1. พยายามดึงพิกัด (ใช้ Last Known ก่อน หรือใช้ Current แบบมี Timeout)
       Position? position;
-      
-      // ✅ ก๊อก 1: เอาพิกัดเก่าที่มีในเครื่องมาใช้ก่อน (ไวมาก!)
+
+      // ก๊อก 1: เอาพิกัดเก่าที่มีในเครื่องมาใช้ก่อน (ไวมาก!)
       position = await Geolocator.getLastKnownPosition();
 
       // ✅ ก๊อก 2: ถ้าไม่มีพิกัดเก่า ให้ขอใหม่แต่ตั้งเวลาตายสั้นๆ 3 วินาที (ป้องกันแอปค้าง)
@@ -83,9 +91,9 @@ class BackgroundController extends ChangeNotifier {
         timeLimit: const Duration(seconds: 3), // 🕒 3 Sec Limit
       );
 
-      // ☁️ 2. ดึงสภาพอากาศจากพิกัด (OpenWeather API)
+      // 2. ดึงสภาพอากาศจากพิกัด (OpenWeather API)
       _weatherState = await _weatherService.fetchWeatherByLocation(
-        position.latitude, 
+        position.latitude,
         position.longitude,
       );
 
@@ -105,7 +113,7 @@ class BackgroundController extends ChangeNotifier {
     notifyListeners();
   }
 
-  // 🎁 เช็คทุกนาทีว่าถึงคิวแจกเหรียญหรือยัง (10 นาที = 20 เหรียญ)
+  // เช็คทุกนาทีว่าถึงคิวแจกเหรียญหรือยัง (10 นาที = 20 เหรียญ)
   void _checkUsageReward() {
     final currentMins = appUsageDuration.inMinutes;
     final userId = Supabase.instance.client.auth.currentUser?.id;

@@ -351,10 +351,10 @@ class _ShopState extends State<Shop> {
                   child: Row(
                     children: [
                       if (!isOwned) ...[
-                        Image.network(
-                          "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/y0beqz0yoq/siq2ut46_expires_30_days.png",
-                          width: 12,
-                          height: 12,
+                        const Icon(
+                          Icons.monetization_on_rounded,
+                          color: Color(0xFFA16207),
+                          size: 12,
                         ),
                         const SizedBox(width: 4),
                       ],

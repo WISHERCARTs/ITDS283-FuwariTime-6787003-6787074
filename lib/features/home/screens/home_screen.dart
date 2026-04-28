@@ -33,10 +33,10 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // 🚚 ซิงค์ข้อมูลคลังเก็บของ (Inventory) จาก Supabase ทันทีที่เข้าแอป
+    // ซิงค์ข้อมูลคลังเก็บของ (Inventory) จาก Supabase ทันทีที่เข้าแอป
     musicController.syncInventory();
 
-    // 🚀 [เปิดระบบกลับมา] เริ่มซิงค์พิกัดหลังจากเข้าหน้า Home 3 วินาท เพื่อความเสถียรที่สุด
+    // เริ่มซิงค์พิกัดหลังจากเข้าหน้า Home 3 วินาท เพื่อความเสถียรที่สุด
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
         context.read<BackgroundController>().syncLocationAndWeather();

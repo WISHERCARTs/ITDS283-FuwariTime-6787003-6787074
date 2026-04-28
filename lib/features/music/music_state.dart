@@ -3,17 +3,17 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:fuwari_time/services/inventory_service.dart';
 
-// 🚀 1. ตัวแปรโชว์แถบ Music Bar
+// 1. ตัวแปรโชว์แถบ Music Bar
 final ValueNotifier<bool> isMusicBarVisible = ValueNotifier<bool>(true);
 
-// 🚀 2. คลังเพลงเริ่มต้น (Default ที่ทุกคนต้องมี)
+// 2. คลังเพลงเริ่มต้น (Default ที่ทุกคนต้องมี)
 final List<Map<String, String>> baseMusicList = [
   {"title": "Lemon Lofi", "artist": "LemonMusicLab", "img": "assets/image/LemonMusic.webp", "path": "audio_asset/lemon-music.mp3"},
   {"title": "Dreamy Nostalgia", "artist": "Aventure", "img": "assets/image/AventureMusic.webp", "path": "audio_asset/nostalgia-music.mp3"},
   {"title": "Chill", "artist": "Monda Music", "img": "assets/image/MondaMusic.webp", "path": "audio_asset/chill-music.mp3"},
 ];
 
-// 🚀 3. แคตตาล็อกเพลงใน Shop (ใช้แมตช์ข้อมูลเวลาซื้อสำเร็จ)
+// 3. แคตตาล็อกเพลงใน Shop (ใช้แมตช์ข้อมูลเวลาซื้อสำเร็จ)
 final List<Map<String, String>> shopMusicCatalog = [
   {"title": "rose water", "artist": "massobeats", "img": "assets/image/Massobeats.jpg", "path": "audio_asset/rosewater-music.mp3"},
   {"title": "Lofi-girl", "artist": "Watermello", "img": "assets/image/Watermello.webp", "path": "audio_asset/lofi-girl-music.mp3"},
@@ -27,10 +27,10 @@ final List<Map<String, String>> shopMusicCatalog = [
   {"title": "Lonely Samurai", "artist": "Walen", "img": "assets/image/LonelySamurai.webp", "path": "audio_asset/lonely-samurai-music.mp3"},
 ];
 
-// 🚀 4. รายชื่อเพลงปัจจุบัน (Base + Purchased)
+// 4. รายชื่อเพลงปัจจุบัน (Base + Purchased)
 final ValueNotifier<List<Map<String, String>>> globalMusicList = ValueNotifier<List<Map<String, String>>>(baseMusicList);
 
-// 🚀 5. ระบบควบคุมเพลงส่วนกลาง
+// 5. ระบบควบคุมเพลงส่วนกลาง
 class MusicController {
   static final MusicController _instance = MusicController._internal();
   factory MusicController() => _instance;
@@ -70,7 +70,7 @@ class MusicController {
     audioPlayer.setVolume(currentVolume);
   }
 
-  // 🚀 ฟังก์ชันปรับระดับเสียงที่ถูกเรียกใช้จากหน้า Setting
+  // ฟังก์ชันปรับระดับเสียงที่ถูกเรียกใช้จากหน้า Setting
   void setVolume(double volume) {
     currentVolume = volume;
     try {
@@ -170,7 +170,7 @@ class MusicController {
     isLooping.value = !isLooping.value;
   }
 
-  // 🚀 ฟังก์ชันสำหรับเอาเพลงใหม่เข้าคลังแบบฉับพลัน (Local Update)
+  // ฟังก์ชันสำหรับเอาเพลงใหม่เข้าคลังแบบฉับพลัน (Local Update)
   void buyNewSong(Map<String, String> newSong) {
     // ก๊อปปี้ List เดิมออกมาก่อน
     List<Map<String, String>> currentList = List.from(globalMusicList.value);

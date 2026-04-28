@@ -52,8 +52,8 @@ class ShopPaymentState extends State<ShopPayment> {
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(30),
-                  child: Image.network(
-                    "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/y0beqz0yoq/xwip3n0d_expires_30_days.png",
+                  child: Image.asset(
+                    "assets/image/prompt_pay_qr.jpg",
                     width: 280, 
                     height: 280,
                     fit: BoxFit.cover,

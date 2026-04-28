@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../services/supabase_service.dart';
 import 'sign_up_screen.dart';
 // 🚀 อย่าลืม Import หน้า Welcome เข้ามานะครับ
