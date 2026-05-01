@@ -25,8 +25,8 @@ class ProfileState extends State<Profile> {
   bool _isPasswordVisible = false; // 👁️ สถานะการมองเห็นรหัสผ่าน
 
   File? _profileImage;
-  final String _defaultImageUrl =
-      "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/y0beqz0yoq/anfl69ph_expires_30_days.png";
+  final String _defaultImageAsset =
+      "assets/image/anime.png";
 
   String? get _currentUserId => Supabase.instance.client.auth.currentUser?.id;
 
@@ -325,27 +325,37 @@ class ProfileState extends State<Profile> {
   }
 
   Widget _buildProfileImagePicker(String? dbAvatarUrl) {
+    // 💡 แยกการเช็ครูปแบบออกมาชัดเจน
+    Widget imageWidget;
+
+    if (_profileImage != null) {
+      // 1. ถ้าเพิ่งเลือกรูปใหม่จากในเครื่อง ให้โชว์รูปนั้น
+      imageWidget = Image.file(
+        _profileImage!,
+        width: 150,
+        height: 150,
+        fit: BoxFit.cover,
+      );
+    } else if (dbAvatarUrl != null && dbAvatarUrl.isNotEmpty) {
+      // 🚀 2. ถ้าไม่มีรูปในเครื่อง แต่มีลิงก์ในฐานข้อมูล ให้ดึงรูปจากเน็ตมาโชว์
+      imageWidget = Image.network(
+        dbAvatarUrl,
+        width: 150,
+        height: 150,
+        fit: BoxFit.cover,
+        // กรณีโหลดรูปไม่ขึ้น (เช่น ลิงก์เสีย) ให้โชว์ไอคอนสีเทาแทน
+        errorBuilder: (context, error, stackTrace) => _buildPlaceholder(),
+      );
+    } else {
+      // 3. ถ้าไม่มีทั้งรูปในเครื่องและในฐานข้อมูล โชว์ไอคอนตั้งต้น
+      imageWidget = _buildPlaceholder();
+    }
+
     return Stack(
       children: [
         ClipRRect(
           borderRadius: BorderRadius.circular(30),
-          child: _profileImage != null
-              ? Image.file(
-                  _profileImage!,
-                  width: 150,
-                  height: 150,
-                  fit: BoxFit.cover,
-                )
-              : Container(
-                  width: 150,
-                  height: 150,
-                  color: Colors.grey.shade200,
-                  child: Icon(
-                    Icons.account_circle,
-                    size: 100,
-                    color: Colors.grey.shade400,
-                  ),
-                ),
+          child: imageWidget, // 💡 นำ Widget ที่เช็คเงื่อนไขแล้วมาแสดง
         ),
         Positioned(
           bottom: 0,
@@ -374,6 +384,20 @@ class ProfileState extends State<Profile> {
           ),
         ),
       ],
+    );
+  }
+
+  // 💡 สร้างฟังก์ชันแยกสำหรับรูป Placeholder สีเทา จะได้เรียกใช้ง่ายๆ โค้ดไม่ซ้ำ
+  Widget _buildPlaceholder() {
+    return Container(
+      width: 150,
+      height: 150,
+      color: Colors.grey.shade200,
+      child: Icon(
+        Icons.account_circle,
+        size: 100,
+        color: Colors.grey.shade400,
+      ),
     );
   }
 
