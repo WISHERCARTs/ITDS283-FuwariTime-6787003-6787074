@@ -60,21 +60,21 @@ class _GlobalActionMenuState extends State<GlobalActionMenu> {
                     children: [
                       // ปุ่มพระอาทิตย์ (กลางวัน)
                       _buildIconBtn(
-                        "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/zG8hWyVkYp/au6pn518_expires_30_days.png",
+                        "assets/image/Sun.png", // 💡 แก้ชื่อไฟล์ตรงนี้ให้ตรงกับรูปที่มี
                         onTap: () => bgController.setTime(TimeState.day),
                         highlight: bgController.timeState == TimeState.day,
                       ),
                       const SizedBox(height: 12),
                       // ปุ่มพระจันทร์ (กลางคืน)
                       _buildIconBtn(
-                        "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/zG8hWyVkYp/qgtz05wd_expires_30_days.png",
+                        "assets/image/Moon.png", // 💡 แก้ชื่อไฟล์ตรงนี้ให้ตรงกับรูปที่มี
                         onTap: () => bgController.setTime(TimeState.night),
                         highlight: bgController.timeState == TimeState.night,
                       ),
                       const SizedBox(height: 12),
                       // ปุ่มฝนตก
                       _buildIconBtn(
-                        "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/zG8hWyVkYp/oabfeq7e_expires_30_days.png",
+                        "assets/image/Rain.png", // 💡 แก้ชื่อไฟล์ตรงนี้ให้ตรงกับรูปที่มี
                         onTap: () => bgController.toggleWeather(),
                         highlight: bgController.weatherState == WeatherState.rain,
                       ),
@@ -107,13 +107,13 @@ class _GlobalActionMenuState extends State<GlobalActionMenu> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       _buildIconBtn(
-                        "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/zG8hWyVkYp/n66fm0vh_expires_30_days.png",
+                        "assets/image/Clock.png", // 💡 แก้ชื่อไฟล์ตรงนี้ให้ตรงกับรูปที่มี
                         onTap: widget.onClockTap,
                         highlight: widget.isTimerActive,
                       ),
                       const SizedBox(width: 12),
                       _buildIconBtn(
-                        "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/zG8hWyVkYp/azwg4gd4_expires_30_days.png",
+                        "assets/image/Document.png", // 💡 แก้ชื่อไฟล์ตรงนี้ให้ตรงกับรูปที่มี
                         onTap: widget.onDocumentTap,
                         highlight: widget.isTodoActive,
                       ),
@@ -137,8 +137,8 @@ class _GlobalActionMenuState extends State<GlobalActionMenu> {
               child: SizedBox(
                 width: 70,
                 height: 70,
-                child: Image.network(
-                  "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/zG8hWyVkYp/p3g6a86q_expires_30_days.png",
+                child: Image.asset(
+                  "assets/image/gom.png",
                   fit: BoxFit.fill,
                 ),
               ),
@@ -149,11 +149,13 @@ class _GlobalActionMenuState extends State<GlobalActionMenu> {
     );
   }
 
-  Widget _buildIconBtn(String url, {VoidCallback? onTap, bool highlight = false}) {
+  // 🚀 เปลี่ยนจากการรับ String url เป็น assetPath
+  Widget _buildIconBtn(String assetPath, {VoidCallback? onTap, bool highlight = false}) {
     Widget icon = SizedBox(
       width: 28,
       height: 28,
-      child: Image.network(url, fit: BoxFit.contain),
+      // 🚀 เปลี่ยนไปใช้ Image.asset แทน Image.network
+      child: Image.asset(assetPath, fit: BoxFit.contain),
     );
 
     if (highlight) {
