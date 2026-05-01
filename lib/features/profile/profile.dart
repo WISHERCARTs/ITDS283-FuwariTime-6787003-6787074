@@ -25,7 +25,7 @@ class ProfileState extends State<Profile> {
   bool _isPasswordVisible = false; // 👁️ สถานะการมองเห็นรหัสผ่าน
 
   File? _profileImage;
-  final String _defaultImageAsset =
+  final String _defaultImagePath =
       "assets/image/anime.png";
 
   String? get _currentUserId => Supabase.instance.client.auth.currentUser?.id;
