@@ -110,7 +110,7 @@ flutter run
 
 You can download the latest version of the app for your platform here:
 
-- **Android Mobile**: [📱 Download Fuwari_Time.apk](https://github.com/WISHERCARTS/ITDS283-FuwariTime-6787003-6787074/releases/latest/download/app-arm64-v8a-release.apk)
+- **Android Mobile**: [📱 Download Fuwari_Time.apk](https://github.com/WISHERCARTS/ITDS283-FuwariTime-6787003-6787074/releases/latest/download/app-release.apk)
 - **Windows Desktop**: [💻 Download Fuwari_Time_Windows.zip](https://github.com/WISHERCARTS/ITDS283-FuwariTime-6787003-6787074/releases/latest/download/Fuwari_Time_Windows.zip)
 - **iOS**: (Requires Manual Build via Xcode)
 
